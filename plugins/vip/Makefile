@@ -93,6 +93,9 @@ vip_db.o : ./vip_db.cc ./vip_db.h
 	
 vip_factory.o : ./vip_factory.cc ./vip_factory.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./vip_factory.cc $(INCLUDE_PATHS)
+
+vip_user_mgr.o : ./vip_user_mgr.cc ./vip_user_mgr.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./vip_user_mgr.cc $(INCLUDE_PATHS)
 	
 data_engine.o : ./$(PUB_DIR)/storage/data_engine.cc ./$(PUB_DIR)/storage/data_engine.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(PUB_DIR)/storage/data_engine.cc $(INCLUDE_PATHS)
@@ -105,7 +108,7 @@ mysql_pool.o : ./$(PUB_DIR)/storage/mysql_pool.cc ./$(PUB_DIR)/storage/mysql_poo
 
 $(TEST) : 
 
-$(PLUGIN) : vip_init.o vip_logic.o vip_basic_info.o vip_db.o vip_factory.o\
+$(PLUGIN) : vip_init.o vip_logic.o vip_basic_info.o vip_db.o vip_factory.o vip_user_mgr.o\
 	data_engine.o data_mysql_engine.o mysql_pool.o\
 	$(CUSTOM_THIRD_PATH)/dmg_fp/lib/dmg_fp.a $(LIB_DIR)/mylib/base/lib/mybase.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LINK_PATHS) -lexpat -lrt -lpthread -ldl \

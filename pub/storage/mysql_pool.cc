@@ -11,8 +11,12 @@ AutoMYSQLEngine::~AutoMYSQLEngine() {
 
 }*/
 
+MYSQL_Pool::MYSQL_Pool()
+:db_pool_lock_(NULL) {}
+
 void MYSQL_Pool::Init(std::list<base::ConnAddr>& addrlist,
 				  const int32 db_conn_num/* = 5*/) {
+	addrlist_ = addrlist;
 
 	bool r =false;
 	InitThreadrw(&db_pool_lock_);

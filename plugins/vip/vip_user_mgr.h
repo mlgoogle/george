@@ -8,6 +8,7 @@
 #include "vip_basic_info.h"
 #include "storage/data_engine.h"
 #include "basic/basictypes.h"
+#include "thread/base_thread_lock.h"
 #include "vip_basic_info.h"
 #include <map>
 
@@ -24,14 +25,16 @@ class VIPUserManager {
  public:
 	VIPUserManager();
 	virtual ~VIPUserManager();
+ private:
+	void Init();
  public:
 	void Init(vip_logic::VIPDB* vip_db);
  public:
 	bool GetVIPUserInfo(const int64 vid,vip_logic::VIPUserInfo& vip);
  private:
-	struct threadrw_t*               lock_;
-	VIPUserCache                     vip_user_cache_;
-	vip_logic::VIPDB                 vip_db_;
+	struct threadrw_t*                 lock_;
+	VIPUserCache*                      vip_user_cache_;
+	vip_logic::VIPDB*                  vip_db_;
 };
 
 class VIPUserEngine {

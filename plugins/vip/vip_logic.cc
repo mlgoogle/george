@@ -9,7 +9,7 @@
 #include <iostream>
 #include "core/common.h"
 
-#define DEFAULT_CONFIG_PATH     "./plugins/vip/vip_config.xml"
+#define DEFAULT_CONFIG_PATH     "./plugins/vipsvc/vip_config.xml"
 
 namespace vip_logic {
 

@@ -36,10 +36,6 @@ void VIPUserInfo::ValueSerialization(base_logic::DictionaryValue* dict){
     if (dict->GetCharInteger(L"vip", &vip))
         data_->vip_ = vip;
 
-    int8 plt = 1;
-    if (dict->GetCharInteger(L"plt", &plt))
-        data_->vip_ = plt;
-
     dict->GetString(L"name", &data_->name_);
     dict->GetString(L"introduction", &data_->introduction_);
     dict->GetString(L"portrait", &data_->portrait_);
