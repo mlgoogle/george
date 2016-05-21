@@ -25,6 +25,7 @@ void VIPUserManager::Init() {
 
 void VIPUserManager::Init(vip_logic::VIPDB* vip_db) {
 	vip_db_ = vip_db;
+	vip_db_->FectchVIPUserInfo(vip_user_cache_->vip_user_info_);
 }
 
 bool VIPUserManager::GetVIPUserInfo(const int64 vid,

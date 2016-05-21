@@ -2,7 +2,6 @@
 //  Created on: 2016年5月18日 Author: kerry
 
 #include "vip_db.h"
-#include "vip_basic_info.h"
 #include <mysql.h>
 namespace vip_logic {
 
@@ -18,7 +17,7 @@ VIPDB::~VIPDB() {
 	}
 }
 
-bool VIPDB::FectchVIPUserInfo() {
+bool VIPDB::FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map) {
 	bool r = false;
 	std::string sql = "call proc_FectchVIPUser()";
     scoped_ptr<base_logic::DictionaryValue> dict(
@@ -38,6 +37,7 @@ bool VIPDB::FectchVIPUserInfo() {
                 (base_logic::DictionaryValue*)(result_value);
         user.ValueSerialization(dict_result_value);
         //list->push_back(task);
+        map[user.id()] = user;
         delete dict_result_value;
         dict_result_value = NULL;
     }

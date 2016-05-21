@@ -42,6 +42,7 @@ void VIPUserInfo::ValueSerialization(base_logic::DictionaryValue* dict){
 
 }
 
+
 ArticleInfo::ArticleInfo() {
 	data_ = new Data();
 }

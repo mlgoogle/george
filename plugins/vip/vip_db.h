@@ -7,6 +7,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include "vip_basic_info.h"
 #include "logic/base_values.h"
 #include "basic/basictypes.h"
 #include "logic/base_values.h"
@@ -20,7 +21,7 @@ class VIPDB {
 	VIPDB(config::FileConfig* config);
 	virtual ~VIPDB();
  public:
-	bool FectchVIPUserInfo();
+	bool FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map);
  public:
 	static void CallFectchVIPUserInfo(void* param,
             base_logic::Value* value);
