@@ -128,7 +128,7 @@ class ArticleInfo {
 	const std::string& stock() const {return data_->stock_;}
 
 	static bool cmp(const vip_logic::ArticleInfo& t_article,
-			const vip_logic::ArticleInfo& t_article);
+			const vip_logic::ArticleInfo& r_article);
 
 	void ValueSerialization(base_logic::DictionaryValue* dict);
 

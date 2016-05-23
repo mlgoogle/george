@@ -73,9 +73,10 @@ void ArticleInfo::ValueSerialization(base_logic::DictionaryValue* dict){
 	dict->GetBigInteger(L"user_id", &data_->own_id_);
 
     dict->GetString(L"title", &data_->title_);
-    dict->GetString(L"time", &data_->title_);
+    dict->GetBigInteger(L"ts", &data_->article_unix_time_);
     dict->GetString(L"url", &data_->url_);
     dict->GetString(L"stock", &data_->stock_);
+    dict->GetString(L"source", &data_->source_);
 }
 
 bool ArticleInfo::cmp(const vip_logic::ArticleInfo& t_article,

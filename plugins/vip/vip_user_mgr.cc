@@ -39,10 +39,9 @@ bool VIPUserManager::GetVIPUserInfo(const int64 vid,
 	return r;
 }
 
-bool VIPUserManager::GetVIPUserInfo(const int64* uid,
+bool VIPUserManager::GetVIPUserInfo(const int64* uid,const int32 n,
 			std::map<int64, vip_logic::VIPUserInfo> & map) {
 	base_logic::RLockGd lk(lock_);
-	int32 n = sizeof(uid) / sizeof(int64);
 	for (int32 i = 0; i < n; i++) {
 		vip_logic::VIPUserInfo vip_info;
 		bool r = base::MapGet<VIPUSERINFO_MAP,VIPUSERINFO_MAP::iterator,

@@ -45,7 +45,8 @@ bool VIPDB::FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map) {
 }
 
 bool VIPDB::FectchArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map,
-		std::list<vip_logic::ArticleInfo>& list) {
+		std::list<vip_logic::ArticleInfo>& list,
+		std::vector<vip_logic::ArticleInfo>& vec) {
 	bool r = false;
 	std::string sql = "call proc_FectchArticle()";
     scoped_ptr<base_logic::DictionaryValue> dict(
@@ -67,6 +68,7 @@ bool VIPDB::FectchArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map,
         //list->push_back(task);
         map[article.id()] = article;
         list.push_back(article);
+        vec.push_back(article);
         delete dict_result_value;
         dict_result_value = NULL;
     }
@@ -93,11 +95,13 @@ void VIPDB::CallFectchArticleInfo(void* param,
             if (rows[2] != NULL)
                 info_value->SetString(L"title", rows[2]);
             if (rows[3] != NULL)
-                info_value->SetString(L"time",rows[3]);
+                info_value->SetBigInteger(L"unix_time",atoll(rows[3]));
             if (rows[4] != NULL)
             	info_value->SetString(L"url",rows[4]);
             if (rows[5] != NULL)
                 info_value->SetString(L"stock",rows[5]);
+            if (rows[6] != NULL)
+                info_value->SetString(L"source",rows[6]);
 
             list->Append((base_logic::Value*)(info_value));
         }

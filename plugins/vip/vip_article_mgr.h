@@ -14,6 +14,7 @@
 
 typedef std::map<int64, vip_logic::ArticleInfo> ARTICLEINFO_MAP;
 typedef std::list<vip_logic::ArticleInfo> ARTICLEINFO_LIST;
+typedef std::vector<vip_logic::ArticleInfo>  ARTICLEINFO_VEC;
 
 namespace vip_logic {
 
@@ -21,6 +22,7 @@ class ArticleCache {
 public:
 	ARTICLEINFO_MAP    article_info_map_;
 	ARTICLEINFO_LIST   article_info_list_;
+	ARTICLEINFO_VEC    article_info_vec_;
 };
 
 class ArticleManager {
@@ -35,6 +37,8 @@ class ArticleManager {
 	bool GetArticleInfo(const int64 aid, vip_logic::ArticleInfo& article);
 	bool GetArticleInfo(const int64* aid,
 			std::map<int64,vip_logic::ArticleInfo>& map);
+
+	bool GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const int32 count = 10);
 
  private:
 	struct threadrw_t*         lock_;

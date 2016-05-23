@@ -24,7 +24,8 @@ class VIPDB {
 	bool FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map);
 
 	bool FectchArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map,
-			std::list<vip_logic::ArticleInfo>& list);
+			std::list<vip_logic::ArticleInfo>& list,
+			std::vector<vip_logic::ArticleInfo>& vec);
  public:
 	static void CallFectchVIPUserInfo(void* param,
             base_logic::Value* value);

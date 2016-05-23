@@ -3,7 +3,9 @@
 
 #include "vip_factory.h"
 #include "vip_proto_buf.h"
+#include "basic/template.h"
 #include "logic/logic_comm.h"
+#include <list>
 
 namespace vip_logic {
 
@@ -35,8 +37,9 @@ void VIPFactory::Dest() {
 
 void VIPFactory::Test() {
 
+	OnVIPNewsEvent(1);
 	//vip_db_->FectchVIPUserInfo();
-	int64 vid = 231008;
+	/*int64 vid = 231008;
 	vip_logic::VIPUserInfo vip;
 	vip_usr_mgr_->GetVIPUserInfo(vid,vip);
 	LOG_MSG2("id %lld name %s introduction %s portrait %s",vip.id(),vip.name().c_str(),
@@ -70,12 +73,55 @@ void VIPFactory::Test() {
 	std::string json;
 	base_logic::ValueSerializer* engine = base_logic::ValueSerializer::Create(base_logic::IMPL_JSON, &json);
 	engine->Serialize(*list->packet());
-	LOG_MSG2("%s",json.c_str());
+	LOG_MSG2("%s",json.c_str());*/
 }
 
 void VIPFactory::OnVIPNewsEvent(const int socket) {
+	//获取最新文章
+	std::map<int64, vip_logic::VIPUserInfo>  map;
+	std::list<vip_logic::ArticleInfo> list;
+	article_mgr_->GetNewArticle(list);
+	int count = list.size();
+	//int64* uid = new int64[count];
+	int32 index = 0;
+	std::list<vip_logic::ArticleInfo>::iterator it = list.begin();
+	/*for(; it != list.end(),index < count; it++,index++) {
+		uid[index] = (*it).own_id();
+	}*/
+
+	int64 uid[] = {231008,231009,231010,231011,231012,231013,231014,231015,231016,231017};
 
 
+	//获取大V信息
+	vip_usr_mgr_->GetVIPUserInfo(uid,count,map);
+
+	//组装最新消息
+	vip_logic::net_reply::VIPNewsList* vip_list = new vip_logic::net_reply::VIPNewsList();
+	index = 0;
+	for(it = list.begin();index < count,it != list.end();it++,index++) {
+		vip_logic::ArticleInfo article = (*it);
+		//int64 vid = article.own_id();
+		int64 vid = uid[index];
+		vip_logic::VIPUserInfo vip;
+		bool r = base::MapGet<VIPUSERINFO_MAP,VIPUSERINFO_MAP::iterator,
+					int64,vip_logic::VIPUserInfo>(map,
+							vid,vip);
+		if (!r)
+			continue;
+		vip_logic::net_reply::VIPNews* news = new  vip_logic::net_reply::VIPNews();
+		news->set_aid(article.id());
+		news->set_article_source(article.source());
+		news->set_article_time(article.article_unix_time());
+		news->set_title(article.title());
+		news->set_vid(vip.id());
+		news->set_name(vip.name());
+		vip_list->set_vip_news(news->get());
+	}
+
+	std::string json;
+	base_logic::ValueSerializer* engine = base_logic::ValueSerializer::Create(base_logic::IMPL_JSON, &json);
+	engine->Serialize(*vip_list->packet());
+	LOG_MSG2("%s",json.c_str());
 
 }
 
