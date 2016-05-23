@@ -31,6 +31,8 @@ class VIPUserManager {
 	void Init(vip_logic::VIPDB* vip_db);
  public:
 	bool GetVIPUserInfo(const int64 vid,vip_logic::VIPUserInfo& vip);
+	bool GetVIPUserInfo(const int64* uid,
+			std::map<int64, vip_logic::VIPUserInfo> & map);
  private:
 	struct threadrw_t*                 lock_;
 	VIPUserCache*                      vip_user_cache_;

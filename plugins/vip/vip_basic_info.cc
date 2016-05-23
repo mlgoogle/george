@@ -68,4 +68,20 @@ ArticleInfo& ArticleInfo::operator =(
 	return (*this);
 }
 
+void ArticleInfo::ValueSerialization(base_logic::DictionaryValue* dict){
+	dict->GetBigInteger(L"id", &data_->id_);
+	dict->GetBigInteger(L"user_id", &data_->own_id_);
+
+    dict->GetString(L"title", &data_->title_);
+    dict->GetString(L"time", &data_->title_);
+    dict->GetString(L"url", &data_->url_);
+    dict->GetString(L"stock", &data_->stock_);
+}
+
+bool ArticleInfo::cmp(const vip_logic::ArticleInfo& t_article,
+		const vip_logic::ArticleInfo& r_article) {
+	return t_article.article_unix_time() > r_article.article_unix_time();
+}
+
+
 }

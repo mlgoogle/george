@@ -26,7 +26,6 @@ bool DataMYSQLEngine::WriteData(const int32 type, base_logic::Value* value) {
       if (!r) {
           LOG_ERROR("exec sql error");
           return false;
-        LOG_MSG2("[%s]", sql.c_str());
      }
 
       db_pool_.DBConnectionPush(engine);
@@ -61,11 +60,11 @@ bool DataMYSQLEngine::ReadData(const int32 type, base_logic::Value* value,
           LOG_ERROR("GetConnection Error");
           return false;
       }
+     engine->Release();
      r = engine->SQLExec(sql.c_str());
       if (!r) {
           LOG_ERROR("exec sql error");
           return false;
-        LOG_MSG2("[%s]", sql.c_str());
      }
 
       if (storage_get == NULL)

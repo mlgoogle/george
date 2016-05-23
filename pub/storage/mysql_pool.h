@@ -16,7 +16,7 @@ class MYSQL_Pool {
 	MYSQL_Pool();
 	virtual ~MYSQL_Pool(){};
  public:
-	void Init(std::list<base::ConnAddr>& addrlist, const int32 db_conn_num = 5);
+	void Init(std::list<base::ConnAddr>& addrlist, const int32 db_conn_num = 1);
 	void Dest();
  public:
 	base_storage::DBStorageEngine* DBConnectionPop(void);

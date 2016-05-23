@@ -4,6 +4,7 @@
 #define GEORGE_VIP_FACTORY_H__
 
 #include "vip_user_mgr.h"
+#include "vip_article_mgr.h"
 #include "vip_db.h"
 #include "vip_basic_info.h"
 #include "basic/basictypes.h"
@@ -22,8 +23,11 @@ class VIPFactory {
 	void InitParam(config::FileConfig* config);
 
 	void Test();
+ public:
+	void OnVIPNewsEvent(const int socket);
  private:
 	VIPUserManager*    vip_usr_mgr_;
+	ArticleManager*    article_mgr_;
 	vip_logic::VIPDB*  vip_db_;
 };
 }
