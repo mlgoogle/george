@@ -75,6 +75,8 @@ void VIPFactory::Test() {
 
 void VIPFactory::OnVIPNewsEvent(const int socket) {
 
+
+
 }
 
 
