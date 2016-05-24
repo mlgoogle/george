@@ -13,7 +13,27 @@
 namespace vip_logic {
 
 namespace net_request {
-class VIPNews {
+class VIPNews : public george_logic::PacketHead{
+ public:
+	VIPNews() {
+		uid_ = pos_ = count_ = NULL;
+		token_ = NULL;
+	}
+
+	~VIPNews() {
+		if (uid_) {delete uid_; uid_ = NULL;}
+		if (token_) {delete token_; token_ = NULL;}
+		if (pos_) {delete pos_; pos_ = NULL;}
+		if (count_) {delete count_; count_ = NULL;}
+	}
+
+	virtual void set_http_packet(base_logic::DictionaryValue* value);
+
+ public:
+	base_logic::FundamentalValue*     uid_;
+	base_logic::StringValue*          token_;
+	base_logic::FundamentalValue*     pos_;
+	base_logic::FundamentalValue*     count_;
 };
 }
 
@@ -24,6 +44,7 @@ class VIPNews{
 		article_type_ =  NULL;
 		vid_ = aid_ =  article_time_ = NULL;
 		name_ = title_ = article_source_  =  NULL;
+		value_ = NULL;
 
 	}
 	void set_vid(const int64 vid) {vid_ = new base_logic::FundamentalValue(vid);}
@@ -94,6 +115,8 @@ class VIPNewsList: public george_logic::PacketHead{
 		body_value_->SetInteger(L"count",list_->GetSize());
 		return body_value_;
 	}
+
+	void set_http_packet(base_logic::DictionaryValue* value) {}
  private:
 	base_logic::ListValue*         list_;
 };

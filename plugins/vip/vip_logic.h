@@ -46,11 +46,14 @@ class VIPLogic {
 
     bool OnTimeout(struct server *srv, char* id, int opcode, int time);
 
-
+ private:
+    bool OnVIPNewsEvent();
  private:
     bool Init();
  private:
-    vip_logic::VIPFactory*      factory_;
+    vip_logic::VIPFactory*                      factory_;
+    george_logic::http_packet::PacketProcess*      packet_;
+
 };
 
 }  // namespace vip_logic
