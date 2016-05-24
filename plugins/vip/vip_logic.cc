@@ -3,6 +3,7 @@
 
 
 #include "vip_logic.h"
+#include "vip_packet_process.h"
 #include "basic/basictypes.h"
 #include  <string>
 #include <list>
@@ -26,9 +27,13 @@ VIPLogic::~VIPLogic() {
 		delete factory_;
 		factory_ = NULL;
 	}
+
+	if (packet_) {delete packet_; packet_ = NULL;}
 }
 
 bool VIPLogic::Init() {
+
+	packet_ = new george_logic::http_packet::PacketProcess();
 	factory_ = new vip_logic::VIPFactory();
     config::FileConfig* config = config::FileConfig::GetFileConfig();
     std::string path = DEFAULT_CONFIG_PATH;
@@ -70,7 +75,10 @@ bool VIPLogic::OnVIPConnect(struct server *srv, const int socket) {
 bool VIPLogic::OnVIPMessage(struct server *srv, const int socket,
         const void *msg, const int len) {
     bool r = false;
-    struct PacketHead* packet = NULL;
+
+    packet_->UnpackPacket(msg,len,1,
+    		vip_logic::http_packet::PacketProcess::PacketPocessGet);
+    //struct PacketHead* packet = NULL;
     /*if (srv == NULL || socket < 0 || msg == NULL
             || len < PACKET_HEAD_LENGTH)
         return false;

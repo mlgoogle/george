@@ -5,6 +5,7 @@
 #include "vip_proto_buf.h"
 #include "basic/template.h"
 #include "logic/logic_comm.h"
+#include "net/packet_process.h"
 #include <list>
 
 namespace vip_logic {
@@ -38,6 +39,7 @@ void VIPFactory::Dest() {
 void VIPFactory::Test() {
 
 	OnVIPNewsEvent(1);
+	//r = dict->GetString(L"response_type",&response_type);
 	//vip_db_->FectchVIPUserInfo();
 	/*int64 vid = 231008;
 	vip_logic::VIPUserInfo vip;
@@ -118,6 +120,15 @@ void VIPFactory::OnVIPNewsEvent(const int socket) {
 		vip_list->set_vip_news(news->get());
 	}
 
+	vip_list->set_is_zip_encrypt(0);
+	vip_list->set_packet_length(16);
+	vip_list->set_operator_code(1001);
+	vip_list->set_data_length(0);
+	vip_list->set_reserved(0);
+	vip_list->set_sessionid(0);
+	vip_list->set_signature(0);
+	vip_list->set_type(0);
+	vip_list->set_timestamp(0);
 	std::string json;
 	base_logic::ValueSerializer* engine = base_logic::ValueSerializer::Create(base_logic::IMPL_JSON, &json);
 	engine->Serialize(*vip_list->packet());

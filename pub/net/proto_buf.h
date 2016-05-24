@@ -10,14 +10,13 @@
 #include "logic/base_values.h"
 
 namespace george_logic {
-
 class PacketHead {
  public:
 	PacketHead() {
 		packet_length_ = is_zip_encrypt_ = type_ = signature_ = NULL;
 		operate_code_ = data_length_ = timestamp_ = session_id_ = NULL;
 		reserved_ = NULL;
-		head_value_ = body_value_ = NULL;
+		head_value_ = body_value_ = packet_value_ = NULL;
 	}
 	~PacketHead() {
 		if (packet_length_) {delete packet_length_; packet_length_ = NULL;}
@@ -31,6 +30,13 @@ class PacketHead {
 		if (reserved_) {delete reserved_; reserved_ = NULL;}
 		if (head_value_) {delete head_value_; head_value_ = NULL;}
 	}
+
+	//http结构不能多结构话，故需要特殊处理
+	void set_http_head(base_logic::DictionaryValue* value);
+
+	virtual void set_http_packet(base_logic::DictionaryValue* value) = 0;
+
+
 
 	void set_packet_length(const int16 packet_length) {packet_length_ =
     	new base_logic::FundamentalValue(packet_length);}
@@ -58,6 +64,18 @@ class PacketHead {
 
     void set_reserved(const int32 reserved) {reserved_ =
     	new base_logic::FundamentalValue(reserved);}
+
+    const int8 type() const {
+    	int8 type = 0;
+    	type_->GetAsCharInteger(&type);
+    	return type;
+    }
+
+    const int16 operate_code() const {
+    	int16 operate_code = 0;
+    	operate_code_->GetAsShortInteger(&operate_code);
+    	return operate_code;
+    }
 
  public:
 	base_logic::DictionaryValue* head() {
@@ -99,10 +117,12 @@ class PacketHead {
 	base_logic::DictionaryValue*   packet_value_;
 };
 
+
+/*
 class PacketProsess {
  public:
 	static bool UnPacketStream(const void* packet_stream,int32 len);
-};
+};*/
 }
 //  packet_length 长度为原始数据长度
 struct PacketHead{
