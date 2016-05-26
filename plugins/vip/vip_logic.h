@@ -5,6 +5,7 @@
 #define GEORGE_VIP_LOGIC_
 #include "vip_user_mgr.h"
 #include "vip_factory.h"
+#include "vip_packet_process.h"
 #include "core/common.h"
 #include "basic/basictypes.h"
 #include "basic/scoped_ptr.h"
@@ -51,7 +52,7 @@ class VIPLogic {
  private:
     bool Init();
  private:
-    vip_logic::VIPFactory*                      factory_;
+    vip_logic::VIPFactory*                         factory_;
     george_logic::http_packet::PacketProcess*      packet_;
 
 };

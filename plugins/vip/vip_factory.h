@@ -6,6 +6,7 @@
 #include "vip_user_mgr.h"
 #include "vip_article_mgr.h"
 #include "vip_db.h"
+#include "vip_proto_buf.h"
 #include "vip_basic_info.h"
 #include "basic/basictypes.h"
 #include "basic/scoped_ptr.h"
@@ -19,16 +20,22 @@ class VIPFactory {
  public:
 	void Init();
 	void Dest();
+ private:
+	static VIPFactory*  instance_;
+ public:
+	static VIPFactory* GetInstance();
+	static void FreeInstance();
 
 	void InitParam(config::FileConfig* config);
 
 	void Test();
  public:
-	void OnVIPNewsEvent(const int socket);
+	void OnVIPNewsEvent(const int socket,
+			base_logic::DictionaryValue* dict);
  private:
-	VIPUserManager*    vip_usr_mgr_;
-	ArticleManager*    article_mgr_;
-	vip_logic::VIPDB*  vip_db_;
+	VIPUserManager*                        vip_usr_mgr_;
+	ArticleManager*                        article_mgr_;
+	vip_logic::VIPDB*                      vip_db_;
 };
 }
 #endif

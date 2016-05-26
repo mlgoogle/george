@@ -11,6 +11,7 @@
 
 namespace george_logic {
 class PacketHead {
+
  public:
 	PacketHead() {
 		packet_length_ = is_zip_encrypt_ = type_ = signature_ = NULL;
@@ -34,7 +35,7 @@ class PacketHead {
 	//http结构不能多结构话，故需要特殊处理
 	void set_http_head(base_logic::DictionaryValue* value);
 
-	virtual void set_http_packet(base_logic::DictionaryValue* value) = 0;
+	virtual void set_http_packet(base_logic::DictionaryValue* value){}
 
 
 
@@ -92,7 +93,9 @@ class PacketHead {
 		return head_value_;
 	}
 
-	virtual base_logic::DictionaryValue* body() = 0;
+	virtual base_logic::DictionaryValue* body(){
+		return NULL;
+	}
 
 	base_logic::DictionaryValue* packet() {
 		packet_value_ = new base_logic::DictionaryValue();
