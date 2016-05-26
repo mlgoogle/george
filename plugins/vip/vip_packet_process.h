@@ -13,10 +13,10 @@ namespace http_packet {
 class PacketProcess {
  public:
 	PacketProcess();
-	virtual ~PacketProcess();
+	virtual ~PacketProcess(){};
  public:
-	static void PacketPocessGet(base_logic::DictionaryValue* dict,
-			george_logic::PacketHead* packet){};
+	static void PacketPocessGet(const int socket, base_logic::DictionaryValue* dict,
+			george_logic::PacketHead* packet);
 };
 
 }

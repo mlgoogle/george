@@ -21,10 +21,9 @@
 #include "config/config.h"
 #include "comm/core_interface.h"
 #include "log/mig_log.h"
-#include "net/operator_code.h"
 
 // log trace
-#include "logtrace/log_trace.h"
+//#include "logtrace/log_trace.h"
 
 // fcgi project module
 #define RESTFUL_CORE_SOCK_FILE "/var/www/tmp/jindowincorefile"
@@ -41,8 +40,8 @@ class FcgiModule{
   public:
     FcgiModule();
     ~FcgiModule();
-    bool Init(std::string core_sock_file, int api_type = 0, \
-        int log_type = log_trace::TRACE_API_LOG);
+    bool Init(std::string& core_sock_file, int api_type, \
+        int operate_code, int log_type = 1/*log_trace::TRACE_API_LOG*/);
 
     void Run();
     void Close();
@@ -65,8 +64,9 @@ class FcgiModule{
   protected:
     FCGX_Request request_;
     int api_type_;
-    log_trace::LogTrace api_logger_;
+    //log_trace::LogTrace api_logger_;
     int log_type_;
+    int operate_code_;
 };
 
 }; // namespace fcgi_module end  

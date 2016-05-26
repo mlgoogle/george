@@ -10,6 +10,22 @@
 
 namespace vip_logic {
 
+VIPFactory*
+VIPFactory::instance_ = NULL;
+
+VIPFactory*
+VIPFactory::GetInstance() {
+	if (instance_ == NULL)
+		instance_ =new VIPFactory();
+	return instance_;
+}
+
+void VIPFactory::FreeInstance() {
+	delete instance_;
+	instance_ = NULL;
+}
+
+
 VIPFactory::VIPFactory() {
 	Init();
 }
@@ -38,7 +54,7 @@ void VIPFactory::Dest() {
 
 void VIPFactory::Test() {
 
-	OnVIPNewsEvent(1);
+	//OnVIPNewsEvent(1);
 	//r = dict->GetString(L"response_type",&response_type);
 	//vip_db_->FectchVIPUserInfo();
 	/*int64 vid = 231008;
@@ -78,7 +94,8 @@ void VIPFactory::Test() {
 	LOG_MSG2("%s",json.c_str());*/
 }
 
-void VIPFactory::OnVIPNewsEvent(const int socket) {
+void VIPFactory::OnVIPNewsEvent(const int socket,
+		base_logic::DictionaryValue* dict) {
 	//获取最新文章
 	std::map<int64, vip_logic::VIPUserInfo>  map;
 	std::list<vip_logic::ArticleInfo> list;

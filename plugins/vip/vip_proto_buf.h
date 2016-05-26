@@ -29,6 +29,19 @@ class VIPNews : public george_logic::PacketHead{
 
 	virtual void set_http_packet(base_logic::DictionaryValue* value);
 
+
+	void set_uid(const int64 uid) { uid_ =
+		new base_logic::FundamentalValue(uid);}
+
+	void set_token(const std::string& token) { token_ =
+		new base_logic::StringValue(token);}
+
+	void set_pos(const int32 pos) { pos_ =
+		new base_logic::FundamentalValue(pos);}
+
+	void set_count(const int32 count) { count_ =
+		new base_logic::FundamentalValue(count);}
+
  public:
 	base_logic::FundamentalValue*     uid_;
 	base_logic::StringValue*          token_;
