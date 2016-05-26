@@ -20,6 +20,7 @@ class PacketProcess {
 	void UnpackPacket(const int socket, const void *msg, const int len, const int8 type,
 			void (*packet_process)(const int socket, base_logic::DictionaryValue*,
 					george_logic::PacketHead*));
+
  private:
 	base_logic::ValueSerializer*         serializer_;
 };
@@ -27,7 +28,15 @@ class PacketProcess {
 }
 
 namespace json_packet{
-
+class PacketProcess {
+ public:
+	PacketProcess();
+	virtual ~PacketProcess();
+ public:
+	void PackPacket (const int socket, base_logic::DictionaryValue* value);
+ private:
+	base_logic::ValueSerializer*         serializer_;
+};
 }
 }
 
