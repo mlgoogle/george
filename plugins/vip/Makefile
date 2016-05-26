@@ -100,11 +100,17 @@ vip_user_mgr.o : ./vip_user_mgr.cc ./vip_user_mgr.h
 vip_article_mgr.o : ./vip_article_mgr.cc ./vip_article_mgr.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./vip_article_mgr.cc $(INCLUDE_PATHS)
 
+vip_proto_buf.o : ./vip_proto_buf.cc ./vip_proto_buf.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./vip_proto_buf.cc $(INCLUDE_PATHS)
+
 vip_packet_process.o : ./vip_packet_process.cc ./vip_packet_process.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./vip_packet_process.cc $(INCLUDE_PATHS)
 	
 packet_process.o : ./$(PUB_DIR)/net/packet_process.cc ./$(PUB_DIR)/net/packet_process.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(PUB_DIR)/net/packet_process.cc $(INCLUDE_PATHS)
+	
+proto_buf.o : ./$(PUB_DIR)/net/proto_buf.cc ./$(PUB_DIR)/net/proto_buf.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(PUB_DIR)/net/proto_buf.cc $(INCLUDE_PATHS)
 	
 data_engine.o : ./$(PUB_DIR)/storage/data_engine.cc ./$(PUB_DIR)/storage/data_engine.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(PUB_DIR)/storage/data_engine.cc $(INCLUDE_PATHS)
@@ -119,6 +125,7 @@ $(TEST) :
 
 $(PLUGIN) : vip_init.o vip_logic.o vip_basic_info.o vip_db.o vip_factory.o\
 	vip_user_mgr.o vip_article_mgr.o vip_packet_process.o packet_process.o\
+	vip_proto_buf.o proto_buf.o\
 	data_engine.o data_mysql_engine.o mysql_pool.o\
 	$(CUSTOM_THIRD_PATH)/dmg_fp/lib/dmg_fp.a $(LIB_DIR)/mylib/base/lib/mybase.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LINK_PATHS) -lexpat -lrt -lpthread -ldl -lmysqlclient \

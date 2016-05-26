@@ -4,6 +4,7 @@
 
 #include "vip_logic.h"
 #include "vip_packet_process.h"
+#include "net/comm_head.h"
 #include "basic/basictypes.h"
 #include  <string>
 #include <list>
@@ -34,7 +35,7 @@ VIPLogic::~VIPLogic() {
 bool VIPLogic::Init() {
 
 	packet_ = new george_logic::http_packet::PacketProcess();
-	factory_ = new vip_logic::VIPFactory();
+	factory_ = vip_logic::VIPFactory::GetInstance();
     config::FileConfig* config = config::FileConfig::GetFileConfig();
     std::string path = DEFAULT_CONFIG_PATH;
     if (config == NULL)
@@ -76,27 +77,13 @@ bool VIPLogic::OnVIPMessage(struct server *srv, const int socket,
         const void *msg, const int len) {
     bool r = false;
 
-    packet_->UnpackPacket(msg,len,1,
+    if (srv == NULL || socket < 0 || msg == NULL
+                || len < 0)
+    	return false;
+
+    packet_->UnpackPacket(socket, msg,len,george_logic::VIP_TYPE,
     		vip_logic::http_packet::PacketProcess::PacketPocessGet);
-    //struct PacketHead* packet = NULL;
-    /*if (srv == NULL || socket < 0 || msg == NULL
-            || len < PACKET_HEAD_LENGTH)
-        return false;
 
-    if (!ptl::PacketProsess::UnpackStream(msg, len, &packet)) {
-        LOG_ERROR2("UnpackStream Error socket %d", socket);
-        ptl::PacketProsess::HexEncode(msg, len);
-        return false;
-    }
-
-    assert(packet);
-    LOG_MSG("dump packet packet");
-    ptl::PacketProsess::DumpPacket(packet);
-    switch (packet->operate_code) {
-        default:
-            break;
-    }
-    ptl::PacketProsess::DeletePacket(msg, len, packet);*/
     return true;
 }
 

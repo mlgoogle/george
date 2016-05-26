@@ -16,8 +16,8 @@ PacketProcess::~PacketProcess() {
 	if (serializer_){delete serializer_; serializer_ = 	NULL;}
 }
 
-void PacketProcess::UnpackPacket(const void *msg, const int len, const int8 type,
-		void (*packet_process)(base_logic::DictionaryValue*,
+void PacketProcess::UnpackPacket(const int socket, const void *msg, const int len, const int8 type,
+		void (*packet_process)(const int socket, base_logic::DictionaryValue*,
 				george_logic::PacketHead*)) {
 
     std::string error_str;
@@ -26,24 +26,13 @@ void PacketProcess::UnpackPacket(const void *msg, const int len, const int8 type
 	base_logic::Value* value = serializer_->Deserialize(&packet_stream,
 			&error_code, &error_str);
 
-	george_logic::PacketHead* packet = NULL;
+	george_logic::PacketHead* packet = new george_logic::PacketHead;
 
 	base_logic::DictionaryValue* dict = (base_logic::DictionaryValue*)value;
+	packet->set_http_head(dict);
 	//通过type判断数据什么packet
 	if (packet->type() == type)
-		packet_process(dict,packet);
-
-/*	packet->set_http_head(dict);
-	switch (packet->type()) {
-	  case 1:{
-
-		  break;
-	  }
-
-	  default:
-		break;
-	}*/
-	//*dict = (base_logic::DictionaryValue*)value;
+		packet_process(socket, dict, packet);
 }
 
 

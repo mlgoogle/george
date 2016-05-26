@@ -16,42 +16,66 @@ void PacketHead::set_http_head(base_logic::DictionaryValue* value) {
 	int64 sessionid = 0;
 	int32 resverved = 0;
 
-	r = value->GetShortInteger(L"packet_length",&packet_length);
-	if (r)
+	int64 temp = 0;
+	r = value->GetBigInteger(L"packet_length",&temp);
+	if (r) {
+		packet_length = temp;
 		set_packet_length(packet_length);
+	}
 
-	r = value->GetCharInteger(L"is_zip_encrypt", &is_zip_encrypt);
-	if (r)
+	temp = 0;
+	r = value->GetBigInteger(L"is_zip_encrypt", &temp);
+	if (r) {
+		is_zip_encrypt =  temp;
 		set_is_zip_encrypt(is_zip_encrypt);
+	}
 
-	r = value->GetCharInteger(L"type", &type);
-	if (r)
+	temp = 0;
+	r = value->GetBigInteger(L"type", &temp);
+	if (r) {
+		type = temp;
 		set_type(type);
+	}
 
-	r = value->GetShortInteger(L"signature", &signature);
-	if (r)
+	temp = 0;
+	r = value->GetBigInteger(L"signature", &temp);
+	if (r) {
+		signature = temp;
 		set_signature(signature);
+	}
 
-
-	r = value->GetShortInteger(L"operate_code", &operate_code);
-	if (r)
+	temp = 0;
+	r = value->GetBigInteger(L"operate_code", &temp);
+	if (r) {
+		operate_code = temp;
 		set_operator_code(operate_code);
+	}
 
-	r = value->GetShortInteger(L"data_length", &data_length);
-	if (r)
+	temp = 0;
+	r = value->GetBigInteger(L"data_length", &temp);
+	if (r) {
+		data_length = temp;
 		set_data_length(data_length);
+	}
 
-	r = value->GetInteger(L"timestamp", &timestamp);
-	if (r)
+	temp = 0;
+	r = value->GetBigInteger(L"timestamp", &temp);
+	if (r) {
+		timestamp = temp;
 		set_timestamp(timestamp);
+	}
+
 
 	r = value->GetBigInteger(L"sessionid", &sessionid);
 	if (r)
 		set_sessionid(sessionid);
 
-	r = value->GetInteger(L"reserved", &resverved);
-	if (r)
+	temp = 0;
+	r = value->GetBigInteger(L"reserved", &temp);
+	if (r) {
+		resverved = temp;
 		set_reserved(resverved);
+	}
 }
 
 }

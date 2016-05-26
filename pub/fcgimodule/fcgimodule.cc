@@ -9,13 +9,15 @@ namespace fcgi_module {
 FcgiModule::FcgiModule(){
  api_type_ = 0;
  log_type_ = 0;
+ operate_code_ = 0;
 }
 
 FcgiModule::~FcgiModule(){
   
 }
 
-bool FcgiModule::Init(std::string core_sock_file, int api_type, int log_type){
+bool FcgiModule::Init(std::string& core_sock_file, int api_type, int operate_code,
+		int log_type){
   net::core_connect_ipc(core_sock_file.c_str());
 #if defined (FCGI_PLUS)
   FCGX_Init();
@@ -23,7 +25,8 @@ bool FcgiModule::Init(std::string core_sock_file, int api_type, int log_type){
 #endif
   api_type_ = api_type;
   log_type_ = log_type;
-  api_logger_.Init(UNIX_LOGGER_SOCK_FILE_PATH);
+  operate_code_ = operate_code;
+  //api_logger_.Init(UNIX_LOGGER_SOCK_FILE_PATH);
 
   return true;
 }
@@ -114,7 +117,8 @@ bool FcgiModule::GetRequestMethod(const char* query){
   bool ret = false;
   char *addr = getenv("REMOTE_ADDR");
   os << std::string(query) << "&remote_addr=" << \
-    addr << "&type=" << api_type_ << "&log_type=" << log_type_ << "\n";
+    addr <<"&operate_code="<<operate_code_<<"&type="
+    << api_type_ << "&log_type=" << log_type_ << "\n";
   content = os.str();
   // log trace,暂时不用 
   //api_logger_.LogMsg(content.c_str(), content.length());
@@ -143,7 +147,9 @@ bool FcgiModule::PostRequestMethod(const std::string & content){
     return false;
 #endif
   char* addr = getenv("REMOTE_ADDR");
-  os << content << "&remote_addr=" << addr << "&type=" << api_type_<< "&log_type="<< log_type_ <<"\n";
+  os << content << "&remote_addr=" << addr << "&type="
+		  << api_type_<< "&operate_code="
+		  <<operate_code_<<"&log_type="<< log_type_ <<"\n";
   // logger 暂时不用
   //api_logger_.LogMsg(os.str().c_str(), os.str().length()); 
   
