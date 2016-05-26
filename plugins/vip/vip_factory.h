@@ -10,6 +10,7 @@
 #include "vip_basic_info.h"
 #include "basic/basictypes.h"
 #include "basic/scoped_ptr.h"
+#include "net/packet_process.h"
 
 namespace vip_logic {
 
@@ -33,9 +34,10 @@ class VIPFactory {
 	void OnVIPNewsEvent(const int socket,
 			base_logic::DictionaryValue* dict);
  private:
-	VIPUserManager*                        vip_usr_mgr_;
-	ArticleManager*                        article_mgr_;
-	vip_logic::VIPDB*                      vip_db_;
+	VIPUserManager*                                     vip_usr_mgr_;
+	ArticleManager*                                     article_mgr_;
+	vip_logic::VIPDB*                                   vip_db_;
+	george_logic::json_packet::PacketProcess*           packet_;
 };
 }
 #endif
