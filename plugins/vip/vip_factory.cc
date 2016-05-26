@@ -31,7 +31,7 @@ VIPFactory::VIPFactory() {
 }
 
 VIPFactory::~VIPFactory() {
-
+	if(packet_) {delete packet_; packet_ = NULL;}
 }
 
 void VIPFactory::Init() {
