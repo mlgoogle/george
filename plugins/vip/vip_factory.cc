@@ -129,6 +129,8 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 		if (!r)
 			continue;
 		vip_logic::net_reply::VIPNews* news = new  vip_logic::net_reply::VIPNews();
+		std::list<vip_logic::StockInfo> list;
+		article.stock_list(list);
 		news->set_aid(article.id());
 		news->set_article_source(article.source_name());
 		news->set_article_time(article.article_unix_time());
@@ -136,6 +138,7 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 		news->set_vid(vip.id());
 		news->set_name(vip.name());
 		news->set_article_url(article.url());
+		news->set_code_name(list);
 		vip_list->set_vip_news(news->get());
 	}
 
