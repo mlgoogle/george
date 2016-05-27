@@ -38,7 +38,10 @@ class ArticleManager {
 	bool GetArticleInfo(const int64* aid,
 			std::map<int64,vip_logic::ArticleInfo>& map);
 
-	bool GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const int32 count = 10);
+	bool GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const int32 count);
+
+	bool GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const int32 pos,
+			const int32 count);
 
  private:
 	struct threadrw_t*         lock_;

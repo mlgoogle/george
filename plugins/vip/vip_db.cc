@@ -91,6 +91,21 @@ void VIPDB::CallFectchArticleInfo(void* param,
             if (rows[0] != NULL)
                 info_value->SetBigInteger(L"id", atoll(rows[0]));
             if (rows[1] != NULL)
+            	info_value->SetString(L"title",rows[1]);
+            if (rows[2] != NULL)
+            	info_value->SetString(L"url",rows[2]);
+            if (rows[3] != NULL)
+            	info_value->SetBigInteger(L"unix_time", atoll(rows[3]));
+            if (rows[4] != NULL)
+            	info_value->SetBigInteger(L"user_id", atoll(rows[4]));
+            if (rows[5] != NULL)
+            	info_value->SetCharInteger(L"type", atoi(rows[5]));
+            if (rows[6] != NULL)
+            	info_value->SetInteger(L"source",atol(rows[6]));
+            if(rows[7] != NULL)
+            	info_value->SetString(L"stock",rows[7]);
+
+            /*if (rows[1] != NULL)
                 info_value->SetBigInteger(L"user_id", atoll(rows[1]));
             if (rows[2] != NULL)
                 info_value->SetString(L"title", rows[2]);
@@ -101,7 +116,7 @@ void VIPDB::CallFectchArticleInfo(void* param,
             if (rows[5] != NULL)
                 info_value->SetString(L"stock",rows[5]);
             if (rows[6] != NULL)
-                info_value->SetString(L"source",rows[6]);
+                info_value->SetString(L"source",rows[6]);*/
 
             list->Append((base_logic::Value*)(info_value));
         }
@@ -126,17 +141,15 @@ void VIPDB::CallFectchVIPUserInfo(void* param,
             if (rows[0] != NULL)
                 info_value->SetBigInteger(L"id", atoll(rows[0]));
             if (rows[1] != NULL)
-                info_value->SetBigInteger(L"followers_count", atoll(rows[1]));
+            	info_value->SetString(L"name",rows[1]);
             if (rows[2] != NULL)
                 info_value->SetCharInteger(L"official_vip", atoll(rows[2]));
             if (rows[3] != NULL)
-                info_value->SetString(L"name",rows[3]);
+            	info_value->SetString(L"introduction",rows[3]);
             if (rows[4] != NULL)
-            	info_value->SetString(L"introduction",rows[4]);
+                info_value->SetString(L"home_page",rows[4]);
             if (rows[5] != NULL)
-                info_value->SetString(L"home_page",rows[5]);
-            if (rows[6] != NULL)
-                info_value->SetString(L"portrait",rows[6]);
+                info_value->SetString(L"portrait",rows[5]);
             list->Append((base_logic::Value*)(info_value));
         }
     }

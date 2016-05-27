@@ -33,10 +33,11 @@ void VIPUserInfo::ValueSerialization(base_logic::DictionaryValue* dict){
 	dict->GetBigInteger(L"id", &data_->id_);
 	dict->GetBigInteger(L"followers_count", &data_->followers_count_);
     int8 vip = 1;
-    if (dict->GetCharInteger(L"vip", &vip))
+    if (dict->GetCharInteger(L"official_vip", &vip))
         data_->vip_ = vip;
 
     dict->GetString(L"name", &data_->name_);
+    dict->GetString(L"home_page", &data_->home_page_);
     dict->GetString(L"introduction", &data_->introduction_);
     dict->GetString(L"portrait", &data_->portrait_);
 
@@ -68,15 +69,42 @@ ArticleInfo& ArticleInfo::operator =(
 	return (*this);
 }
 
+void ArticleInfo::set_platname(const int32 plt_id) {
+
+	switch (plt_id) {
+	  case 1001: {
+		  data_->source_name_ = "雪球";
+		  break;
+	  }
+	  case 1002: {
+		  data_->source_name_ = "摩尔金融";
+		  break;
+	  }
+	  case 1003 : {
+		  data_->source_name_ = "中金博客";
+		  break;
+	  }
+	  case 1004 : {
+		  data_->source_name_ = "淘股吧";
+	  }
+	}
+}
+
 void ArticleInfo::ValueSerialization(base_logic::DictionaryValue* dict){
 	dict->GetBigInteger(L"id", &data_->id_);
 	dict->GetBigInteger(L"user_id", &data_->own_id_);
 
     dict->GetString(L"title", &data_->title_);
-    dict->GetBigInteger(L"ts", &data_->article_unix_time_);
+    dict->GetBigInteger(L"unix_time", &data_->article_unix_time_);
     dict->GetString(L"url", &data_->url_);
     dict->GetString(L"stock", &data_->stock_);
-    dict->GetString(L"source", &data_->source_);
+    dict->GetInteger(L"source", &data_->source_);
+    int8 type = 0;
+    dict->GetCharInteger(L"type", &type);
+    data_->type_ = type;
+    bool r = dict->GetInteger(L"source", &data_->source_);
+    if (r)
+    	set_platname(data_->source_);
 }
 
 bool ArticleInfo::cmp(const vip_logic::ArticleInfo& t_article,

@@ -67,9 +67,26 @@ bool ArticleManager::GetNewArticle(std::list<vip_logic::ArticleInfo>& list,
 	std::list<vip_logic::ArticleInfo>::iterator it =
 			article_cache_->article_info_list_.begin();
 	for (; it != article_cache_->article_info_list_.end(), i < count; it++,i++) {
-		list.push_front((*it));
+		list.push_back((*it));
 	}
 
+	return true;
+}
+
+bool ArticleManager::GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const int32 pos,
+			const int32 count) {
+	base_logic::RLockGd lk(lock_);
+	std::sort(article_cache_->article_info_vec_.begin(),
+				article_cache_->article_info_vec_.end(),vip_logic::ArticleInfo::cmp);
+
+	int32 index = 0;
+	while (index < pos)
+		index++;
+
+	while (index < count) {
+		list.push_back(article_cache_->article_info_vec_[index]);
+		index++;
+	}
 	return true;
 }
 
