@@ -1,9 +1,16 @@
 //  Copyright (c) 2015-2015 The news_logic.cc Authors. All rights reserved.
 
-#include <vector>
 
+#include "../news/news_logic.h"
+
+#include <vector>
 #include <sstream>
-#include "news/news_logic.h"
+
+#include "../news/db_mysql.h"
+#include "../news/db_redis.h"
+#include "../news/kafka_accessor.h"
+#include "../news/mem_manager.h"
+#include "../news/news_base.h"
 #include "core/common.h"
 #include "base/logic/logic_comm.h"
 #include "base/logic/base_values.h"
@@ -11,12 +18,6 @@
 
 #include "logic/logic_unit.h"
 #include "net/operator_code.h"
-#include "news/db_redis.h"
-#include "news/db_mysql.h"
-#include "news/news_base.h"
-#include "news/mem_manager.h"
-#include "news/db_hbase.h"
-#include "news/kafka_accessor.h"
 #include "tools/tools.h"
 
 namespace news_logic {
@@ -41,18 +42,10 @@ bool NewsLogic::Init() {
     }
     r = config->LoadConfig(path);
     news::DbRedis::Init(&config->redis_list_);
-    news::DbMysql::Init(&config->mysql_db_list_);
+    news::NewsMysql::Init(&config->mysql_db_list_);
     MemManager::GetInstance()->InitHyMap();
     MemManager::GetInstance()->InitGnMap();
     MemManager::GetInstance()->InitStockNameMap();
-    LOG_DEBUG2("[HbaseConfi]host:%s,port:%d, table:%s", \
-        config->hbase_db_list_.front().host().c_str(), \
-        config->hbase_db_list_.front().port(), \
-        config->hbase_db_list_.front().source().c_str());
-    DbHbase::InitHbase(config->hbase_db_list_.front().host().c_str(),
-                      config->hbase_db_list_.front().port(),
-                      config->hbase_db_list_.front().source(),
-                      0);
 
     // local kafka config
     LOG_DEBUG2("KafkaConfig]host:%s,port:%d,topic:%s", \
@@ -61,7 +54,7 @@ bool NewsLogic::Init() {
         config->kafka_conf_list_.front().source().c_str());
 
     if (0 <= news::KafkaAccessor::Init(0, \
-          config->kafka_conf_list_.front().host(), \
+        config->kafka_conf_list_.front().host(), \
         config->kafka_conf_list_.front().port(), \
         config->kafka_conf_list_.front().source().c_str())) {
       LOG_DEBUG("Kafka init successful...");
@@ -79,9 +72,8 @@ NewsLogic* NewsLogic::GetInstance() {
 void NewsLogic::FreeInstance() {
   delete instance_;
   instance_ = NULL;
-  DbHbase::ReleaseAll();
   news::KafkaAccessor::Release();
-  news::DbMysql::Dest();
+  news::NewsMysql::Dest();
 }
 
 bool NewsLogic::OnNewsConnect(struct server *srv,
@@ -215,7 +207,7 @@ bool NewsLogic::OnBroadcastClose(struct server *srv,
 
 bool NewsLogic::OnIniTimer(struct server *srv) {
   LOG_DEBUG2("OnIniTimer news:%s", "111");
-  srv->add_time_task(srv, "news", QUERY_STOCK_HY, 1, 1);
+
   srv->add_time_task(srv, "news", QUERY_STOCK_GN, 5, 2);
   srv->add_time_task(srv, "news", QUERY_STOCK_BK, 10, 2);
   return true;
@@ -614,7 +606,7 @@ bool NewsLogic::AppendNewsDetail(NetBase* news_kv) {
   std::string news_url;
   news_kv->GetString(L"url", &news_url);
   if (news_url.length() > 0) {
-    news::DbMysql::QueryNewsSummary(news_url, news_detail);
+    news::NewsMysql::QueryNewsSummary(news_url, news_detail);
   }
   news::DbRedis::TruncatedUTF8String(&news_detail, \
       2*NEWS_SUMMARY_LENGTH_MAX);
@@ -787,7 +779,7 @@ void NewsLogic::GetStockReference(std::string related_stock, \
   std::string stock_code;
   std::vector<std::string> vec_str;
   std::vector<std::string> vec_string = tools::Split(related_stock, ",");
-  vec_str = news::DbMysql::GetUserSubscribe(user_id, 1);
+  vec_str = news::NewsMysql::GetUserSubscribe(user_id, 1);
   for (std::vector<std::string>::iterator it = vec_string.begin(); \
       it != vec_string.end(); ++it) {
     stock_code = *it;
@@ -833,7 +825,7 @@ void NewsLogic::GetIndustryReference(std::string related_indus, \
     }
     kv->SetString(L"name", hy_name);
     // subscribe
-    vec_str = news::DbMysql::GetUserSubscribe(user_id, 2);
+    vec_str = news::NewsMysql::GetUserSubscribe(user_id, 2);
     std::vector<std::string>::iterator it = std::find(vec_str.begin(), \
         vec_str.end(), hy_name);
     if (it != vec_str.end()) {
@@ -867,7 +859,7 @@ void NewsLogic::GetSectReference(std::string related_sect, \
     }
     kv->SetString(L"name", sect);
     // subscribe
-    vec_str = news::DbMysql::GetUserSubscribe(user_id, 3);
+    vec_str = news::NewsMysql::GetUserSubscribe(user_id, 3);
     std::vector<std::string>::iterator it = std::find(vec_str.begin(), \
         vec_str.end(), sect);
     if (it != vec_str.end()) {

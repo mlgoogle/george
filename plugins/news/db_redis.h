@@ -7,11 +7,12 @@
 #include <list>
 #include <string>
 #include <vector>
+
+#include "../news/news_base.h"
+#include "../news/news_logic.h"
+#include "../news/news_packet.h"
 #include "public/basic/basic_info.h"
 #include "base/dic/base_dic_redis_auto.h"
-#include "news/news_base.h"
-#include "news/news_packet.h"
-#include "news/news_logic.h"
 
 #define MIN_COUNT                   5
 #define PAGE_NEWS_NUM               10

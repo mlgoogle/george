@@ -3,6 +3,7 @@
 
 #include "fcgimodule.h"
 #include "logic/logic_comm.h"
+#include "public/comm/core_interface.h"
 
 namespace fcgi_module {
 

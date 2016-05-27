@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "tools/tools.h"
-#include "tea/tea.h"
+#include "pub/arithmetic/tea/tea.h"
 #include "net/typedef.h"
 #include "base/logic/logic_comm.h"
 #include "db/db_comm.h"
