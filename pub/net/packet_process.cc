@@ -2,6 +2,7 @@
 //  Created on: 2016年5月23日 Author: kerry
 #include "packet_process.h"
 #include "proto_buf.h"
+#include "logic/logic_comm.h"
 #include "basic/scoped_ptr.h"
 
 namespace george_logic {
@@ -36,6 +37,25 @@ void PacketProcess::UnpackPacket(const int socket, const void *msg, const int le
 }
 
 
+}
+
+namespace json_packet{
+PacketProcess::PacketProcess() {
+	serializer_ = base_logic::ValueSerializer::Create(base_logic::IMPL_JSON);
+}
+
+PacketProcess::~PacketProcess(){
+	if(serializer_){delete serializer_; serializer_ = NULL;}
+}
+
+void PacketProcess::PackPacket (const int socket, base_logic::DictionaryValue* value) {
+	std::string json;
+	bool r = serializer_->Serialize(*value, &json);
+	if (!r)
+		return;
+	LOG_MSG2("%s",json.c_str());
+	base_logic::LogicComm::SendFull(socket, json.c_str(),json.length());
+}
 
 }
 
