@@ -7,6 +7,7 @@
 #include "basic/basictypes.h"
 #include "logic/base_values.h"
 #include "net/proto_buf.h"
+#include "vip_basic_info.h"
 #include <list>
 #include <string>
 
@@ -102,6 +103,16 @@ class VIPNews{
 	void set_article_url(const std::string& article_url) { article_url_ =
 			new base_logic::StringValue(article_url);
 	}
+
+	void set_code_name(std::list<StockInfo>& dict) {
+		article_type_ = new base_logic::ListValue;
+		while (dict.size() > 0) {
+			StockInfo value = dict.front();
+			dict.pop_front();
+			article_type_->Append(value.get());
+		}
+	}
+
 
 	~VIPNews() {
 		if(vid_) {delete vid_; vid_ = NULL;}

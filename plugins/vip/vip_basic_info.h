@@ -13,6 +13,55 @@
 
 namespace vip_logic {
 
+class StockInfo {
+ public:
+	StockInfo();
+	StockInfo(const StockInfo& stock_info);
+	StockInfo& operator = (const StockInfo& stock_info);
+
+	~StockInfo() {
+		if (data_ != NULL) {
+			data_->Release();
+		}
+	}
+
+	const void set_stock_name(const std::string& stock_name) {data_->stock_name_
+		= stock_name;}
+
+	const void set_stock_code(const std::string& stock_code) {data_->stock_code_
+		= stock_code;}
+
+	const std::string& stock_name() const {return data_->stock_name_;}
+	const std::string& stock_code() const {return data_->stock_code_;}
+
+	base_logic::DictionaryValue* get() {
+		base_logic::DictionaryValue* value = new base_logic::DictionaryValue();
+		value->SetString(L"code",data_->stock_code_);
+		value->SetString(L"name",data_->stock_name_);
+		return value;
+	}
+
+
+ private:
+	class Data {
+	public:
+		Data()
+		:refcount_(1) {}
+	public:
+		std::string  stock_code_;
+		std::string  stock_name_;
+		void AddRef() {__sync_fetch_and_add(&refcount_, 1);}
+		void Release() {__sync_fetch_and_sub(&refcount_, 1);
+        	if (!refcount_)delete this;
+		}
+	private:
+		int  refcount_;
+	};
+
+
+	Data*  data_;
+};
+
 
 class ArticleInfo {
  public:
@@ -105,6 +154,13 @@ class ArticleInfo {
 		data_->stock_ = stock;
 	}
 
+	void set_stock(const vip_logic::StockInfo& stock){
+		data_->stock_list_.push_back(stock);
+	}
+
+	void analyzer_stock(const std::string& str);
+
+
 	void set_platname(const int32 plt_id);
 
 	const int64 own_id() const {return data_->own_id_;}
@@ -129,6 +185,12 @@ class ArticleInfo {
 	const std::string& indus() const {return data_->indus_;}
 	const std::string& sect() const {return data_->sect_;}
 	const std::string& stock() const {return data_->stock_;}
+
+	void stock_list(std::list<vip_logic::StockInfo>& list) {
+		list = data_->stock_list_;
+	}
+
+
 
 	static bool cmp(const vip_logic::ArticleInfo& t_article,
 			const vip_logic::ArticleInfo& r_article);
@@ -175,9 +237,10 @@ class ArticleInfo {
 		std::string article_time_;
 		std::string url_;
 		std::string indus_;
-		std::string sect_;
-		std::string stock_;
-		std::string source_name_;
+		std::string          sect_;
+		std::string          stock_;
+		std::string          source_name_;
+		std::list<vip_logic::StockInfo> stock_list_;
 
 		void AddRef() {__sync_fetch_and_add(&refcount_, 1);}
 		void Release() {__sync_fetch_and_sub(&refcount_, 1);
@@ -262,6 +325,7 @@ class VIPUserInfo {
 
 	Data*             data_;
 };
+
 
 
 }

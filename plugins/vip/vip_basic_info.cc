@@ -105,11 +105,63 @@ void ArticleInfo::ValueSerialization(base_logic::DictionaryValue* dict){
     bool r = dict->GetInteger(L"source", &data_->source_);
     if (r)
     	set_platname(data_->source_);
+    std::string stock_info;
+    if (dict->GetString(L"stock",&stock_info)) {
+    	analyzer_stock(stock_info);
+    }
 }
+
+
 
 bool ArticleInfo::cmp(const vip_logic::ArticleInfo& t_article,
 		const vip_logic::ArticleInfo& r_article) {
 	return t_article.article_unix_time() > r_article.article_unix_time();
+}
+
+void ArticleInfo::analyzer_stock(const std::string& str) {
+	std::string stock_str = str;
+	while (stock_str.length()!=0){
+		size_t start_pos = stock_str.find("=");
+		size_t end_pos = stock_str.find("&")==std::string::npos?str.length():stock_str.find("&");
+		std::string code = stock_str.substr(0,start_pos);
+		std::string name = stock_str.substr(code.length()+1,end_pos - code.length()-1);
+		StockInfo stock;
+		stock.set_stock_code(code);
+		stock.set_stock_name(name);
+		data_->stock_list_.push_back(stock);
+		if (stock_str.find("&")!=-1)
+			stock_str = stock_str.substr(end_pos+1,stock_str.length());
+		else
+			stock_str.clear();
+	}
+}
+
+
+
+
+StockInfo::StockInfo() {
+	data_ = new Data();
+}
+
+StockInfo::StockInfo(const StockInfo& stock_info)
+:data_(stock_info.data_) {
+	if (data_ != NULL) {
+		data_->AddRef();
+	}
+}
+
+StockInfo& StockInfo::operator =(
+		const StockInfo& stock_info){
+	if (stock_info.data_ != NULL){
+		stock_info.data_->AddRef();
+	}
+
+	if (data_ != NULL){
+		data_->Release();
+	}
+
+	data_ = stock_info.data_;
+	return (*this);
 }
 
 
