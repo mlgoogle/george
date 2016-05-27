@@ -42,6 +42,30 @@ class VIPNews : public george_logic::PacketHead{
 	void set_count(const int32 count) { count_ =
 		new base_logic::FundamentalValue(count);}
 
+	const int64 uid() const {
+		int64 uid = 0;
+		uid_->GetAsBigInteger(&uid);
+		return uid;
+	}
+
+	const std::string token() const {
+		std::string token;
+		token_->GetAsString(&token);
+		return token;
+	}
+
+	const int32 pos() const {
+		int32 pos;
+		pos_->GetAsInteger(&pos);
+		return pos;
+	}
+
+	const int32 count() const {
+		int32 count;
+		count_->GetAsInteger(&count);
+		return count;
+	}
+
  public:
 	base_logic::FundamentalValue*     uid_;
 	base_logic::StringValue*          token_;
@@ -63,11 +87,21 @@ class VIPNews{
 	void set_vid(const int64 vid) {vid_ = new base_logic::FundamentalValue(vid);}
 	void set_aid(const int64 aid) {aid_ = new base_logic::FundamentalValue(aid);}
 	void set_name(const std::string& name) {name_ = new base_logic::StringValue(name);}
-	void set_title(const std::string& title) {title_ = new base_logic::StringValue(title);}
+	void set_title(const std::string& title) {
+		if(title.empty())
+			title_ = new base_logic::StringValue("短讯");
+		else
+			title_ = new base_logic::StringValue(title);
+	}
+
 	void set_article_source(const std::string& article_source) {article_source_
 		= new base_logic::StringValue(article_source);}
 	void set_article_time(const int64 article_time) {article_time_ =
 			new base_logic::FundamentalValue(article_time);}
+
+	void set_article_url(const std::string& article_url) { article_url_ =
+			new base_logic::StringValue(article_url);
+	}
 
 	~VIPNews() {
 		if(vid_) {delete vid_; vid_ = NULL;}
@@ -77,6 +111,7 @@ class VIPNews{
 		if(article_source_) {delete article_source_; article_source_ = NULL;}
 		if(article_type_) {delete article_type_; article_type_ = NULL;}
 		if(article_time_) {delete article_time_; article_time_ = NULL;}
+		if(article_url_) {delete article_url_; article_url_ = NULL;}
 	}
 
 	base_logic::DictionaryValue* get() {
@@ -95,14 +130,18 @@ class VIPNews{
 			value_->Set(L"article_type",article_type_);
 		if(article_time_ != NULL)
 			value_->Set(L"article_time",article_time_);
+		if(article_url_ != NULL)
+			value_->Set(L"url",article_url_);
 		return value_;
 	}
+
  private:
 	base_logic::FundamentalValue*       vid_;
 	base_logic::FundamentalValue*       aid_;
 	base_logic::StringValue*            name_;
 	base_logic::StringValue*            title_;
 	base_logic::StringValue*            article_source_;
+	base_logic::StringValue*            article_url_;
 	base_logic::ListValue*              article_type_;
 	base_logic::FundamentalValue*       article_time_;
 	base_logic::DictionaryValue*        value_;

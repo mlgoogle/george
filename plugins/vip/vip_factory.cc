@@ -97,19 +97,19 @@ void VIPFactory::Test() {
 
 void VIPFactory::OnVIPNewsEvent(const int socket,
 		base_logic::DictionaryValue* dict) {
+	vip_logic::net_request::VIPNews* vip_news = new vip_logic::net_request::VIPNews;
+	vip_news->set_http_packet(dict);
 	//获取最新文章
 	std::map<int64, vip_logic::VIPUserInfo>  map;
 	std::list<vip_logic::ArticleInfo> list;
-	article_mgr_->GetNewArticle(list);
+	article_mgr_->GetNewArticle(list,vip_news->pos(),vip_news->count());
 	int count = list.size();
-	//int64* uid = new int64[count];
+	int64* uid = new int64[count];
 	int32 index = 0;
 	std::list<vip_logic::ArticleInfo>::iterator it = list.begin();
-	/*for(; it != list.end(),index < count; it++,index++) {
+	for(; it != list.end(),index < count; it++,index++) {
 		uid[index] = (*it).own_id();
-	}*/
-
-	int64 uid[] = {231008,231009,231010,231011,231012,231013,231014,231015,231016,231017};
+	}
 
 
 	//获取大V信息
@@ -120,8 +120,8 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 	index = 0;
 	for(it = list.begin();index < count,it != list.end();it++,index++) {
 		vip_logic::ArticleInfo article = (*it);
-		//int64 vid = article.own_id();
-		int64 vid = uid[index];
+		int64 vid = article.own_id();
+		//int64 vid = uid[index];
 		vip_logic::VIPUserInfo vip;
 		bool r = base::MapGet<VIPUSERINFO_MAP,VIPUSERINFO_MAP::iterator,
 					int64,vip_logic::VIPUserInfo>(map,
@@ -130,11 +130,12 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 			continue;
 		vip_logic::net_reply::VIPNews* news = new  vip_logic::net_reply::VIPNews();
 		news->set_aid(article.id());
-		news->set_article_source(article.source());
+		news->set_article_source(article.source_name());
 		news->set_article_time(article.article_unix_time());
 		news->set_title(article.title());
 		news->set_vid(vip.id());
 		news->set_name(vip.name());
+		news->set_article_url(article.url());
 		vip_list->set_vip_news(news->get());
 	}
 
@@ -142,10 +143,8 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 	vip_list->set_timestamp(time(NULL));
 
 	packet_->PackPacket(socket, vip_list->packet());
-	/*std::string json;
-	base_logic::ValueSerializer* engine = base_logic::ValueSerializer::Create(base_logic::IMPL_JSON, &json);
-	engine->Serialize(*vip_list->packet());
-	LOG_MSG2("%s",json.c_str());*/
+	if (uid) {delete [] uid; uid = NULL;}
+	if (vip_news) { delete vip_news; vip_news = NULL;}
 
 }
 
