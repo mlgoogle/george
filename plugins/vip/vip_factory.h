@@ -35,6 +35,8 @@ class VIPFactory {
 			base_logic::DictionaryValue* dict);
 	void OnHotVIPUser(const int socket,
 			base_logic::DictionaryValue* dict);
+	void OnVIPArticle(const int socket,
+			base_logic::DictionaryValue* dict);
  private:
 	VIPUserManager*                                     vip_usr_mgr_;
 	ArticleManager*                                     article_mgr_;

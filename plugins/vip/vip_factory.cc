@@ -132,6 +132,60 @@ void VIPFactory::OnHotVIPUser(const int socket,
 }
 
 
+void VIPFactory::OnVIPArticle(const int socket,
+			base_logic::DictionaryValue* dict) {
+	vip_logic::net_request::VIPArticle* vip_article =
+			new vip_logic::net_request::VIPArticle;
+	vip_article->set_http_packet(dict);
+	vip_logic::VIPUserInfo vip;
+
+	//获取大V文章
+	std::list<vip_logic::ArticleInfo> list;
+	int32 count = list.size();
+	article_mgr_->GetVIPArticle(vip_article->vid(),
+			list,vip_article->pos(),vip_article->count(),
+			vip_article->flag());
+
+	//获取大V信息
+	vip_usr_mgr_->GetVIPUserInfo(vip_article->vid(),vip);
+
+	vip_logic::net_reply::VIPArticleList* vip_article_list =
+			new vip_logic::net_reply::VIPArticleList();
+
+	int32 index = 0;
+	std::list<vip_logic::ArticleInfo>::iterator it;
+	for(it = list.begin();index < count,it != list.end();it++,index++) {
+		vip_logic::ArticleInfo article = (*it);
+		vip_logic::net_reply::VIPNews* news = new  vip_logic::net_reply::VIPNews();
+		news->set_aid(article.id());
+		news->set_article_source(article.source_name());
+		news->set_article_time(article.article_unix_time());
+		news->set_title(article.title());
+		news->set_vid(vip.id());
+		news->set_name(vip.name());
+		news->set_article_url(article.url());
+		news->set_type(article.type());
+		if (article.type() == 1)
+			vip_article_list->set_vip_article(news->get());
+		else
+			vip_article_list->set_vip_live(news->get());
+	}
+
+	//
+	vip_logic::net_reply::VIPUser* user = new  vip_logic::net_reply::VIPUser();
+	user->set_home_page(vip.home_page());
+	user->set_introduction(vip.introduction());
+	user->set_name(vip.name());
+	user->set_protrait(vip.portrait());
+	user->set_subscribe_count(vip.subscribe_count());
+	user->set_vid(vip.id());
+	user->set_vip(vip.vip());
+	vip_article_list->set_vip_info(user->get());
+
+	packet_->PackPacket(socket, vip_article_list->packet());
+	if (vip_article) { delete vip_article; vip_article = NULL;}
+}
+
 void VIPFactory::OnVIPNewsEvent(const int socket,
 		base_logic::DictionaryValue* dict) {
 	vip_logic::net_request::VIPNews* vip_news = new vip_logic::net_request::VIPNews;

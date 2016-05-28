@@ -165,6 +165,7 @@ class ArticleInfo {
 
 	const int64 own_id() const {return data_->own_id_;}
 	const int64 id() const {return data_->id_;}
+	const int8 type() const {return data_->type_;}
 	const int64 forward_count() const {return data_->forward_count_;}
 	const int64 comment_count() const {return data_->comment_count_;}
 	const int64 recommend_count() const {return data_->recommend_count_;}
@@ -315,14 +316,14 @@ class VIPUserInfo {
 		,vip_(0){}
 
 	 public:
-		int64            id_;
-		int64            followers_count_;
-		int64            subscribe_count_;
-		int8             vip_;
-		std::string      name_;
-		std::string      home_page_;
-		std::string      introduction_;
-		std::string      portrait_;
+		int64                id_;
+		int64                followers_count_;
+		int64                subscribe_count_;
+		int8                 vip_;
+		std::string          name_;
+		std::string          home_page_;
+		std::string          introduction_;
+		std::string          portrait_;
 
 
 		void AddRef() {__sync_fetch_and_add(&refcount_, 1);}

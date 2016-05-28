@@ -26,6 +26,10 @@ void PacketProcess::PacketPocessGet(const int socket,base_logic::DictionaryValue
 		 factory->OnHotVIPUser(socket, dict);
 		 break;
 	 }
+	 case VIP_ARTICLE_REQ : {
+		 factory->OnVIPArticle(socket, dict);
+		 break;
+	 }
 	 default:
 		break;
 	}

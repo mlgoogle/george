@@ -53,13 +53,16 @@ VIPNAME = vip_
 VIPPROC_PATH = /vip
 VIP_OBJECT_PATH = ./obj$(VIPPROC_PATH)
 OTJERPROC_VERSION = /v1
-vipproc:$(VIPPROC_PATH)/vipnews.fcgi $(VIPPROC_PATH)/hotvip.fcgi
+vipproc:$(VIPPROC_PATH)/vipnews.fcgi $(VIPPROC_PATH)/hotvip.fcgi $(VIPPROC_PATH)/viparticle.fcgi
 
 $(VIPPROC_PATH)/vipnews.fcgi: $(VIP_OBJECT_PATH)/$(VIPNAME)vipnews.o $(POBJ)
 	$(LINKALL) -o $(OUTPUT_FILE)$(VIPPROC_PATH)$(OTJERPROC_VERSION)/vipnews.fcgi
 
 $(VIPPROC_PATH)/hotvip.fcgi: $(VIP_OBJECT_PATH)/$(VIPNAME)hotvip.o $(POBJ)
 	$(LINKALL) -o $(OUTPUT_FILE)$(VIPPROC_PATH)$(OTJERPROC_VERSION)/hotvip.fcgi
+
+$(VIPPROC_PATH)/viparticle.fcgi: $(VIP_OBJECT_PATH)/$(VIPNAME)viparticle.o $(POBJ)
+	$(LINKALL) -o $(OUTPUT_FILE)$(VIPPROC_PATH)$(OTJERPROC_VERSION)/viparticle.fcgi
 	
 ### 编译
 
@@ -68,6 +71,9 @@ $(VIP_OBJECT_PATH)/$(VIPNAME)vipnews.o:
 
 $(VIP_OBJECT_PATH)/$(VIPNAME)hotvip.o:
 	$(COMPILE) .$(VIPPROC_PATH)$(OTJERPROC_VERSION)/hotvip/hotvip.cc
+	
+$(VIP_OBJECT_PATH)/$(VIPNAME)viparticle.o:
+	$(COMPILE) .$(VIPPROC_PATH)$(OTJERPROC_VERSION)/viparticle/viparticle.cc
 
 
 
