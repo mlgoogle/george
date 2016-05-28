@@ -265,10 +265,17 @@ class VIPUserInfo {
 		}
 	}
 
+	static bool cmp(const vip_logic::VIPUserInfo& t_vip,
+				const vip_logic::VIPUserInfo& r_vip);
+
 	void set_id(const int64 id) {data_->id_ = id;}
 
 	void set_followers_count(const int64 followers_count) {
 		data_->followers_count_ = followers_count;
+	}
+
+	void set_subscribe_count(const int64 subscribe_count) {
+		data_->subscribe_count_ = subscribe_count;
 	}
 
 	void set_is_vip(const int8 vip) {data_->vip_ = vip;}
@@ -288,6 +295,7 @@ class VIPUserInfo {
     
     const int64 id() const {return data_->id_;}
     const int64 followers_count() const {return data_->followers_count_;}
+    const int64 subscribe_count() const {return data_->subscribe_count_;}
     const int8 vip() const {return data_->vip_;}
     const std::string& name() const {return data_->name_;}
     const std::string& introduction() const {return  data_->introduction_;}
@@ -303,11 +311,13 @@ class VIPUserInfo {
 		:refcount_(1)
 		,id_(0)
 		,followers_count_(0)
+		,subscribe_count_(0)
 		,vip_(0){}
 
 	 public:
 		int64            id_;
 		int64            followers_count_;
+		int64            subscribe_count_;
 		int8             vip_;
 		std::string      name_;
 		std::string      home_page_;

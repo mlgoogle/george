@@ -13,12 +13,15 @@
 #include <map>
 
 typedef std::map<int64,vip_logic::VIPUserInfo> VIPUSERINFO_MAP; //vid - vipuserinfo
+typedef std::vector<vip_logic::VIPUserInfo>    VIPUSERINFO_VEC; //vid - vipuserinfo
 
 namespace vip_logic {
 
 class VIPUserCache {
 public:
 	VIPUSERINFO_MAP  vip_user_info_;
+	VIPUSERINFO_VEC  vip_user_vec_;
+
 };
 
 class VIPUserManager {
@@ -33,6 +36,9 @@ class VIPUserManager {
 	bool GetVIPUserInfo(const int64 vid,vip_logic::VIPUserInfo& vip);
 	bool GetVIPUserInfo(const int64* uid,const int32 n,
 			std::map<int64, vip_logic::VIPUserInfo> & map);
+
+	bool GetHotVIPUser(std::list<vip_logic::VIPUserInfo>& list,const int32 pos,
+				const int32 count);
  private:
 	struct threadrw_t*                 lock_;
 	VIPUserCache*                      vip_user_cache_;

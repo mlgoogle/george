@@ -3,9 +3,9 @@
 
 #include "vip_factory.h"
 #include "vip_proto_buf.h"
+#include "operator_code.h"
 #include "basic/template.h"
 #include "logic/logic_comm.h"
-#include "net/packet_process.h"
 #include <list>
 
 namespace vip_logic {
@@ -95,6 +95,43 @@ void VIPFactory::Test() {
 	LOG_MSG2("%s",json.c_str());*/
 }
 
+void VIPFactory::OnHotVIPUser(const int socket,
+		base_logic::DictionaryValue* dict) {
+	vip_logic::net_request::HotVIP* hot_vip = new vip_logic::net_request::HotVIP;
+	hot_vip->set_http_packet(dict);
+	std::list<vip_logic::VIPUserInfo> list;
+	vip_usr_mgr_->GetHotVIPUser(list, hot_vip->pos(),
+			hot_vip->count());
+
+	int count = list.size();
+	vip_logic::net_reply::VIPUserList* vip_list = new vip_logic::net_reply::VIPUserList();
+
+	int32 index = 0;
+	std::list<vip_logic::VIPUserInfo>::iterator it = list.begin();
+	for(it = list.begin();index < count,it != list.end();it++,index++) {
+		vip_logic::VIPUserInfo vip_user = (*it);
+		vip_logic::net_reply::VIPUser* user = new  vip_logic::net_reply::VIPUser();
+		user->set_home_page(vip_user.home_page());
+		user->set_introduction(vip_user.introduction());
+		user->set_name(vip_user.name());
+		user->set_protrait(vip_user.portrait());
+		user->set_subscribe_count(vip_user.subscribe_count());
+		user->set_vid(vip_user.id());
+		user->set_vip(vip_user.vip());
+		vip_list->set_vip_news(user->get());
+	}
+
+	vip_list->set_type(1);
+	vip_list->set_timestamp(time(NULL));
+	//vip_list->set_operator_code(vip_logic::HOT_USER_RLY);
+
+	packet_->PackPacket(socket, vip_list->packet());
+
+	if (hot_vip) { delete hot_vip; hot_vip = NULL;}
+	//if (vip_list) { delete vip_list; vip_list = NULL;}
+}
+
+
 void VIPFactory::OnVIPNewsEvent(const int socket,
 		base_logic::DictionaryValue* dict) {
 	vip_logic::net_request::VIPNews* vip_news = new vip_logic::net_request::VIPNews;
@@ -110,7 +147,6 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 	for(; it != list.end(),index < count; it++,index++) {
 		uid[index] = (*it).own_id();
 	}
-
 
 	//获取大V信息
 	vip_usr_mgr_->GetVIPUserInfo(uid,count,map);
@@ -129,8 +165,8 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 		if (!r)
 			continue;
 		vip_logic::net_reply::VIPNews* news = new  vip_logic::net_reply::VIPNews();
-		std::list<vip_logic::StockInfo> list;
-		article.stock_list(list);
+		std::list<vip_logic::StockInfo> stock_list;
+		article.stock_list(stock_list);
 		news->set_aid(article.id());
 		news->set_article_source(article.source_name());
 		news->set_article_time(article.article_unix_time());
@@ -138,18 +174,20 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 		news->set_vid(vip.id());
 		news->set_name(vip.name());
 		news->set_article_url(article.url());
-		news->set_code_name(list);
+		news->set_code_name(stock_list);
 		vip_list->set_vip_news(news->get());
 	}
 
 	vip_list->set_type(1);
 	vip_list->set_timestamp(time(NULL));
+	//vip_list->set_operator_code(vip_logic::VIP_NEWS_RLY);
 
 	packet_->PackPacket(socket, vip_list->packet());
 	if (uid) {delete [] uid; uid = NULL;}
 	if (vip_news) { delete vip_news; vip_news = NULL;}
 
 }
+
 
 
 }

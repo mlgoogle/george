@@ -17,7 +17,8 @@ VIPDB::~VIPDB() {
 	}
 }
 
-bool VIPDB::FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map) {
+bool VIPDB::FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map,
+		std::vector<vip_logic::VIPUserInfo>& vec) {
 	bool r = false;
 	std::string sql = "call proc_FectchVIPUser()";
     scoped_ptr<base_logic::DictionaryValue> dict(
@@ -38,6 +39,7 @@ bool VIPDB::FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map) {
         user.ValueSerialization(dict_result_value);
         //list->push_back(task);
         map[user.id()] = user;
+        vec.push_back(user);
         delete dict_result_value;
         dict_result_value = NULL;
     }
@@ -145,11 +147,14 @@ void VIPDB::CallFectchVIPUserInfo(void* param,
             if (rows[2] != NULL)
                 info_value->SetCharInteger(L"official_vip", atoll(rows[2]));
             if (rows[3] != NULL)
-            	info_value->SetString(L"introduction",rows[3]);
+            	info_value->SetBigInteger(L"subscribed", atoll(rows[3]));
             if (rows[4] != NULL)
-                info_value->SetString(L"home_page",rows[4]);
+            	info_value->SetString(L"introduction",rows[4]);
             if (rows[5] != NULL)
-                info_value->SetString(L"portrait",rows[5]);
+                info_value->SetString(L"home_page",rows[5]);
+            if (rows[6] != NULL)
+                info_value->SetString(L"portrait",rows[6]);
+
             list->Append((base_logic::Value*)(info_value));
         }
     }

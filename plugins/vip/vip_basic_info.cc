@@ -32,6 +32,7 @@ VIPUserInfo& VIPUserInfo::operator =(
 void VIPUserInfo::ValueSerialization(base_logic::DictionaryValue* dict){
 	dict->GetBigInteger(L"id", &data_->id_);
 	dict->GetBigInteger(L"followers_count", &data_->followers_count_);
+	dict->GetBigInteger(L"subscribed", &data_->subscribe_count_);
     int8 vip = 1;
     if (dict->GetCharInteger(L"official_vip", &vip))
         data_->vip_ = vip;
@@ -41,6 +42,11 @@ void VIPUserInfo::ValueSerialization(base_logic::DictionaryValue* dict){
     dict->GetString(L"introduction", &data_->introduction_);
     dict->GetString(L"portrait", &data_->portrait_);
 
+}
+
+bool VIPUserInfo::cmp(const vip_logic::VIPUserInfo& t_vip,
+				const vip_logic::VIPUserInfo& r_vip) {
+	return t_vip.subscribe_count() > r_vip.subscribe_count();
 }
 
 
