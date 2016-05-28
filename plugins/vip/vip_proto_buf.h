@@ -73,6 +73,11 @@ class VIPNews : public george_logic::PacketHead{
 	base_logic::FundamentalValue*     pos_;
 	base_logic::FundamentalValue*     count_;
 };
+
+
+typedef VIPNews HotVIP;
+
+
 }
 
 namespace net_reply {
@@ -183,6 +188,86 @@ class VIPNewsList: public george_logic::PacketHead{
  private:
 	base_logic::ListValue*         list_;
 };
+
+
+class VIPUser {
+ public:
+	VIPUser() {
+		vid_ = subscribe_count_ = vip_ = NULL;
+		name_ = home_page_ = introduction_ = protrait_ =NULL;
+		value_ = NULL;
+	}
+
+	~VIPUser() {
+		if (vid_) {delete vid_; vid_ = NULL;}
+		if (subscribe_count_) {delete subscribe_count_; subscribe_count_ = NULL;}
+		if (vip_) {delete vip_; vip_ = NULL;}
+		if (name_) {delete name_; name_ = NULL;}
+		if (home_page_) {delete home_page_; home_page_ = NULL;}
+		if (introduction_) {delete introduction_; introduction_ = NULL;}
+		if (protrait_) {delete protrait_; protrait_ = NULL;}
+	}
+
+	base_logic::DictionaryValue* get() {
+		value_ = new base_logic::DictionaryValue();
+		if(vid_ != NULL)
+			value_->Set(L"vid",vid_);
+		if(subscribe_count_ != NULL)
+			value_->Set(L"subscribe_count",subscribe_count_);
+		if(vip_ != NULL)
+			value_->Set(L"vip",vip_);
+		if(name_ != NULL)
+			value_->Set(L"name",name_);
+		if(home_page_ != NULL)
+			value_->Set(L"home_page",home_page_);
+		if(introduction_ != NULL)
+			value_->Set(L"introduction",introduction_);
+		if(protrait_ != NULL)
+			value_->Set(L"protrait",protrait_);
+		return value_;
+	}
+
+
+    void set_vid(const int64 vid) {
+    	vid_ = new base_logic::FundamentalValue(vid);
+    }
+
+    void set_subscribe_count(const int64 subscribe_count) {
+    	subscribe_count_ = new base_logic::FundamentalValue(subscribe_count);
+    }
+
+    void set_vip(const int8 vip) {
+    	vip_ = new base_logic::FundamentalValue(vip);
+    }
+
+    void set_name(const std::string& name) {
+    	name_ = new base_logic::StringValue(name);
+    }
+
+    void set_home_page(const std::string& home_page) {
+    	home_page_ = new base_logic::StringValue(home_page);
+    }
+
+    void set_introduction(const std::string& introduction) {
+    	introduction_ = new base_logic::StringValue(introduction);
+    }
+
+    void set_protrait(const std::string& protrait) {
+    	protrait_ = new base_logic::StringValue(protrait);
+    }
+
+ private:
+	base_logic::FundamentalValue*      vid_;
+	base_logic::FundamentalValue*      subscribe_count_;
+	base_logic::FundamentalValue*      vip_;
+	base_logic::StringValue*           name_;
+	base_logic::StringValue*           home_page_;
+	base_logic::StringValue*           introduction_;
+	base_logic::StringValue*           protrait_;
+	base_logic::DictionaryValue*       value_;
+};
+
+typedef VIPNewsList VIPUserList;
 
 }
 }

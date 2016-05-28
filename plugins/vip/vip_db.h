@@ -21,7 +21,8 @@ class VIPDB {
 	VIPDB(config::FileConfig* config);
 	virtual ~VIPDB();
  public:
-	bool FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map);
+	bool FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map,
+			std::vector<vip_logic::VIPUserInfo>& vec);
 
 	bool FectchArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map,
 			std::list<vip_logic::ArticleInfo>& list,
