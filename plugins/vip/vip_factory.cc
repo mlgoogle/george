@@ -37,6 +37,7 @@ VIPFactory::~VIPFactory() {
 void VIPFactory::Init() {
 	vip_usr_mgr_ = vip_logic::VIPUserEngine::GetVIPUserManager();
 	article_mgr_ = vip_logic::ArticleEngine::GetArticleManager();
+	subcribe_mgr_ = vip_logic::SubcribeEngine::GetSubcribeManager();
 	packet_ = new george_logic::json_packet::PacketProcess();
 
 }
@@ -45,6 +46,8 @@ void VIPFactory::InitParam(config::FileConfig* config) {
 	vip_db_ = new vip_logic::VIPDB(config);
 	vip_usr_mgr_->Init(vip_db_);
 	article_mgr_->Init(vip_db_);
+	subcribe_mgr_->Init(vip_db_);
+
 }
 void VIPFactory::Dest() {
 	vip_logic::VIPUserEngine::FreeVIPUserEngine();
@@ -239,6 +242,48 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 	packet_->PackPacket(socket, vip_list->packet());
 	if (uid) {delete [] uid; uid = NULL;}
 	if (vip_news) { delete vip_news; vip_news = NULL;}
+
+}
+
+void VIPFactory::OnUserSubcribe(const int socket,
+	    	base_logic::DictionaryValue* dict) {
+	vip_logic::net_request::SubcribeVIP* subcribe_vip =
+			new vip_logic::net_request::SubcribeVIP;
+
+	subcribe_vip->set_http_packet(dict);
+	int64* vid = NULL;
+
+	int32 now_count = subcribe_mgr_->GetSubcribeInfo(subcribe_vip->uid(),
+			subcribe_vip->pos(),subcribe_vip->count(),
+			&vid);
+
+	std::map<int64, vip_logic::VIPUserInfo>  map;
+	//获取大V信息
+	vip_usr_mgr_->GetVIPUserInfo(vid,now_count,map);
+	//
+
+	vip_logic::net_reply::VIPUserList* vip_list = new vip_logic::net_reply::VIPUserList();
+
+	int32 index = 0;
+	std::map<int64, vip_logic::VIPUserInfo>::iterator it = map.begin();
+	for(it = map.begin();index < now_count,it != map.end();it++,index++) {
+		vip_logic::VIPUserInfo vip_user = it->second;
+		vip_logic::net_reply::VIPUser* user = new  vip_logic::net_reply::VIPUser();
+		user->set_home_page(vip_user.home_page());
+		user->set_introduction(vip_user.introduction());
+		user->set_name(vip_user.name());
+		user->set_protrait(vip_user.portrait());
+		user->set_subscribe_count(vip_user.subscribe_count());
+		user->set_vid(vip_user.id());
+		user->set_vip(vip_user.vip());
+		vip_list->set_vip_news(user->get());
+	}
+	vip_list->set_type(1);
+	vip_list->set_timestamp(time(NULL));
+	packet_->PackPacket(socket, vip_list->packet());
+	if (vid) {delete [] vid; vid = NULL;}
+	if (subcribe_vip) { delete subcribe_vip; subcribe_vip = NULL;}
+
 
 }
 

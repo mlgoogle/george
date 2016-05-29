@@ -13,6 +13,61 @@
 
 namespace vip_logic {
 
+class SubcribeInfo {
+ public:
+	SubcribeInfo();
+	SubcribeInfo(const SubcribeInfo& subcribe_info);
+	SubcribeInfo& operator = (const SubcribeInfo& subcribe_info);
+
+	~SubcribeInfo() {
+		if (data_ != NULL) {
+			data_->Release();
+		}
+	}
+
+
+	void set_uid(const std::string& uid) {data_->uid_ = uid;}
+	void set_subcribe_id(const int64 vid) {
+		data_->subcribe_vec_.push_back(vid);
+	}
+
+	void ValueSerialization(base_logic::DictionaryValue* dict);
+	const int32 subcribe_size() {
+		return data_->subcribe_vec_.size();
+	}
+
+	int32 get_vid(int32 index, const int32 tsize,int64** vid) {
+		int32 start = 0;
+		*vid = new int64[tsize];
+		while(start < tsize&&index < data_->subcribe_vec_.size()) {
+			(*vid)[start] = data_->subcribe_vec_[index];
+			start++;index++;
+		}
+		return start;
+	}
+
+	const std::string& uid() const {return data_->uid_;}
+
+ private:
+	class Data {
+	public:
+		Data()
+		:refcount_(1){}
+
+	public:
+		std::string          uid_;
+		std::vector<int64>   subcribe_vec_;
+		void AddRef() {__sync_fetch_and_add(&refcount_, 1);}
+		void Release() {__sync_fetch_and_sub(&refcount_, 1);
+        	if (!refcount_)delete this;
+		}
+	private:
+		int  refcount_;
+	};
+
+	Data*   data_;
+};
+
 class StockInfo {
  public:
 	StockInfo();

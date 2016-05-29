@@ -94,6 +94,9 @@ vip_db.o : ./vip_db.cc ./vip_db.h
 vip_factory.o : ./vip_factory.cc ./vip_factory.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./vip_factory.cc $(INCLUDE_PATHS)
 
+vip_subcribe_mgr.o : ./vip_subcribe_mgr.cc ./vip_subcribe_mgr.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./vip_subcribe_mgr.cc $(INCLUDE_PATHS)
+
 vip_user_mgr.o : ./vip_user_mgr.cc ./vip_user_mgr.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./vip_user_mgr.cc $(INCLUDE_PATHS)
 
@@ -125,7 +128,7 @@ $(TEST) :
 
 $(PLUGIN) : vip_init.o vip_logic.o vip_basic_info.o vip_db.o vip_factory.o\
 	vip_user_mgr.o vip_article_mgr.o vip_packet_process.o packet_process.o\
-	vip_proto_buf.o proto_buf.o\
+	vip_proto_buf.o proto_buf.o vip_subcribe_mgr.o\
 	data_engine.o data_mysql_engine.o mysql_pool.o\
 	$(CUSTOM_THIRD_PATH)/dmg_fp/lib/dmg_fp.a $(LIB_DIR)/mylib/base/lib/mybase.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LINK_PATHS) -lexpat -lrt -lpthread -ldl -lmysqlclient \

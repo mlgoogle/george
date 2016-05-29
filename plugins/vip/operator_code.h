@@ -18,5 +18,8 @@ namespace vip_logic {
 #define VIP_ARTICLE_REQ   george_logic::VIP_TYPE * 1000 + 5
 #define VIP_ARTICLE_RLY   george_logic::VIP_TYPE * 1000 + 6
 
+#define VIP_SUBCRIBE_REQ   george_logic::VIP_TYPE * 1000 + 7
+#define VIP_SUBCRIBE_RLY   george_logic::VIP_TYPE * 1000 + 8
+
 }
 #endif

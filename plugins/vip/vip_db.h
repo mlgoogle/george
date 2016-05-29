@@ -27,12 +27,18 @@ class VIPDB {
 	bool FectchArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map,
 			std::list<vip_logic::ArticleInfo>& list,
 			std::vector<vip_logic::ArticleInfo>& vec);
+
+	bool FectchSubcribeInfo(std::map<std::string, vip_logic::SubcribeInfo>& map);
+
  public:
 	static void CallFectchVIPUserInfo(void* param,
             base_logic::Value* value);
 
 	static void CallFectchArticleInfo(void* param,
             base_logic::Value* value);
+
+	static void CallFectchhSubcribeInfo(void* param,
+	            base_logic::Value* value);
  private:
 	base_logic::DataEngine*            mysql_engine_;
 };
