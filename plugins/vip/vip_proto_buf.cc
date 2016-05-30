@@ -100,7 +100,6 @@ void SetSubcribeVIP::set_http_packet(base_logic::DictionaryValue* value) {
 	int64 vid = 0;
 	std::string token;
 	std::string str_uid;
-	base_logic::Value* tvalue;
 
 
 	r = value->GetBigInteger(L"uid",&uid);

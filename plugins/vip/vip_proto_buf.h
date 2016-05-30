@@ -322,15 +322,7 @@ class VIPNews{
 
 
 	~VIPNews() {
-		if(vid_) {delete vid_; vid_ = NULL;}
-		if(aid_) {delete aid_; aid_ = NULL;}
-		if(name_) {delete name_; name_ = NULL;}
-		if(flag_) {delete flag_; flag_ = NULL;}
-		if(title_) {delete title_; title_ = NULL;}
-		if(article_source_) {delete article_source_; article_source_ = NULL;}
-		if(article_type_) {delete article_type_; article_type_ = NULL;}
-		if(article_time_) {delete article_time_; article_time_ = NULL;}
-		if(article_url_) {delete article_url_; article_url_ = NULL;}
+		if(value_) {delete vid_; vid_ = NULL;}
 	}
 
 	base_logic::DictionaryValue* get() {
@@ -375,7 +367,7 @@ class VIPNewsList: public george_logic::PacketHead{
 		list_ = new base_logic::ListValue;
 	}
 	~VIPNewsList() {
-		if (list_) {delete list_; list_ = NULL;}
+		//if (list_) {delete list_; list_ = NULL;}
 		if (body_value_) {delete body_value_; body_value_ = NULL;}
 	}
 
@@ -405,13 +397,7 @@ class VIPUser {
 	}
 
 	~VIPUser() {
-		if (vid_) {delete vid_; vid_ = NULL;}
-		if (subscribe_count_) {delete subscribe_count_; subscribe_count_ = NULL;}
-		if (vip_) {delete vip_; vip_ = NULL;}
-		if (name_) {delete name_; name_ = NULL;}
-		if (home_page_) {delete home_page_; home_page_ = NULL;}
-		if (introduction_) {delete introduction_; introduction_ = NULL;}
-		if (protrait_) {delete protrait_; protrait_ = NULL;}
+		if (value_) {delete value_; value_ = NULL;}
 	}
 
 	base_logic::DictionaryValue* get() {
@@ -485,8 +471,8 @@ public:
 	}
 
 	~VIPArticleList() {
-		if (article_list_) {delete article_list_; article_list_ = NULL;}
-		if (live_list_) {delete live_list_; live_list_ = NULL;}
+		//if (article_list_) {delete article_list_; article_list_ = NULL;}
+		//if (live_list_) {delete live_list_; live_list_ = NULL;}
 		if (body_value_) {delete body_value_; body_value_ = NULL;}
 	}
 
