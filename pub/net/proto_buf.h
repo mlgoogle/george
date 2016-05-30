@@ -14,24 +14,21 @@ class PacketHead {
 
  public:
 	PacketHead() {
-		packet_length_ = is_zip_encrypt_ = type_ = signature_ = NULL;
-		operate_code_ = data_length_ = timestamp_ = session_id_ = NULL;
+		packet_length_ = NULL;
+		is_zip_encrypt_ = NULL;
+		type_ = NULL;
+		signature_ = NULL;
+		operate_code_ = NULL;
+		data_length_ = NULL;
+		timestamp_ = NULL;
+		session_id_ = NULL;
 		reserved_ = NULL;
-		head_value_ = body_value_ = packet_value_ = NULL;
-	}
-	~PacketHead() {
-		if (packet_length_) {delete packet_length_; packet_length_ = NULL;}
-		if (is_zip_encrypt_) {delete is_zip_encrypt_; is_zip_encrypt_ =NULL;}
-		if (type_) {delete type_;type_ = NULL;}
-		if (signature_) {delete signature_; signature_ = NULL;}
-		if (operate_code_) {delete operate_code_; operate_code_ = NULL;}
-		if (data_length_) {delete data_length_; data_length_ = NULL;}
-		if (timestamp_) {delete timestamp_; timestamp_ = NULL;}
-		if (session_id_) {delete session_id_; session_id_ = NULL;}
-		if (reserved_) {delete reserved_; reserved_ = NULL;}
-		if (head_value_) {delete head_value_; head_value_ = NULL;}
+		head_value_ = NULL;
+		body_value_ = NULL;
+		packet_value_ = NULL;
 	}
 
+	virtual ~PacketHead();
 	//http结构不能多结构话，故需要特殊处理
 	void set_http_head(base_logic::DictionaryValue* value);
 

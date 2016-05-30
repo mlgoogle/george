@@ -130,7 +130,7 @@ void VIPFactory::OnHotVIPUser(const int socket,
 	packet_->PackPacket(socket, vip_list->packet());
 
 	if (hot_vip) { delete hot_vip; hot_vip = NULL;}
-	//if (vip_list) { delete vip_list; vip_list = NULL;}
+	if (vip_list) { delete vip_list; vip_list = NULL;}
 }
 
 
@@ -189,6 +189,7 @@ void VIPFactory::OnVIPArticle(const int socket,
 
 	packet_->PackPacket(socket, vip_article_list->packet());
 	if (vip_article) { delete vip_article; vip_article = NULL;}
+	if (vip_article_list) {delete vip_article_list; vip_article_list = NULL;}
 }
 
 void VIPFactory::OnVIPNewsEvent(const int socket,
@@ -241,7 +242,7 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 	vip_list->set_operator_code(VIP_NEWS_RLY);
 
 	packet_->PackPacket(socket, vip_list->packet());
-	//if (vip_list) {delete vip_list; vip_list = NULL;}
+	if (vip_list) {delete vip_list; vip_list = NULL;}
 	if (uid) {delete [] uid; uid = NULL;}
 	if (vip_news) { delete vip_news; vip_news = NULL;}
 
@@ -260,8 +261,9 @@ void VIPFactory::OnSetVIPSubcribe(const int socket,
 	head->set_type(george_logic::VIP_TYPE);
 	head->set_operator_code(VIP_SETSUB_RLY);
 	packet_->PackPacket(socket, head->packet());
-
+	if(head) {delete head; head = NULL;}
 }
+
 
 void VIPFactory::OnUserSubcribe(const int socket,
 	    	base_logic::DictionaryValue* dict) {
@@ -301,6 +303,7 @@ void VIPFactory::OnUserSubcribe(const int socket,
 	packet_->PackPacket(socket, vip_list->packet());
 	if (vid) {delete [] vid; vid = NULL;}
 	if (subcribe_vip) { delete subcribe_vip; subcribe_vip = NULL;}
+	if (vip_list) { delete vip_list; vip_list = NULL;}
 }
 
 
