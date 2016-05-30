@@ -13,6 +13,61 @@
 
 namespace vip_logic {
 
+class SubcribeInfo {
+ public:
+	SubcribeInfo();
+	SubcribeInfo(const SubcribeInfo& subcribe_info);
+	SubcribeInfo& operator = (const SubcribeInfo& subcribe_info);
+
+	~SubcribeInfo() {
+		if (data_ != NULL) {
+			data_->Release();
+		}
+	}
+
+
+	void set_uid(const std::string& uid) {data_->uid_ = uid;}
+	void set_subcribe_id(const int64 vid) {
+		data_->subcribe_vec_.push_back(vid);
+	}
+
+	void ValueSerialization(base_logic::DictionaryValue* dict);
+	const int32 subcribe_size() {
+		return data_->subcribe_vec_.size();
+	}
+
+	int32 get_vid(int32 index, const int32 tsize,int64** vid) {
+		int32 start = 0;
+		*vid = new int64[tsize];
+		while(start < tsize&&index < data_->subcribe_vec_.size()) {
+			(*vid)[start] = data_->subcribe_vec_[index];
+			start++;index++;
+		}
+		return start;
+	}
+
+	const std::string& uid() const {return data_->uid_;}
+
+ private:
+	class Data {
+	public:
+		Data()
+		:refcount_(1){}
+
+	public:
+		std::string          uid_;
+		std::vector<int64>   subcribe_vec_;
+		void AddRef() {__sync_fetch_and_add(&refcount_, 1);}
+		void Release() {__sync_fetch_and_sub(&refcount_, 1);
+        	if (!refcount_)delete this;
+		}
+	private:
+		int  refcount_;
+	};
+
+	Data*   data_;
+};
+
 class StockInfo {
  public:
 	StockInfo();
@@ -165,6 +220,7 @@ class ArticleInfo {
 
 	const int64 own_id() const {return data_->own_id_;}
 	const int64 id() const {return data_->id_;}
+	const int8 type() const {return data_->type_;}
 	const int64 forward_count() const {return data_->forward_count_;}
 	const int64 comment_count() const {return data_->comment_count_;}
 	const int64 recommend_count() const {return data_->recommend_count_;}
@@ -315,14 +371,14 @@ class VIPUserInfo {
 		,vip_(0){}
 
 	 public:
-		int64            id_;
-		int64            followers_count_;
-		int64            subscribe_count_;
-		int8             vip_;
-		std::string      name_;
-		std::string      home_page_;
-		std::string      introduction_;
-		std::string      portrait_;
+		int64                id_;
+		int64                followers_count_;
+		int64                subscribe_count_;
+		int8                 vip_;
+		std::string          name_;
+		std::string          home_page_;
+		std::string          introduction_;
+		std::string          portrait_;
 
 
 		void AddRef() {__sync_fetch_and_add(&refcount_, 1);}

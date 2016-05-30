@@ -5,6 +5,7 @@
 
 #include "vip_user_mgr.h"
 #include "vip_article_mgr.h"
+#include "vip_subcribe_mgr.h"
 #include "vip_db.h"
 #include "vip_proto_buf.h"
 #include "vip_basic_info.h"
@@ -35,9 +36,16 @@ class VIPFactory {
 			base_logic::DictionaryValue* dict);
 	void OnHotVIPUser(const int socket,
 			base_logic::DictionaryValue* dict);
+	void OnVIPArticle(const int socket,
+			base_logic::DictionaryValue* dict);
+	void OnUserSubcribe(const int socket,
+	    	base_logic::DictionaryValue* dict);
+	void OnSetVIPSubcribe(const int socket,
+			base_logic::DictionaryValue* dict);
  private:
 	VIPUserManager*                                     vip_usr_mgr_;
 	ArticleManager*                                     article_mgr_;
+	SubcribeManager*                                    subcribe_mgr_;
 	vip_logic::VIPDB*                                   vip_db_;
 	george_logic::json_packet::PacketProcess*           packet_;
 };

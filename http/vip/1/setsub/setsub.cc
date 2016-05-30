@@ -29,7 +29,7 @@ int main(int agrc, char* argv[]) {
   //fcgi_client.Init("/var/www/tmp/georgecorefile", API_TYPE, 1);
   std::string core_sock_file = "/var/www/tmp/georgecorefile";
   fcgi_client.Init(core_sock_file,API_TYPE,
-		  VIP_NEWS_REQ,1);
+		  VIP_SETSUB_REQ,1);
   fcgi_client.Run();
   fcgi_client.Close();
   return 0;

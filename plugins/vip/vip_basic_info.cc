@@ -135,7 +135,7 @@ void ArticleInfo::analyzer_stock(const std::string& str) {
 		stock.set_stock_code(code);
 		stock.set_stock_name(name);
 		data_->stock_list_.push_back(stock);
-		if (stock_str.find("&")!=-1)
+		if (stock_str.find("&") != std::string::npos)
 			stock_str = stock_str.substr(end_pos+1,stock_str.length());
 		else
 			stock_str.clear();
@@ -168,6 +168,49 @@ StockInfo& StockInfo::operator =(
 
 	data_ = stock_info.data_;
 	return (*this);
+}
+
+SubcribeInfo::SubcribeInfo() {
+	data_ = new Data();
+}
+
+SubcribeInfo::SubcribeInfo(const SubcribeInfo& subcribe_info)
+:data_(subcribe_info.data_) {
+	if (data_ != NULL) {
+		data_->AddRef();
+	}
+}
+
+SubcribeInfo& SubcribeInfo::operator =(
+		const SubcribeInfo& subcribe_info) {
+
+	if (subcribe_info.data_ != NULL){
+		subcribe_info.data_->AddRef();
+	}
+
+	if (data_ != NULL){
+		data_->Release();
+	}
+
+	data_ = subcribe_info.data_;
+	return (*this);
+}
+
+void SubcribeInfo::ValueSerialization(base_logic::DictionaryValue* dict) {
+	dict->GetString(L"uid", &data_->uid_);
+	std::string subcribe_str;
+
+	dict->GetString(L"subcribe",&subcribe_str);
+
+	while (subcribe_str.length()>0){
+		size_t end_pos = subcribe_str.find(",");
+		std::string subcribe_id = subcribe_str.substr(0,end_pos);
+		set_subcribe_id(atoll(subcribe_id.c_str()));
+		if (subcribe_str.find(",") != std::string::npos)
+			subcribe_str = subcribe_str.substr(end_pos+1,subcribe_str.length());
+		else
+			subcribe_str.clear();
+	}
 }
 
 
