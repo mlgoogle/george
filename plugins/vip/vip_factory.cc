@@ -124,9 +124,8 @@ void VIPFactory::OnHotVIPUser(const int socket,
 		vip_list->set_vip_news(user->get());
 	}
 
-	vip_list->set_type(1);
-	vip_list->set_timestamp(time(NULL));
-	//vip_list->set_operator_code(vip_logic::HOT_USER_RLY);
+	vip_list->set_type(george_logic::VIP_TYPE);
+	vip_list->set_operator_code(HOT_USER_RLY);
 
 	packet_->PackPacket(socket, vip_list->packet());
 
@@ -167,7 +166,7 @@ void VIPFactory::OnVIPArticle(const int socket,
 		news->set_vid(vip.id());
 		news->set_name(vip.name());
 		news->set_article_url(article.url());
-		news->set_type(article.type());
+		news->set_flag(article.type());
 		if (article.type() == 1)
 			vip_article_list->set_vip_article(news->get());
 		else
@@ -184,6 +183,9 @@ void VIPFactory::OnVIPArticle(const int socket,
 	user->set_vid(vip.id());
 	user->set_vip(vip.vip());
 	vip_article_list->set_vip_info(user->get());
+
+	vip_article_list->set_operator_code(VIP_ARTICLE_RLY);
+	vip_article_list->set_type(george_logic::VIP_TYPE);
 
 	packet_->PackPacket(socket, vip_article_list->packet());
 	if (vip_article) { delete vip_article; vip_article = NULL;}
@@ -214,7 +216,6 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 	for(it = list.begin();index < count,it != list.end();it++,index++) {
 		vip_logic::ArticleInfo article = (*it);
 		int64 vid = article.own_id();
-		//int64 vid = uid[index];
 		vip_logic::VIPUserInfo vip;
 		bool r = base::MapGet<VIPUSERINFO_MAP,VIPUSERINFO_MAP::iterator,
 					int64,vip_logic::VIPUserInfo>(map,
@@ -231,15 +232,16 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 		news->set_vid(vip.id());
 		news->set_name(vip.name());
 		news->set_article_url(article.url());
+		news->set_flag(article.type());
 		news->set_code_name(stock_list);
 		vip_list->set_vip_news(news->get());
 	}
 
-	vip_list->set_type(1);
-	vip_list->set_timestamp(time(NULL));
-	//vip_list->set_operator_code(vip_logic::VIP_NEWS_RLY);
+	vip_list->set_type(2);
+	vip_list->set_operator_code(VIP_NEWS_RLY);
 
 	packet_->PackPacket(socket, vip_list->packet());
+	//if (vip_list) {delete vip_list; vip_list = NULL;}
 	if (uid) {delete [] uid; uid = NULL;}
 	if (vip_news) { delete vip_news; vip_news = NULL;}
 
@@ -255,8 +257,8 @@ void VIPFactory::OnSetVIPSubcribe(const int socket,
 	subcribe_mgr_->SetSubcribeInfo(set_subcribe_vip->uid(),
 			set_subcribe_vip->vid());
 	george_logic::PacketHead * head = new george_logic::PacketHead();
-	head->set_type(0);
-	head->set_timestamp(time(NULL));
+	head->set_type(george_logic::VIP_TYPE);
+	head->set_operator_code(VIP_SETSUB_RLY);
 	packet_->PackPacket(socket, head->packet());
 
 }
@@ -294,8 +296,8 @@ void VIPFactory::OnUserSubcribe(const int socket,
 		user->set_vip(vip_user.vip());
 		vip_list->set_vip_news(user->get());
 	}
-	vip_list->set_type(1);
-	vip_list->set_timestamp(time(NULL));
+	vip_list->set_type(george_logic::VIP_TYPE);
+	vip_list->set_operator_code(VIP_SUBCRIBE_RLY);
 	packet_->PackPacket(socket, vip_list->packet());
 	if (vid) {delete [] vid; vid = NULL;}
 	if (subcribe_vip) { delete subcribe_vip; subcribe_vip = NULL;}

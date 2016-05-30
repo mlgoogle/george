@@ -293,7 +293,7 @@ class VIPNews{
 	}
 	void set_vid(const int64 vid) {vid_ = new base_logic::FundamentalValue(vid);}
 	void set_aid(const int64 aid) {aid_ = new base_logic::FundamentalValue(aid);}
-	void set_type(const int8 type) {type_ = new base_logic::FundamentalValue(type);}
+	void set_flag(const int8 type) {flag_ = new base_logic::FundamentalValue(type);}
 	void set_name(const std::string& name) {name_ = new base_logic::StringValue(name);}
 	void set_title(const std::string& title) {
 		if(title.empty())
@@ -325,7 +325,7 @@ class VIPNews{
 		if(vid_) {delete vid_; vid_ = NULL;}
 		if(aid_) {delete aid_; aid_ = NULL;}
 		if(name_) {delete name_; name_ = NULL;}
-		if(type_) {delete type_; type_ = NULL;}
+		if(flag_) {delete flag_; flag_ = NULL;}
 		if(title_) {delete title_; title_ = NULL;}
 		if(article_source_) {delete article_source_; article_source_ = NULL;}
 		if(article_type_) {delete article_type_; article_type_ = NULL;}
@@ -351,8 +351,8 @@ class VIPNews{
 			value_->Set(L"article_time",article_time_);
 		if(article_url_ != NULL)
 			value_->Set(L"url",article_url_);
-		if(type_ != NULL)
-			value_->Set(L"type", type_);
+		if(flag_ != NULL)
+			value_->Set(L"flag", flag_);
 		return value_;
 	}
 
@@ -361,7 +361,7 @@ class VIPNews{
 	base_logic::FundamentalValue*       aid_;
 	base_logic::StringValue*            name_;
 	base_logic::StringValue*            title_;
-	base_logic::FundamentalValue*       type_;
+	base_logic::FundamentalValue*       flag_;
 	base_logic::StringValue*            article_source_;
 	base_logic::StringValue*            article_url_;
 	base_logic::ListValue*              article_type_;

@@ -16,8 +16,8 @@
 #endif
 
 #include "log/mig_log.h"
-#include "net/comm_head.h"
-#include "vip/operator_code.h"
+#include "../pub/net/comm_head.h"
+#include "../plugins/vip/operator_code.h"
 //#include "logtrace/log_trace.h"
 #include "fcgimodule/fcgimodule.h"
 // 设置请求类型
@@ -28,8 +28,8 @@ int main(int agrc, char* argv[]) {
   fcgi_module::FcgiModule fcgi_client;
   //fcgi_client.Init("/var/www/tmp/georgecorefile", API_TYPE, 1);
   std::string core_sock_file = "/var/www/tmp/georgecorefile";
-  fcgi_client.Init(core_sock_file,2,
-		  2010,1);
+  fcgi_client.Init(core_sock_file,API_TYPE,
+		  VIP_SETSUB_REQ,1);
   fcgi_client.Run();
   fcgi_client.Close();
   return 0;
