@@ -40,6 +40,8 @@ class VIPFactory {
 			base_logic::DictionaryValue* dict);
 	void OnUserSubcribe(const int socket,
 	    	base_logic::DictionaryValue* dict);
+	void OnSetVIPSubcribe(const int socket,
+			base_logic::DictionaryValue* dict);
  private:
 	VIPUserManager*                                     vip_usr_mgr_;
 	ArticleManager*                                     article_mgr_;

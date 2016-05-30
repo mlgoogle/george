@@ -31,6 +31,7 @@ class SubcribeManager {
 	void Init(vip_logic::VIPDB* vip_db);
 	int32 GetSubcribeInfo(const std::string& uid,
 			const int32 pos,const int32 count,int64** vid);
+	bool SetSubcribeInfo(const std::string& uid, const int64 vid);
  private:
 	struct threadrw_t*      lock_;
 	SubcribeCache*          subcribe_cache_;

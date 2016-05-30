@@ -245,6 +245,22 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 
 }
 
+void VIPFactory::OnSetVIPSubcribe(const int socket,
+			base_logic::DictionaryValue* dict) {
+	vip_logic::net_request::SetSubcribeVIP* set_subcribe_vip =
+			new vip_logic::net_request::SetSubcribeVIP;
+
+	set_subcribe_vip->set_http_packet(dict);
+
+	subcribe_mgr_->SetSubcribeInfo(set_subcribe_vip->uid(),
+			set_subcribe_vip->vid());
+	george_logic::PacketHead * head = new george_logic::PacketHead();
+	head->set_type(0);
+	head->set_timestamp(time(NULL));
+	packet_->PackPacket(socket, head->packet());
+
+}
+
 void VIPFactory::OnUserSubcribe(const int socket,
 	    	base_logic::DictionaryValue* dict) {
 	vip_logic::net_request::SubcribeVIP* subcribe_vip =
@@ -283,9 +299,8 @@ void VIPFactory::OnUserSubcribe(const int socket,
 	packet_->PackPacket(socket, vip_list->packet());
 	if (vid) {delete [] vid; vid = NULL;}
 	if (subcribe_vip) { delete subcribe_vip; subcribe_vip = NULL;}
-
-
 }
+
 
 
 

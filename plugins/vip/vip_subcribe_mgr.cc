@@ -34,10 +34,12 @@ int32 SubcribeManager::GetSubcribeInfo(const std::string& uid,
 		const int32 pos,const int32 count,
 		int64** vid) {
 
+	base_logic::RLockGd lk(lock_);
 	vip_logic::SubcribeInfo subcribe_info;
 
-	bool r = base::MapGet<SUB_MAP,SUB_MAP::iterator,std::string,vip_logic::SubcribeInfo>(
-			subcribe_cache_->user_subcribe_map_,uid,subcribe_info);
+	bool r = base::MapGet<SUB_MAP,SUB_MAP::iterator,std::string,
+			vip_logic::SubcribeInfo>(subcribe_cache_->user_subcribe_map_,
+					uid,subcribe_info);
 
 
 	int32 index = 0;
@@ -53,7 +55,14 @@ int32 SubcribeManager::GetSubcribeInfo(const std::string& uid,
 
 }
 
-
-
+bool SubcribeManager::SetSubcribeInfo(const std::string& uid, const int64 vid) {
+	base_logic::WLockGd lk(lock_);
+	vip_logic::SubcribeInfo subcribe_info;
+	bool r = base::MapGet<SUB_MAP,SUB_MAP::iterator,std::string,
+			vip_logic::SubcribeInfo>(subcribe_cache_->user_subcribe_map_,
+					uid,subcribe_info);
+	subcribe_info.set_subcribe_id(vid);
+	return true;
+}
 
 }

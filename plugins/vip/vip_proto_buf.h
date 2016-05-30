@@ -225,6 +225,60 @@ class SubcribeVIP: public george_logic::PacketHead{
 };
 
 
+class SetSubcribeVIP: public george_logic::PacketHead{
+ public:
+	SetSubcribeVIP() {
+		uid_ =  token_ = NULL;
+		vid_ = NULL;
+	}
+
+	~SetSubcribeVIP(){
+		if (uid_) {delete uid_; uid_ = NULL;}
+		if (token_) {delete token_; token_ = NULL;}
+		if (vid_) {delete vid_; vid_ = NULL;}
+	}
+
+
+	virtual void set_http_packet(base_logic::DictionaryValue* value);
+
+
+	void set_uid(const std::string uid) { uid_ =
+		new base_logic::StringValue(uid);}
+
+	void set_token(const std::string& token) { token_ =
+		new base_logic::StringValue(token);}
+
+	void set_vid(const int64 vid) { vid_ =
+		new base_logic::FundamentalValue(vid);}
+
+
+	const std::string uid() const {
+		std::string uid = "0";
+		uid_->GetAsString(&uid);
+		return uid;
+	}
+
+
+	const std::string token() const {
+		std::string token;
+		token_->GetAsString(&token);
+		return token;
+	}
+
+	const int64 vid() const {
+		int64 vid;
+		vid_->GetAsBigInteger(&vid);
+		return vid;
+	}
+
+ public:
+	base_logic::StringValue*          uid_;
+	base_logic::StringValue*          token_;
+	base_logic::FundamentalValue*     vid_;
+};
+
+
+
 }
 
 namespace net_reply {

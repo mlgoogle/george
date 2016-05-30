@@ -35,6 +35,11 @@ void PacketProcess::PacketPocessGet(const int socket,base_logic::DictionaryValue
 		 factory->OnUserSubcribe(socket, dict);
 		 break;
 	 }
+
+	 case VIP_SETSUB_REQ : {
+		 factory->OnSetVIPSubcribe(socket, dict);
+		 break;
+	 }
 	 default:
 		break;
 	}

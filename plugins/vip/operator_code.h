@@ -21,5 +21,8 @@ namespace vip_logic {
 #define VIP_SUBCRIBE_REQ   george_logic::VIP_TYPE * 1000 + 7
 #define VIP_SUBCRIBE_RLY   george_logic::VIP_TYPE * 1000 + 8
 
+#define VIP_SETSUB_REQ   george_logic::VIP_TYPE * 1000 + 9
+#define VIP_SETSUB_RLY   george_logic::VIP_TYPE * 1000 + 10
+
 }
 #endif
