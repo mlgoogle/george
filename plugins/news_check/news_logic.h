@@ -37,8 +37,10 @@ class Newslogic {
   bool OnTimeout(struct server *srv, char* id, int opcode, int time);
 
  private:
-  NewsInterface* news_interface_;
   bool Init();
+
+  NewsInterface* news_interface_;
+  george_logic::http_packet::PacketProcess* packet_;
 };
 
 }  // namespace news

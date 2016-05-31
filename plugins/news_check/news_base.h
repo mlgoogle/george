@@ -7,11 +7,14 @@
 
 #include <string.h>
 #include <map>
+#include <deque>
 
 #include "../news_check/news.h"
 
 typedef std::map<int64, news::News> NewsMap;
+typedef std::map<int64, news::SimpleNews> SimpleMap;
 typedef std::map<std::string, std::map<int64, int64> > RfNewsMap;
+typedef std::map<std::string, std::deque<news::NewsCount*> > CountMap;
 
 
 #endif  // PLUGINS_NEWS_CHECK_NEWS_BASE_H_

@@ -7,6 +7,9 @@
 
 #include <assert.h>
 
+#include "news_check/news_packet.h"
+#include "pub/net/comm_head.h"
+
 #include "base/logic/logic_comm.h"
 #include "core/common.h"
 
@@ -21,16 +24,18 @@ Newslogic::Newslogic() {
 }
 
 Newslogic::~Newslogic() {
-  if (news_interface_ != NULL) {
-    delete news_interface_;
-    news_interface_ = NULL;
+  NewsInterface::FreeInstance();
+  if (packet_ != NULL) {
+    delete packet_;
+    packet_ = NULL;
   }
 }
 
 bool Newslogic::Init() {
   bool r = true;
   do {
-    news_interface_ = new news::NewsInterface();
+    packet_ = new george_logic::http_packet::PacketProcess();
+    news_interface_ = NewsInterface::GetInstance();
     config::FileConfig* config = config::FileConfig::GetFileConfig();
     std::string path = DEFAULT_CONFIG_PATH;
     if (config == NULL) {
@@ -67,6 +72,9 @@ bool Newslogic::OnNewsConnect(struct server *srv, const int socket) {
 
 bool Newslogic::OnNewsMessage(struct server *srv, const int socket,
                               const void *msg, const int len) {
+  LOG_DEBUG2("msg:[%s]", msg);
+  packet_->UnpackPacket(socket, msg,len,george_logic::NEWS_TYPE,
+                        NewsPacket::PacketPocessGet);
   return true;
 }
 
@@ -91,7 +99,7 @@ bool Newslogic::OnBroadcastClose(struct server *srv, const int socket) {
 }
 
 bool Newslogic::OnIniTimer(struct server *srv) {
-  srv->add_time_task(srv, "news", UPDATE_NEWS, 10, -1);
+  srv->add_time_task(srv, "news", UPDATE_NEWS, 60, -1);
   return true;
 }
 

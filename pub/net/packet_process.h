@@ -17,12 +17,14 @@ class PacketProcess {
 	PacketProcess();
 	virtual ~PacketProcess();
  public:
-	void UnpackPacket(const int socket, const void *msg, const int len, const int8 type,
-			void (*packet_process)(const int socket, base_logic::DictionaryValue*,
-					george_logic::PacketHead*));
+	void UnpackPacket(const int socket, const void *msg, const int len,
+	                  const int8 type,
+	                  void (*packet_process)(const int socket,
+	                      base_logic::DictionaryValue*,
+	                      george_logic::PacketHead*));
 
  private:
-	base_logic::ValueSerializer*         serializer_;
+	base_logic::ValueSerializer* serializer_;
 };
 
 }

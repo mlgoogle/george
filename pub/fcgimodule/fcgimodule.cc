@@ -68,9 +68,11 @@ void FcgiModule::StdRun(){
     }
   } // while end
 #endif
+  MIG_INFO(USER_LEVEL, "%s", "12");
 }
 
 void FcgiModule::PlusRun(){
+  MIG_INFO(USER_LEVEL, "%s", "9");
   std::string content;
   const char* query;
 #if defined (FCGI_PLUS)

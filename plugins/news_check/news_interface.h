@@ -8,21 +8,34 @@
 #include "public/config/config.h"
 
 #include "news_check/news_mysql.h"
+#include "news_check/news_memery.h"
+
+#include "pub/net/packet_process.h"
+
 namespace news {
 
 class NewsInterface {
-
  public:
-  NewsInterface();
-  ~NewsInterface();
+  static NewsInterface* GetInstance();
+  static void FreeInstance();
 
- public:
   void InitConfig(config::FileConfig* config);
   int InitNewsMem();
   void UpdateNews();
+  void Init();
+
+  void OnStNewsEvent(const int socket, DicValue* dic);
+  void OnRelateNewsEvent(const int socket, DicValue* dic);
   void Test();
  private:
+  NewsInterface();
+  ~NewsInterface();
+
   NewsMysql* news_mysql_;
+  NewsMemery* news_memery_;
+  george_logic::json_packet::PacketProcess* packet_;
+
+  static NewsInterface* instance_;
 };
 
 }  // namespace news

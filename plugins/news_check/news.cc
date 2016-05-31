@@ -43,9 +43,48 @@ void News::Serialization(DicValue* value) {
   value->GetString(L"section", &data_->rf_section_);
   value->GetString(L"stock", &data_->rf_stock_);
   value->GetString(L"summary", &data_->summary_);
-  value->GetCharInteger(L"sentiment", &data_->sentiment_);
+  int64 n = 0;
+  value->GetBigInteger(L"sentiment", &n);
+  data_->sentiment_ = n;
   value->GetBigInteger(L"updated_time", &data_->updated_time_);
-  value->GetString(L"from", &data_->from_);
+  n = 0;
+  value->GetBigInteger(L"from", &n);
+  data_->from_ = n;
+}
+
+SimpleNews::SimpleNews() {
+  data_ = new Data();
+}
+
+SimpleNews::~SimpleNews() {
+
+}
+
+SimpleNews::SimpleNews(const SimpleNews& news) : data_(news.data_){
+  if (data_ != NULL) {
+    data_->AddRef();
+  }
+}
+
+SimpleNews& SimpleNews::operator = (const SimpleNews& news) {
+  if(news.data_ != NULL){
+    news.data_->AddRef();
+  }
+  if (data_ != NULL) {
+    data_->Release();
+  }
+  data_ = news.data_;
+  return (*this);
+}
+
+
+void SimpleNews::Serialization(DicValue* value) {
+  value->GetBigInteger(L"id", &data_->id_);
+  value->GetBigInteger(L"time", &data_->time_);
+  value->GetString(L"stock", &data_->rf_stock_);
+  int64 n = 0;
+  value->GetBigInteger(L"sentiment", &n);
+  data_->sentiment_ = n;
 }
 
 }  // namespace news

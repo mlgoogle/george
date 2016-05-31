@@ -10,6 +10,7 @@
 #include <string>
 
 #include "news_check/news_base.h"
+#include "news_check/news_proto_buf.h"
 #include "public/config/config.h"
 #include "pub/storage/data_engine.h"
 
@@ -21,7 +22,12 @@ class NewsMysql {
   ~NewsMysql();
 
  public:
+  int QueryStNews(int64 now_time, int64 old_time, SimpleMap* nmap);
   int QueryNews(int64 time, int64 counts, NewsMap* map);
+  int QueryRfNews(int64 id, int32 count, int32 type, std::string key,
+                  send::NewsList* out_list);
+
+  static void CallQueryStNews(void* param, base_logic::Value* value);
   static void CallQueryNews(void* param, base_logic::Value* value);
  private:
   base_logic::DataEngine* mysql_engine_;

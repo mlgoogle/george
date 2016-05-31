@@ -23,7 +23,7 @@ CUSTOM_THIRD_PATH = $(LIB_DIR)/third_party
 LINK_PATHS = -L./ -L/usr/local/libmemcached-1.0.7/lib/  -L/usr/lib64 -L/usr/lib64/mysql -L${THRIFT_LIB_DIR}
 
 # Flags passed to the preprocessor.
-CPPFLAGS += -isystem -shared -fPIC -D_DB_POOL_ -D_DEBUG -DUSR_LOG_MSG -DPROCESS_WORK
+CPPFLAGS += -w -isystem -shared -fPIC -D_DB_POOL_ -D_DEBUG -DUSR_LOG_MSG -DPROCESS_WORK
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g  -Wextra -pthread -shared -fPIC
@@ -81,26 +81,20 @@ news_interface.o : ./news_interface.cc ./news_interface.h
 news.o : ./news.cc ./news.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./news.cc $(INCLUDE_PATHS)
 	
+news_packet.o : ./news_packet.cc ./news_packet.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./news_packet.cc $(INCLUDE_PATHS)
+	
+news_proto_buf.o : ./news_proto_buf.cc ./news_proto_buf.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./news_proto_buf.cc $(INCLUDE_PATHS)
+	
 http_data.o : $(USER_DIR)pub/net/http_data.cc $(USER_DIR)pub/net/http_data.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)pub/net/http_data.cc $(INCLUDE_PATHS)
 	
 tools.o : $(USER_DIR)pub/tools/tools.cc $(USER_DIR)pub/tools/tools.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)pub/tools/tools.cc $(INCLUDE_PATHS)
 
-global.o : $(USER_DIR)pub/global/global.cc $(USER_DIR)pub/global/global.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)pub/global/global.cc $(INCLUDE_PATHS)
-
-tea.o:$(ARITHMETIC)tea/tea.cc $(ARITHMETIC)tea/tea.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(ARITHMETIC)tea/tea.cc $(INCLUDE_PATHS)
-
 error_comm.o :  $(USER_DIR)pub/net/error_comm.cc $(USER_DIR)pub/net/error_comm.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)pub/net/error_comm.cc $(INCLUDE_PATHS)
-	
-logic_basic_info.o :  $(USER_DIR)pub/logic/logic_basic_info.cc $(USER_DIR)pub/logic/logic_basic_info.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)pub/logic/logic_basic_info.cc $(INCLUDE_PATHS)
-
-logic_unit.o :  $(USER_DIR)pub/logic/logic_unit.cc $(USER_DIR)pub/logic/logic_unit.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)pub/logic/logic_unit.cc $(INCLUDE_PATHS)
 	
 http_packet.o: $(THIRD_PATH)/protocol/http_packet.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(THIRD_PATH)/protocol/http_packet.cc $(INCLUDE_PATHS)
@@ -126,10 +120,19 @@ data_mysql_engine.o : ./$(USER_DIR)pub/storage/data_mysql_engine.cc ./$(USER_DIR
 mysql_pool.o : ./$(USER_DIR)pub/storage/mysql_pool.cc ./$(USER_DIR)pub/storage/mysql_pool.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(USER_DIR)pub/storage/mysql_pool.cc $(INCLUDE_PATHS)
 
+packet_process.o : ./$(USER_DIR)pub/net/packet_process.cc ./$(USER_DIR)pub/net/packet_process.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(USER_DIR)pub/net/packet_process.cc $(INCLUDE_PATHS)
+
+proto_buf.o : ./$(USER_DIR)pub/net/proto_buf.cc ./$(USER_DIR)pub/net/proto_buf.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(USER_DIR)pub/net/proto_buf.cc $(INCLUDE_PATHS)
+		
+base_values.o : ./$(LIB_DIR)/base/logic/base_values.cc ./$(LIB_DIR)/base/logic/base_values.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(LIB_DIR)/base/logic/base_values.cc $(INCLUDE_PATHS)
+
 $(PLUGIN) : news_init.o news_logic.o news_mysql.o news_memery.o \
-	news_interface.o news.o data_engine.o data_mysql_engine.o mysql_pool.o \
+	news_interface.o news.o news_packet.o news_proto_buf.o data_engine.o data_mysql_engine.o mysql_pool.o \
 	http_data.o http_packet.o mig_log.o basictypes.o error_comm.o tools.o \
-	logic_basic_info.o logic_unit.o basic_util.o config.o tools.o tea.o global.o \
+	packet_process.o basic_util.o config.o tools.o base_values.o proto_buf.o \
 	$(CUSTOM_THIRD_PATH)/dmg_fp/lib/dmg_fp.a $(LIB_DIR)/base/lib/mybase.a 
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LINK_PATHS) -lpthread -lexpat -lrt -lpthread -ldl -liconv -lmysqlclient -lcurl \
 	$^ -o $@

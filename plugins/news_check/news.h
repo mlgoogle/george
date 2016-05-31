@@ -13,6 +13,13 @@
 
 namespace news {
 
+struct NewsCount {
+  int32 count_;
+  int32 non_nagative_;
+  int32 nagative_;
+  int32 day_;
+};
+
 class News {
  public:
   News();
@@ -33,7 +40,7 @@ class News {
   std::string rf_stock() const { return data_->rf_stock_; }
   std::string rf_industry() const { return data_->rf_industry_; }
   std::string rf_section() const { return data_->rf_section_; }
-  std::string from() const { return data_->from_; }
+  int32 from() const { return data_->from_; }
 
   void set_id(int64 id) { data_->id_ = id; }
   void set_type(int64 type) { data_->type_ = type; }
@@ -46,12 +53,12 @@ class News {
   void set_rf_stock(std::string stock) { data_->rf_stock_ = stock; }
   void set_rf_industry(std::string industry) { data_->rf_industry_ = industry; }
   void set_rf_section(std::string section) { data_->rf_section_ = section; }
-  void set_from(std::string from) { data_->from_ = from; }
+  void set_from(int32 from) { data_->from_ = from; }
 
   class Data {
    public:
     Data() : id_(-1), type_(-1), time_(0), updated_time_(0), sentiment_(0),
-        refs_(1) {};
+    from_(0), refs_(1) {};
 
    public:
     int64 id_;
@@ -65,7 +72,64 @@ class News {
     std::string rf_stock_;
     std::string rf_industry_;
     std::string rf_section_;
-    std::string from_;
+    int32 from_;
+
+    void AddRef() {
+      MutexLock lock(&refs_mutex_);
+      ++refs_;
+    }
+
+    void Release() {
+      bool do_delete = false;
+      MutexLock lock(&refs_mutex_);
+      --refs_;
+      assert(refs_ >= 0);
+      if (refs_ <= 0) {
+        do_delete = true;
+      }
+      if (do_delete) {
+        delete this;
+      }
+    }
+
+   private:
+    int refs_;
+    Mutex refs_mutex_;
+  };
+
+ private:
+  Data* data_;
+};
+
+class SimpleNews {
+ public:
+  SimpleNews();
+  ~SimpleNews();
+  SimpleNews(const SimpleNews& news);
+  SimpleNews& operator = (const SimpleNews& news);
+
+  void Serialization(DicValue* value);
+
+  int64 id() const { return data_->id_; }
+  int8 sentiment() const { return data_->sentiment_; }
+  int64 time() const { return data_->time_; }
+  std::string rf_stock() const { return data_->rf_stock_; }
+
+  void set_id(int64 id) { data_->id_ = id; }
+  void set_sentiment(int8 sentiment) { data_->sentiment_ = sentiment; }
+  void set_time(int64 time) { data_->time_ = time; }
+  void set_rf_stock(std::string stock) { data_->rf_stock_ = stock; }
+
+
+  class Data {
+   public:
+    Data() : id_(-1), time_(0), sentiment_(0), refs_(1) {};
+
+   public:
+    int64 id_;
+    int64 time_;
+    int8 sentiment_;
+    std::string rf_stock_;
 
     void AddRef() {
       MutexLock lock(&refs_mutex_);
