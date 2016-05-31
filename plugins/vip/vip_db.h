@@ -30,6 +30,8 @@ class VIPDB {
 
 	bool FectchSubcribeInfo(std::map<std::string, vip_logic::SubcribeInfo>& map);
 
+	bool RecordSubcribe(const std::string& uid, std::string& subcribe);
+
  public:
 	static void CallFectchVIPUserInfo(void* param,
             base_logic::Value* value);

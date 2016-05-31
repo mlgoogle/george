@@ -8,6 +8,8 @@
 
 #include "basic/basictypes.h"
 #include "logic/base_values.h"
+#include "logic/logic_comm.h"
+#include "thread/base_thread_lock.h"
 #include <list>
 #include <string>
 
@@ -28,16 +30,25 @@ class SubcribeInfo {
 
 	void set_uid(const std::string& uid) {data_->uid_ = uid;}
 	void set_subcribe_id(const int64 vid) {
+		base_logic::WLockGd lk(data_->lock_);
+		std::map<int64,int64>::iterator it = data_->subcribe_map_.find(vid);
+		if (it != data_->subcribe_map_.end())
+			return;
+		data_->subcribe_map_[vid] = vid;
 		data_->subcribe_vec_.push_back(vid);
 	}
 
 	void ValueSerialization(base_logic::DictionaryValue* dict);
+
 	const int32 subcribe_size() {
 		return data_->subcribe_vec_.size();
 	}
 
+	bool get_subcirbe_string(std::string& str);
+
 	int32 get_vid(int32 index, const int32 tsize,int64** vid) {
 		int32 start = 0;
+		base_logic::RLockGd lk(data_->lock_);
 		*vid = new int64[tsize];
 		while(start < tsize&&index < data_->subcribe_vec_.size()) {
 			(*vid)[start] = data_->subcribe_vec_[index];
@@ -52,11 +63,18 @@ class SubcribeInfo {
 	class Data {
 	public:
 		Data()
-		:refcount_(1){}
+		:refcount_(1){
+			InitThreadrw(&lock_);
+		}
 
+		~Data() {
+			DeinitThreadrw(lock_);
+		}
 	public:
-		std::string          uid_;
-		std::vector<int64>   subcribe_vec_;
+		std::string             uid_;
+		std::vector<int64>      subcribe_vec_;
+		std::map<int64,int64>   subcribe_map_; //防止重复关注
+		struct threadrw_t*      lock_;
 		void AddRef() {__sync_fetch_and_add(&refcount_, 1);}
 		void Release() {__sync_fetch_and_sub(&refcount_, 1);
         	if (!refcount_)delete this;
