@@ -22,6 +22,24 @@ void PacketProcess::PacketPocessGet(const int socket,base_logic::DictionaryValue
 		factory->OnVIPNewsEvent(socket, dict);
 		break;
 	 }
+	 case HOT_USER_REQ : {
+		 factory->OnHotVIPUser(socket, dict);
+		 break;
+	 }
+	 case VIP_ARTICLE_REQ : {
+		 factory->OnVIPArticle(socket, dict);
+		 break;
+	 }
+
+	 case VIP_SUBCRIBE_REQ : {
+		 factory->OnUserSubcribe(socket, dict);
+		 break;
+	 }
+
+	 case VIP_SETSUB_REQ : {
+		 factory->OnSetVIPSubcribe(socket, dict);
+		 break;
+	 }
 	 default:
 		break;
 	}

@@ -4,6 +4,21 @@
 
 namespace george_logic {
 
+PacketHead::~PacketHead() {
+		/*if (packet_length_) {delete packet_length_; packet_length_ = NULL;}
+		if (is_zip_encrypt_) {delete is_zip_encrypt_; is_zip_encrypt_ =NULL;}
+		if (type_) {delete type_;type_ = NULL;}
+		if (signature_) {delete signature_; signature_ = NULL;}
+		if (operate_code_) {delete operate_code_; operate_code_ = NULL;}
+		if (data_length_) {delete data_length_; data_length_ = NULL;}
+		if (timestamp_) {delete timestamp_; timestamp_ = NULL;}
+		if (session_id_) {delete session_id_; session_id_ = NULL;}
+		if (reserved_) {delete reserved_; reserved_ = NULL;}*/
+		//在DictionaryValue 结构函数中已经将其释放↑
+		if (head_value_) {delete head_value_; head_value_ = NULL;}
+}
+
+
 void PacketHead::set_http_head(base_logic::DictionaryValue* value) {
 	bool r =  false;
 	int16 packet_length = 0;

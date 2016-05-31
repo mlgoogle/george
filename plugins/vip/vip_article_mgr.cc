@@ -30,14 +30,53 @@ void ArticleManager::Init(vip_logic::VIPDB* vip_db) {
 	std::sort(article_cache_->article_info_vec_.begin(),
 			article_cache_->article_info_vec_.end(),vip_logic::ArticleInfo::cmp);
 	article_cache_->article_info_list_.sort(vip_logic::ArticleInfo::cmp);
-
+	SetVIPArticle();
 }
+
+
+void ArticleManager::SetVIPArticle() {
+	for (ARTICLEINFO_MAP::iterator it = article_cache_->article_info_map_.begin();
+			it != article_cache_->article_info_map_.end(); it++) {
+		vip_logic::ArticleInfo article = it->second;
+		// 0 直播  1博文
+		if (article.type() == 1) {
+			VIPARTICLE_VEC::iterator itr =
+					article_cache_->vip_article_info_vec_.find(article.own_id());
+			ARTICLEINFO_VEC vec;
+			if (itr == article_cache_->vip_article_info_vec_.end()) {
+				vec.push_back(article);
+
+			} else {
+				vec = itr->second;
+				vec.push_back(article);
+			}
+
+			article_cache_->vip_article_info_vec_[article.own_id()] = vec;
+		} else {
+			VIPARTICLE_VEC::iterator itr =
+					article_cache_->vip_live_info_vec_.find(article.own_id());
+			ARTICLEINFO_VEC vec;
+			if (itr == article_cache_->vip_live_info_vec_.end()) {
+				vec.push_back(article);
+
+			} else {
+				vec = itr->second;
+				vec.push_back(article);
+			}
+
+			article_cache_->vip_live_info_vec_[article.own_id()] = vec;
+		}
+	}
+}
+
+
 
 bool ArticleManager::GetArticleInfo(const int64 aid, vip_logic::ArticleInfo& article) {
 	base_logic::RLockGd lk(lock_);
 
 	bool r = base::MapGet<ARTICLEINFO_MAP,ARTICLEINFO_MAP::iterator,
 			int64,vip_logic::ArticleInfo>(article_cache_->article_info_map_,
+
 					aid,article);
 	return r;
 }
@@ -67,10 +106,85 @@ bool ArticleManager::GetNewArticle(std::list<vip_logic::ArticleInfo>& list,
 	std::list<vip_logic::ArticleInfo>::iterator it =
 			article_cache_->article_info_list_.begin();
 	for (; it != article_cache_->article_info_list_.end(), i < count; it++,i++) {
-		list.push_front((*it));
+		list.push_back((*it));
 	}
 
 	return true;
 }
+
+bool ArticleManager::GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const int32 pos,
+			const int32 count) {
+	base_logic::RLockGd lk(lock_);
+	std::sort(article_cache_->article_info_vec_.begin(),
+				article_cache_->article_info_vec_.end(),vip_logic::ArticleInfo::cmp);
+
+	int32 index = 0;
+	while (index < pos)
+		index++;
+
+	while (index < count) {
+		list.push_back(article_cache_->article_info_vec_[index]);
+		index++;
+	}
+	return true;
+}
+
+
+bool ArticleManager::GetVIPArticle(const int64 vid,
+			std::list<vip_logic::ArticleInfo>& list,const int32 pos,
+			const int32 count,const int8 flag) {
+	base_logic::RLockGd lk(lock_);
+
+	if (flag==0 || flag == 1) {
+		ARTICLEINFO_VEC vec;
+		bool r = base::MapGet<VIPARTICLE_VEC,VIPARTICLE_VEC::iterator,
+					int64,ARTICLEINFO_VEC>(article_cache_->vip_article_info_vec_,
+							vid,vec);
+		if (r)
+			GetVIPArticleT(list, pos, count,vec);
+	}else if(flag==0 || flag == 2) {
+		ARTICLEINFO_VEC vec;
+		bool r = base::MapGet<VIPARTICLE_VEC,VIPARTICLE_VEC::iterator,
+					int64,ARTICLEINFO_VEC>(article_cache_->vip_live_info_vec_,
+							vid,vec);
+		if (r)
+			GetVIPArticleT(list, pos, count,vec);
+	}
+
+	/*
+	std::sort(vec.begin(),vec.end(),vip_logic::ArticleInfo::cmp);
+
+	int32 index = 0;
+	while (index < pos)
+		index++;
+
+	int32 size = vec.size() > count ? count : vec.size();
+	while (index < size) {
+		list.push_back(vec[index]);
+		index++;
+	}
+	*/
+	return true;
+}
+
+bool ArticleManager::GetVIPArticleT(std::list<vip_logic::ArticleInfo>& list,const int32 pos,
+		const int32 count, ARTICLEINFO_VEC& vec) {
+
+	std::sort(vec.begin(),vec.end(),vip_logic::ArticleInfo::cmp);
+
+	int32 index = 0;
+
+	while (index < pos)
+		index++;
+
+	int32 size = vec.size() > count ? count : vec.size();
+	while (index < size) {
+		list.push_back(vec[index]);
+		index++;
+	}
+	return true;
+}
+
+
 
 }
