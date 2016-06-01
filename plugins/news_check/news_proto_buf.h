@@ -173,7 +173,7 @@ class SendSt {
 
   DicValue* get() {
     value_ = new DicValue();
-    if (count_) value_->Set(L"count", count_);
+    if (count_) value_->Set(L"news_count", count_);
     if (nagative_) value_->Set(L"nagative", nagative_);
     if (non_nagative_) value_->Set(L"non_nagative", non_nagative_);
     return value_;

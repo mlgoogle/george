@@ -283,7 +283,7 @@ void NewsMemery::UpdateNews(News newer, News older) {
   AddAndDelCom(&se_map_, &increase, &decrease, newer.id());
 }
 
-void AddAndDelCom(RfNewsMap* map, std::vector<std::string>* increase,
+void NewsMemery::AddAndDelCom(RfNewsMap* map, std::vector<std::string>* increase,
                   std::vector<std::string>* decrease, int64 id) {
   std::vector<std::string>::iterator de_it = decrease->begin();
   for (; de_it != decrease->end(); ) {
@@ -314,7 +314,7 @@ void AddAndDelCom(RfNewsMap* map, std::vector<std::string>* increase,
   assert(decrease->size() == 0);
 }
 
-void CompareString(std::string newer, std::string older,
+void NewsMemery::CompareString(std::string newer, std::string older,
                    std::vector<std::string>* increase,
                    std::vector<std::string>* decrease,
                    std::vector<std::string>* same) {
