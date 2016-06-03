@@ -1,6 +1,7 @@
 //  Copyright (c) 2015-2015 The george Authors. All rights reserved.
 //  Created on: 2016年5月17日 Author: kerry
 #include "vip_basic_info.h"
+#include "basic/basic_util.h"
 
 namespace vip_logic {
 
@@ -211,6 +212,20 @@ void SubcribeInfo::ValueSerialization(base_logic::DictionaryValue* dict) {
 		else
 			subcribe_str.clear();
 	}
+}
+
+bool SubcribeInfo::get_subcirbe_string(std::string& str){
+	base_logic::RLockGd lk(data_->lock_);
+	std::map<int64,int64>::iterator it =
+			data_->subcribe_map_.begin();
+	int32 map_size = data_->subcribe_map_.size();
+	int32 index =0;
+	for (; it != data_->subcribe_map_.end();it++,index++) {
+		str.append(base::BasicUtil::StringUtil::Int64ToString(it->first));
+		if(index < (map_size - 1))
+			str.append(",");
+	}
+	return true;
 }
 
 

@@ -16,6 +16,7 @@ PacketHead::~PacketHead() {
 		if (reserved_) {delete reserved_; reserved_ = NULL;}*/
 		//在DictionaryValue 结构函数中已经将其释放↑
 		if (head_value_) {delete head_value_; head_value_ = NULL;}
+		if (attach_field_) {delete attach_field_; attach_field_ = NULL;}
 }
 
 
@@ -91,6 +92,26 @@ void PacketHead::set_http_head(base_logic::DictionaryValue* value) {
 		resverved = temp;
 		set_reserved(resverved);
 	}
+
+	attach_field_->set_attachfield(value);
+
 }
+
+void AttachField::set_attachfield(base_logic::DictionaryValue* value) {
+	std::string callback;
+	std::string format;
+	bool  r = false;
+
+	r = value->GetString(L"callback", &callback);
+	if (r) {
+		set_callback(callback);
+	}
+
+	r = value->GetString(L"format", &format);
+	if (r) {
+		set_format(format);
+	}
+}
+
 
 }

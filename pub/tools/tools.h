@@ -11,9 +11,21 @@
 #include <map>
 #include <algorithm>
 
-#include "logic/logic_basic_info.h"
-#include "net/typedef.h"
-#include "net/http_data.h"
+//#include "logic/logic_basic_info.h"
+//#include "net/typedef.h"
+//#include "net/http_data.h"
+
+
+typedef std::map<std::string, std::string> MapStrToStr;
+typedef std::map<std::string, int64> MapStrToInt64;
+
+//typedef std::map<std::string, UserInfo*> RegisterUserMap;
+
+typedef std::vector<std::string> ContainerStr;
+
+typedef std::vector<int64> ContainerInt;
+
+
 namespace tools {
 
   //  得到省份字符串
@@ -37,11 +49,12 @@ std::string GetToken(int64 user_id, std::string &token);
 
 bool CheckToken(int64 user_id, std::string &token);
 
-bool check_id_token(NetBase*  value,const int socket);
+//bool check_id_token(NetBase*  value,const int socket);
 
-bool check_userid_if_in_sql(NetBase*  value,const int socket);
 
-bool CheckUserIdAndToken(NetBase*  value,const int socket);
+//bool check_userid_if_in_sql(NetBase*  value,const int socket);
+
+///bool CheckUserIdAndToken(NetBase*  value,const int socket);
 
 std::string DeleteSet(const std::string &set_one, \
                       const std::string &set_two, \
@@ -58,11 +71,14 @@ std::string MergeSet(const std::string &set_one, \
 void MapAdd(std::map<std::string, int64> *map, \
           const std::string &key, int64 value);
 
-void ListGroup(const ContainerStr &l, int group_size, \
+
+//void ListGroup(const ContainerStr &l, int group_size, \
             char separator, ContainerStr *const out);
 
 std::string TeaEncode(const std::string src);
 std::string TeaDecode(const std::string src);
+
+
 
 template<class T>
 void SeparatorStr(const std::string &instr, \

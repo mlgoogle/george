@@ -33,7 +33,7 @@ class VIPFactory {
 	void Test();
  public:
 	void OnVIPNewsEvent(const int socket,
-			base_logic::DictionaryValue* dict);
+			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
 	void OnHotVIPUser(const int socket,
 			base_logic::DictionaryValue* dict);
 	void OnVIPArticle(const int socket,
@@ -47,7 +47,8 @@ class VIPFactory {
 	ArticleManager*                                     article_mgr_;
 	SubcribeManager*                                    subcribe_mgr_;
 	vip_logic::VIPDB*                                   vip_db_;
-	george_logic::json_packet::PacketProcess*           packet_;
+	george_logic::json_packet::PacketProcess*           packet_json_;
+	george_logic::jsonp_packet::PacketProcess*          packet_jsonp_;
 };
 }
 #endif

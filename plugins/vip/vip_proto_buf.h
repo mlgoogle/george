@@ -365,6 +365,7 @@ class VIPNewsList: public george_logic::PacketHead{
  public:
 	VIPNewsList(){
 		list_ = new base_logic::ListValue;
+		jsonpcallback_ = NULL;
 	}
 	~VIPNewsList() {
 		//if (list_) {delete list_; list_ = NULL;}
@@ -375,16 +376,24 @@ class VIPNewsList: public george_logic::PacketHead{
 		list_->Append(value);
 	}
 
+	void set_jsonpcallback(const std::string& callback) {
+		jsonpcallback_ = new base_logic::StringValue(callback);
+	}
+
 	base_logic::DictionaryValue* body() {
 		body_value_ = new base_logic::DictionaryValue();
 		body_value_->SetWithoutPathExpansion(L"list",list_);
 		body_value_->SetInteger(L"count",list_->GetSize());
+		if (jsonpcallback_ != NULL) {
+			body_value_->Set(L"jsonpcallback",jsonpcallback_);
+		}
 		return body_value_;
 	}
 
 	void set_http_packet(base_logic::DictionaryValue* value) {}
  private:
 	base_logic::ListValue*         list_;
+	base_logic::StringValue*       jsonpcallback_;
 };
 
 

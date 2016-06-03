@@ -10,6 +10,47 @@
 #include "logic/base_values.h"
 
 namespace george_logic {
+
+
+class AttachField: public base_logic::DictionaryValue{
+ public:
+	AttachField() {
+		callback_ = format_ = NULL;
+	}
+
+	virtual ~AttachField(){
+		if (callback_) {delete callback_; callback_ = NULL;}
+	}
+
+	void set_attachfield(base_logic::DictionaryValue* value);
+
+	void set_callback(const std::string& callback) {
+		callback_ = new base_logic::StringValue(callback);
+	}
+
+	void set_format(const std::string& format) {
+		format_ = new base_logic::StringValue(format);
+	}
+
+	std::string format() {
+		std::string format;
+		format_->GetAsString(&format);
+		return  format;
+	}
+
+	std::string callback() {
+		std::string callback;
+		callback_->GetAsString(&callback);
+		return callback;
+	}
+
+ private:
+	base_logic::StringValue*  callback_;
+	base_logic::StringValue*  format_;
+};
+
+
+
 class PacketHead {
 
  public:
@@ -26,6 +67,7 @@ class PacketHead {
 		head_value_ = NULL;
 		body_value_ = NULL;
 		packet_value_ = NULL;
+		attach_field_ = new AttachField;
 	}
 
 	virtual ~PacketHead();
@@ -63,6 +105,8 @@ class PacketHead {
     void set_reserved(const int32 reserved) {reserved_ =
     	new base_logic::FundamentalValue(reserved);}
 
+
+
     const int8 type() const {
     	int8 type = 0;
     	type_->GetAsCharInteger(&type);
@@ -75,6 +119,8 @@ class PacketHead {
     	return operate_code;
     }
 
+    AttachField* attach_field() {return attach_field_;}
+
  public:
 	base_logic::DictionaryValue* head() {
 		head_value_ = new base_logic::DictionaryValue();
@@ -82,8 +128,8 @@ class PacketHead {
 			head_value_->Set(L"packet_length",packet_length_);
 		if (is_zip_encrypt_ != NULL)
 			head_value_->Set(L"is_zip_encrypt_",is_zip_encrypt_);
-		//if (type_ != NULL)
-			//head_value_->Set(L"type",type_);
+		if (type_ != NULL)
+			head_value_->Set(L"type",type_);
 		if (signature_ != NULL)
 			head_value_->Set(L"signature",signature_);
 		if (operate_code_ != NULL)
@@ -123,11 +169,11 @@ class PacketHead {
 	base_logic::FundamentalValue*  session_id_;
 	base_logic::FundamentalValue*  reserved_;
 	base_logic::DictionaryValue*   head_value_;
+	AttachField*                   attach_field_;//附加字段，针对不同协议
  protected:
 	base_logic::DictionaryValue*   body_value_;
 	base_logic::DictionaryValue*   packet_value_;
 };
-
 
 /*
 class PacketProsess {

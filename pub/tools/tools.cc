@@ -10,13 +10,13 @@
 #include <map>
 #include <list>
 #include <vector>
-
+#include "basic/basictypes.h"
 #include "tools/tools.h"
 #include "tea/tea.h"
-#include "net/typedef.h"
-#include "base/logic/logic_comm.h"
-#include "db/db_comm.h"
-#include "logic/logic_unit.h"
+//#include "net/typedef.h"
+//#include "base/logic/logic_comm.h"
+//#include "db/db_comm.h"
+//#include "logic/logic_unit.h"
 
 namespace tools {
 
@@ -67,7 +67,7 @@ int64 CurrentTime() { return time(NULL); }
 std::string MergeSet(const std::string &set_one, \
                      const std::string &set_two, \
                                  char separator) {
-  if (set_one == "") return set_two;
+  /*if (set_one == "") return set_two;
   if (set_two == "") return set_one;
 
   std::string ret(set_two);
@@ -85,9 +85,9 @@ std::string MergeSet(const std::string &set_one, \
     }
   }
 
-  return ret;
+  return ret;*/
 }
-
+/*
 void ListGroup(const ContainerStr &l, \
                       int group_size, \
                       char separator, \
@@ -109,12 +109,12 @@ void ListGroup(const ContainerStr &l, \
   if (value != "") {
     out->push_back(value);
   }
-}
+}*/
 
 bool IfSetOneIsInSetTwo(const std::string &set_one, \
                         const std::string &set_two, \
                                     char separator) {
-  if (set_one == "") return true;
+  /*if (set_one == "") return true;
   if (set_two == "") return false;
 
   std::list<std::string> set_one_list;
@@ -124,7 +124,7 @@ bool IfSetOneIsInSetTwo(const std::string &set_one, \
     if (set_two.find((*it).c_str()) == std::string::npos) {
       return false;
     }
-  }
+  }*/
 
   return true;
 }
@@ -132,7 +132,7 @@ bool IfSetOneIsInSetTwo(const std::string &set_one, \
 std::string DeleteSet(const std::string &set_one, \
                       const std::string &set_two, \
                                   char separator) {
-  if (set_one == "" || set_two == "") return set_two;
+  /*if (set_one == "" || set_two == "") return set_two;
 
   std::string ret("");
   std::list<std::string> set_two_list;
@@ -145,7 +145,7 @@ std::string DeleteSet(const std::string &set_one, \
     }
   }
 
-  return ret;
+  return ret;*/
 }
 
 std::string::size_type FindNth(const std::string &str, \
@@ -200,7 +200,7 @@ size_t CharToNum(void **d, std::string &token) {
 }
 
 std::string TeaEncode(const std::string src) {
-  LOG_DEBUG2("encode before: %s", src.c_str());
+  //LOG_DEBUG2("encode before: %s", src.c_str());
   int src_len = src.length();
   int len = ((src.length() - 1) / 8 + 1) * 8;
   char *in = reinterpret_cast<char*>(malloc(len));
@@ -215,7 +215,7 @@ std::string TeaEncode(const std::string src) {
   std::string des;
   NumToChar(td.d, td.l, des);
   free(in);
-  LOG_DEBUG2("encode after:%s", des.c_str());
+  //LOG_DEBUG2("encode after:%s", des.c_str());
   return des;
 }
 
@@ -230,7 +230,7 @@ std::string TeaDecode(const std::string src) {
       temp.append(1, (reinterpret_cast<char*>(td.d))[i]);
   }
   temp.append(1, '\0');
-  LOG_DEBUG2("decode after:%s", temp.c_str());
+  //LOG_DEBUG2("decode after:%s", temp.c_str());
   free(td.d);
   return temp;
 
@@ -246,7 +246,7 @@ std::string GetToken(int64 user_id, std::string &token) {
   os << time(NULL);
   cur_token = os.str();
 
-  LOG_DEBUG2("\n\norigin token: %s\n\n", cur_token.c_str());
+ // LOG_DEBUG2("\n\norigin token: %s\n\n", cur_token.c_str());
 
   int len = ((cur_token.length() - 1) / 8 + 1) * 8;
   char *in = reinterpret_cast<char*>(malloc(len));
@@ -287,7 +287,7 @@ bool CheckToken(int64 user_id, std::string &token) {
   os << user_id;
   std::string current_id = os.str();
 
-  LOG_DEBUG2("\n\norigin token: %s,%d\n\n", origin_id.c_str(), origin_time);
+  //LOG_DEBUG2("\n\norigin token: %s,%d\n\n", origin_id.c_str(), origin_time);
 
   int64 current_time = time(NULL);
 
@@ -376,6 +376,7 @@ void ReplaceBlank(std::string *str) {
 }
 
 
+/*
 bool check_userid_if_in_sql(NetBase*  value,const int socket)
 {
 	bool r = false;
@@ -404,8 +405,8 @@ bool check_userid_if_in_sql(NetBase*  value,const int socket)
 	}
 
 	return true;
-}
-
+}*/
+/*
 bool check_id_token(NetBase*  value,const int socket)
 {
 	bool r = false;
@@ -421,7 +422,7 @@ bool check_id_token(NetBase*  value,const int socket)
 	r = value->GetBigInteger(L"user_id", static_cast<int64*>(&user_id));
 	if (false == r)
 		error_code = STRUCT_ERROR;
-	/*LOG_DEBUG2("\n\DbSql::check_id_token-------user_id: %d\n\n",user_id);*/
+	LOG_DEBUG2("\n\DbSql::check_id_token-------user_id: %d\n\n",user_id);
 
 	if (CheckToken(user_id, token)) {
 		return true;
@@ -445,7 +446,7 @@ bool CheckUserIdAndToken(NetBase*  value,const int socket)
 	}
 
 	return true;
-}
+}*/
 
 }  //  namespace tools
 

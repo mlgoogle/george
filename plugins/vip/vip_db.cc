@@ -77,6 +77,19 @@ bool VIPDB::FectchArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map,
     return true;
 }
 
+bool VIPDB::RecordSubcribe(const std::string& uid, std::string& subcribe) {
+	bool r = false;
+	std::string sql = "call proc_SetSubcribe(\'" + uid + "\',\'" + subcribe + "');";
+    scoped_ptr<base_logic::DictionaryValue> dict(
+                new base_logic::DictionaryValue());
+    base_logic::ListValue* listvalue;
+    dict->SetString(L"sql", sql);
+    r = mysql_engine_->ReadData(0, (base_logic::Value*)(dict.get()),NULL);
+    if (!r)
+    	return false;
+    return true;
+}
+
 bool VIPDB::FectchSubcribeInfo(std::map<std::string,
 		vip_logic::SubcribeInfo>& map) {
 	bool r = false;

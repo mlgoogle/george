@@ -19,7 +19,7 @@ void PacketProcess::PacketPocessGet(const int socket,base_logic::DictionaryValue
 
 	switch (operate_code) {
 	 case VIP_NEWS_REQ: {
-		factory->OnVIPNewsEvent(socket, dict);
+		factory->OnVIPNewsEvent(socket, dict,packet);
 		break;
 	 }
 	 case HOT_USER_REQ : {

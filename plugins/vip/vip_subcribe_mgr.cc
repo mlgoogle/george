@@ -62,6 +62,10 @@ bool SubcribeManager::SetSubcribeInfo(const std::string& uid, const int64 vid) {
 			vip_logic::SubcribeInfo>(subcribe_cache_->user_subcribe_map_,
 					uid,subcribe_info);
 	subcribe_info.set_subcribe_id(vid);
+	std::string subcribe_str;
+	subcribe_info.get_subcirbe_string(subcribe_str);
+	if (!subcribe_str.empty())
+		vip_db_->RecordSubcribe(uid,subcribe_str);
 	return true;
 }
 
