@@ -6,6 +6,7 @@
 #include "operator_code.h"
 #include "basic/template.h"
 #include "logic/logic_comm.h"
+#include "tools/tools.h"
 #include <list>
 
 namespace vip_logic {
@@ -57,6 +58,13 @@ void VIPFactory::Dest() {
 }
 
 void VIPFactory::Test() {
+
+
+	std::string key = "1888888888888888888";
+	std::string t = tools::TeaEncode(key);
+	std::string r = tools::TeaDecode(t);
+	LOG_MSG2("%s",t.c_str());
+
 
 	/*OnVIPNewsEvent(1);
 	r = dict->GetString(L"response_type",&response_type);

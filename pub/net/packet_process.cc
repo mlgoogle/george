@@ -60,4 +60,27 @@ void PacketProcess::PackPacket (const int socket, base_logic::DictionaryValue* v
 }
 
 
+
+namespace jsonp_packet {
+
+PacketProcess::PacketProcess() {
+	serializer_ = base_logic::ValueSerializer::Create(base_logic::IMPL_JSON);
+}
+
+PacketProcess::~PacketProcess() {
+	if(serializer_){delete serializer_; serializer_ = NULL;}
+}
+
+void PacketProcess::PackPacket (const int socket, base_logic::DictionaryValue* value) {
+	std::string json;
+	bool r = serializer_->Serialize(*value, &json);
+	if (!r)
+		return;
+	LOG_MSG2("%s",json.c_str());
+	base_logic::LogicComm::SendFull(socket, json.c_str(),json.length());
+}
+
+}
+
+
 }

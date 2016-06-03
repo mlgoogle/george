@@ -38,6 +38,19 @@ class PacketProcess {
 	base_logic::ValueSerializer*         serializer_;
 };
 }
+
+namespace jsonp_packet {
+class PacketProcess {
+ public:
+	PacketProcess();
+	virtual ~PacketProcess();
+ public:
+	void PackPacket (const int socket, base_logic::DictionaryValue* value);
+ private:
+	base_logic::ValueSerializer*          serializer_;
+};
+
+}
 }
 
 #endif

@@ -82,8 +82,8 @@ class PacketHead {
 			head_value_->Set(L"packet_length",packet_length_);
 		if (is_zip_encrypt_ != NULL)
 			head_value_->Set(L"is_zip_encrypt_",is_zip_encrypt_);
-		//if (type_ != NULL)
-			//head_value_->Set(L"type",type_);
+		if (type_ != NULL)
+			head_value_->Set(L"type",type_);
 		if (signature_ != NULL)
 			head_value_->Set(L"signature",signature_);
 		if (operate_code_ != NULL)
