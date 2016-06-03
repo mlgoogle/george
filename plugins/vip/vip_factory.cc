@@ -32,14 +32,16 @@ VIPFactory::VIPFactory() {
 }
 
 VIPFactory::~VIPFactory() {
-	if(packet_) {delete packet_; packet_ = NULL;}
+	if(packet_json_) {delete packet_json_; packet_json_ = NULL;}
+	if(packet_jsonp_) {delete packet_jsonp_; packet_jsonp_ = NULL;}
 }
 
 void VIPFactory::Init() {
 	vip_usr_mgr_ = vip_logic::VIPUserEngine::GetVIPUserManager();
 	article_mgr_ = vip_logic::ArticleEngine::GetArticleManager();
 	subcribe_mgr_ = vip_logic::SubcribeEngine::GetSubcribeManager();
-	packet_ = new george_logic::json_packet::PacketProcess();
+	packet_json_ = new george_logic::json_packet::PacketProcess();
+	packet_jsonp_ = new george_logic::jsonp_packet::PacketProcess();
 
 }
 
@@ -135,7 +137,7 @@ void VIPFactory::OnHotVIPUser(const int socket,
 	vip_list->set_type(george_logic::VIP_TYPE);
 	vip_list->set_operator_code(HOT_USER_RLY);
 
-	packet_->PackPacket(socket, vip_list->packet());
+	packet_json_->PackPacket(socket, vip_list->packet());
 
 	if (hot_vip) { delete hot_vip; hot_vip = NULL;}
 	if (vip_list) { delete vip_list; vip_list = NULL;}
@@ -195,13 +197,13 @@ void VIPFactory::OnVIPArticle(const int socket,
 	vip_article_list->set_operator_code(VIP_ARTICLE_RLY);
 	vip_article_list->set_type(george_logic::VIP_TYPE);
 
-	packet_->PackPacket(socket, vip_article_list->packet());
+	packet_json_->PackPacket(socket, vip_article_list->packet());
 	if (vip_article) { delete vip_article; vip_article = NULL;}
 	if (vip_article_list) {delete vip_article_list; vip_article_list = NULL;}
 }
 
 void VIPFactory::OnVIPNewsEvent(const int socket,
-		base_logic::DictionaryValue* dict) {
+		base_logic::DictionaryValue* dict,george_logic::PacketHead* packet) {
 	vip_logic::net_request::VIPNews* vip_news = new vip_logic::net_request::VIPNews;
 	vip_news->set_http_packet(dict);
 	//获取最新文章
@@ -248,8 +250,9 @@ void VIPFactory::OnVIPNewsEvent(const int socket,
 
 	vip_list->set_type(2);
 	vip_list->set_operator_code(VIP_NEWS_RLY);
+	vip_list->set_jsonpcallback(packet->attach_field()->callback());
 
-	packet_->PackPacket(socket, vip_list->packet());
+	packet_jsonp_->PackPacket(socket, vip_list->packet());
 	if (vip_list) {delete vip_list; vip_list = NULL;}
 	if (uid) {delete [] uid; uid = NULL;}
 	if (vip_news) { delete vip_news; vip_news = NULL;}
@@ -268,7 +271,7 @@ void VIPFactory::OnSetVIPSubcribe(const int socket,
 	george_logic::PacketHead * head = new george_logic::PacketHead();
 	head->set_type(george_logic::VIP_TYPE);
 	head->set_operator_code(VIP_SETSUB_RLY);
-	packet_->PackPacket(socket, head->packet());
+	packet_json_->PackPacket(socket, head->packet());
 	if(head) {delete head; head = NULL;}
 }
 
@@ -308,7 +311,7 @@ void VIPFactory::OnUserSubcribe(const int socket,
 	}
 	vip_list->set_type(george_logic::VIP_TYPE);
 	vip_list->set_operator_code(VIP_SUBCRIBE_RLY);
-	packet_->PackPacket(socket, vip_list->packet());
+	packet_json_->PackPacket(socket, vip_list->packet());
 	if (vid) {delete [] vid; vid = NULL;}
 	if (subcribe_vip) { delete subcribe_vip; subcribe_vip = NULL;}
 	if (vip_list) { delete vip_list; vip_list = NULL;}

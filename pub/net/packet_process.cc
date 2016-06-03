@@ -64,7 +64,7 @@ void PacketProcess::PackPacket (const int socket, base_logic::DictionaryValue* v
 namespace jsonp_packet {
 
 PacketProcess::PacketProcess() {
-	serializer_ = base_logic::ValueSerializer::Create(base_logic::IMPL_JSON);
+	serializer_ = base_logic::ValueSerializer::Create(base_logic::IMPL_JSONP);
 }
 
 PacketProcess::~PacketProcess() {
