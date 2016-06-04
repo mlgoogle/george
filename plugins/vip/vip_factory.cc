@@ -6,7 +6,8 @@
 #include "operator_code.h"
 #include "basic/template.h"
 #include "logic/logic_comm.h"
-#include "tools/tools.h"
+#include "check/token.h"
+//#include "tools/tools.h"
 #include <list>
 
 namespace vip_logic {
@@ -61,11 +62,19 @@ void VIPFactory::Dest() {
 
 void VIPFactory::Test() {
 
+	std::string key = "pingan";
+	std::string uid = "10081";
+	std::string stoken;
+	base_logic::StringValue* key_value = new base_logic::StringValue(key);
+	base_logic::StringValue* uid_value = new base_logic::StringValue(uid);
+	base_logic::TokenMgr* token = new base_logic::TokenMgr;
+	stoken = token->CreateToken((base_logic::Value*)uid_value,(base_logic::Value*)key_value);
 
-	std::string key = "1888888888888888888";
+	token->CheckToken(uid,key,stoken);
+	/*std::string key = "1888888888888888888";
 	std::string t = tools::TeaEncode(key);
 	std::string r = tools::TeaDecode(t);
-	LOG_MSG2("%s",t.c_str());
+	LOG_MSG2("%s",t.c_str());*/
 
 
 	/*OnVIPNewsEvent(1);
