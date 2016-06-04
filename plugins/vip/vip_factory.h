@@ -35,13 +35,18 @@ class VIPFactory {
 	void OnVIPNewsEvent(const int socket,
 			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
 	void OnHotVIPUser(const int socket,
-			base_logic::DictionaryValue* dict);
+			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
 	void OnVIPArticle(const int socket,
-			base_logic::DictionaryValue* dict);
+			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
 	void OnUserSubcribe(const int socket,
-	    	base_logic::DictionaryValue* dict);
+	    	base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
 	void OnSetVIPSubcribe(const int socket,
-			base_logic::DictionaryValue* dict);
+			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
+
+ private:
+	void SendPacket(const int socket,george_logic::PacketHead* packet,
+			george_logic::AttachField* attach,
+			const int16 operator_code,const int8 type);
  private:
 	VIPUserManager*                                     vip_usr_mgr_;
 	ArticleManager*                                     article_mgr_;

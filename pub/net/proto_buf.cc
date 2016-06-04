@@ -13,10 +13,10 @@ PacketHead::~PacketHead() {
 		if (data_length_) {delete data_length_; data_length_ = NULL;}
 		if (timestamp_) {delete timestamp_; timestamp_ = NULL;}
 		if (session_id_) {delete session_id_; session_id_ = NULL;}
-		if (reserved_) {delete reserved_; reserved_ = NULL;}*/
+		if (reserved_) {delete reserved_; reserved_ = NULL;}
+		if (attach_field_) {delete attach_field_; attach_field_ = NULL;}*/
 		//在DictionaryValue 结构函数中已经将其释放↑
 		if (head_value_) {delete head_value_; head_value_ = NULL;}
-		if (attach_field_) {delete attach_field_; attach_field_ = NULL;}
 }
 
 
