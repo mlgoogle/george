@@ -34,14 +34,29 @@ class AttachField: public base_logic::DictionaryValue{
 
 	std::string format() {
 		std::string format;
-		format_->GetAsString(&format);
+		if(format_ != NULL)
+			format_->GetAsString(&format);
+		else
+			format = "json";
 		return  format;
 	}
 
 	std::string callback() {
 		std::string callback;
-		callback_->GetAsString(&callback);
+		if (callback_ != NULL)
+			callback_->GetAsString(&callback);
+		else
+			callback = "jsonp2016";
 		return callback;
+	}
+
+	base_logic::DictionaryValue* Get() {
+		base_logic::DictionaryValue* value = new base_logic::DictionaryValue();
+		if(callback_ != NULL)
+			value->Set(L"jsonpcallback",callback_);
+		if (format_ != NULL)
+			value->Set(L"format",format_);
+		return value;
 	}
 
  private:
@@ -144,6 +159,8 @@ class PacketHead {
 			head_value_->Set(L"session_id",session_id_);
 		if (reserved_ != NULL)
 			head_value_->Set(L"reserved",reserved_);
+		if (attach_field_ != NULL)
+			head_value_->Set(L"attach_filed",attach_field_->Get());
 		return head_value_;
 	}
 

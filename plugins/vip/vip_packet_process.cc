@@ -19,25 +19,25 @@ void PacketProcess::PacketPocessGet(const int socket,base_logic::DictionaryValue
 
 	switch (operate_code) {
 	 case VIP_NEWS_REQ: {
-		factory->OnVIPNewsEvent(socket, dict,packet);
+		factory->OnVIPNewsEvent(socket, dict, packet);
 		break;
 	 }
 	 case HOT_USER_REQ : {
-		 factory->OnHotVIPUser(socket, dict);
+		 factory->OnHotVIPUser(socket, dict, packet);
 		 break;
 	 }
 	 case VIP_ARTICLE_REQ : {
-		 factory->OnVIPArticle(socket, dict);
+		 factory->OnVIPArticle(socket, dict, packet);
 		 break;
 	 }
 
 	 case VIP_SUBCRIBE_REQ : {
-		 factory->OnUserSubcribe(socket, dict);
+		 factory->OnUserSubcribe(socket, dict, packet);
 		 break;
 	 }
 
 	 case VIP_SETSUB_REQ : {
-		 factory->OnSetVIPSubcribe(socket, dict);
+		 factory->OnSetVIPSubcribe(socket, dict, packet);
 		 break;
 	 }
 	 default:
