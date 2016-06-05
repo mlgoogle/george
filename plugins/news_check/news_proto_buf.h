@@ -120,7 +120,7 @@ class SendNews {
   void set_stock(const std::string& stock) { stock_ = new base_logic::StringValue(stock); }
   void set_industry(const std::string& ind) { industry_ = new base_logic::StringValue(ind); }
   void set_section(const std::string& sec) { section_ = new base_logic::StringValue(sec); }
-  void set_from (const int32 from) { from_ =  new base_logic::FundamentalValue(from); }
+  void set_from (const std::string& from) { from_ =  new base_logic::StringValue(from); }
 
   DicValue* get() {
     value_ = new DicValue();
@@ -148,7 +148,7 @@ class SendNews {
   base_logic::StringValue* stock_;
   base_logic::StringValue* industry_;
   base_logic::StringValue* section_;
-  base_logic::FundamentalValue* from_;
+  base_logic::StringValue* from_;
   DicValue* value_;
 
 };

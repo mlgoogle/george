@@ -47,9 +47,8 @@ void News::Serialization(DicValue* value) {
   value->GetBigInteger(L"sentiment", &n);
   data_->sentiment_ = n;
   value->GetBigInteger(L"updated_time", &data_->updated_time_);
-  n = 0;
-  value->GetBigInteger(L"from", &n);
-  data_->from_ = n;
+  value->GetString(L"from", &data_->from_);
+
 }
 
 SimpleNews::SimpleNews() {

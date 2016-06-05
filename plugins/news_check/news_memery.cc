@@ -41,16 +41,14 @@ void NewsMemery::InitNewMysql(NewsMysql* ptr) {
 }
 
 int NewsMemery::UpdateCacheNews() {
-  LOG_MSG("start to update");
   int err = 0;
   //最新的count条新闻
   do {
     NewsMap map;
     LOG_MSG2("exec sql before map.size(%d)", map.size());
     LOG_MSG2("lasttime_(%ld)", lasttime_);
-    news_mysql_->QueryNews(lasttime_, MAX_NEWS_COUNT, &map);
+    news_mysql_->QueryNews(lasttime_, EVERY_NEWS_COUNT, &map);
     if (map.size() <= 0) {
-      LOG_MSG("no news update");
       break;
     }
     lasttime_ = tools::CurrentTime()*1000;
@@ -61,8 +59,9 @@ int NewsMemery::UpdateCacheNews() {
   do {
     //新的7天（过了一天）
     if (GetDaysMilliSecond(7) != seven_days_time_ && count_time_ != 0) {
-        LOG_DEBUG("a day has gone!");
+      LOG_DEBUG("a day has gone!");
       UpAllSimpleMap();
+      seven_days_time_ = GetDaysMilliSecond(7);
     }
     int64 time_now = tools::CurrentTime()*1000;;
     int64 time_old = 0;
@@ -73,12 +72,10 @@ int NewsMemery::UpdateCacheNews() {
       time_old = count_time_;
     }
     SimpleMap nmap;
-    LOG_DEBUG2("time_now[%ld]time_old[%ld]time_count[%ld]", time_now, time_old, count_time_);
     news_mysql_->QueryStNews(time_now, time_old, &nmap);
     NewsStAnalyze(&nmap);
     count_time_ = time_now;
   } while (0);
-  LOG_MSG("end to update");
   return err;
 }
 
@@ -205,11 +202,12 @@ void NewsMemery::CountStNews(SimpleNews news) {
         if (senti == 0)
           nnews->non_nagative_++;
       } else {
+        int32 pos = GetDaysToCur(time);
+        if (pos >= 7 || pos < 0)
+          continue;
         std::deque<NewsCount*> count_vec;
         Init7Vector(&count_vec);
         co_map_[item] = count_vec;
-        int32 pos = GetDaysToCur(time);
-        assert(pos < 7 && pos >= 0);
         NewsCount* nnews = count_vec[pos];
         nnews->count_++;
         if (senti == 1)
@@ -259,9 +257,9 @@ void NewsMemery::NewsAnalyze(NewsMap* map) {
       News old_news = it_cache->second;
       UpdateNews(news, old_news);
       news_map_.insert(NewsMap::value_type(news.id(), news));
-    }
-    else {
+    } else {
       if (news_map_.size() >= MAX_NEWS_COUNT) {
+        LOG_DEBUG("news_map_.size() >= MAX_NEWS_COUNT, delnews");
         DelNews();
       }
       news_map_.insert(NewsMap::value_type(news.id(), news));
@@ -295,7 +293,7 @@ void NewsMemery::AddAndDelCom(RfNewsMap* map, std::vector<std::string>* increase
         tmap.erase(tmap_it);
       }
     }
-    decrease->erase(++de_it);
+    decrease->erase(de_it);
   }
   std::vector<std::string>::iterator in_it = increase->begin();
   for (; in_it != increase->end(); ) {
@@ -307,7 +305,7 @@ void NewsMemery::AddAndDelCom(RfNewsMap* map, std::vector<std::string>* increase
         tmap[id] = id;
       }
     }
-    increase->erase(++in_it);
+    increase->erase(in_it);
   }
 
   assert(increase->size() == 0);
@@ -331,8 +329,8 @@ void NewsMemery::CompareString(std::string newer, std::string older,
           if (same != NULL) {
             same->push_back(*in_it);
           }
-          increase->erase(++in_it);
-          decrease->erase(++de_it);
+          increase->erase(in_it);
+          decrease->erase(de_it);
           flag = true;
           break;
         } else {

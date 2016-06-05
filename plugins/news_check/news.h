@@ -40,7 +40,7 @@ class News {
   std::string rf_stock() const { return data_->rf_stock_; }
   std::string rf_industry() const { return data_->rf_industry_; }
   std::string rf_section() const { return data_->rf_section_; }
-  int32 from() const { return data_->from_; }
+  std::string from() const { return data_->from_; }
 
   void set_id(int64 id) { data_->id_ = id; }
   void set_type(int64 type) { data_->type_ = type; }
@@ -53,12 +53,12 @@ class News {
   void set_rf_stock(std::string stock) { data_->rf_stock_ = stock; }
   void set_rf_industry(std::string industry) { data_->rf_industry_ = industry; }
   void set_rf_section(std::string section) { data_->rf_section_ = section; }
-  void set_from(int32 from) { data_->from_ = from; }
+  void set_from(std::string from) { data_->from_ = from; }
 
   class Data {
    public:
     Data() : id_(-1), type_(-1), time_(0), updated_time_(0), sentiment_(0),
-    from_(0), refs_(1) {};
+    refs_(1) {};
 
    public:
     int64 id_;
@@ -72,7 +72,7 @@ class News {
     std::string rf_stock_;
     std::string rf_industry_;
     std::string rf_section_;
-    int32 from_;
+    std::string from_;
 
     void AddRef() {
       MutexLock lock(&refs_mutex_);

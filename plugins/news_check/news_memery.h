@@ -13,7 +13,8 @@
 #include "news_check/news_proto_buf.h"
 #include "base/thread/base_thread_lock.h"
 
-const int MAX_NEWS_COUNT = 1000;
+const int MAX_NEWS_COUNT = 10000;
+const int EVERY_NEWS_COUNT = 4000;
 namespace news {
 
 class NewsMemery {
@@ -99,7 +100,6 @@ class NewsMemery {
 
  private:
   static NewsMemery* instance_;
-
 
 };
 

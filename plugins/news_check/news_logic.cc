@@ -99,7 +99,7 @@ bool Newslogic::OnBroadcastClose(struct server *srv, const int socket) {
 }
 
 bool Newslogic::OnIniTimer(struct server *srv) {
-  srv->add_time_task(srv, "news", UPDATE_NEWS, 60, -1);
+  srv->add_time_task(srv, "news", UPDATE_NEWS, 10, -1);
   return true;
 }
 

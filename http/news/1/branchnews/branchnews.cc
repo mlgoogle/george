@@ -18,7 +18,7 @@
 #include "pub/net/comm_head.h"
 #include "fcgimodule/fcgimodule.h"
 #include "base/logic/logic_comm.h"
-#include "news_check/operator_code.h"
+#include "plugins/news_check/operator_code.h"
 
 // 设置请求类型
 #define API_TYPE george_logic::NEWS_TYPE
