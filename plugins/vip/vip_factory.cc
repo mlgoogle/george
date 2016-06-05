@@ -303,20 +303,53 @@ void VIPFactory::OnUserSubcribe(const int socket,
 	subcribe_vip->set_http_packet(dict);
 	int64* vid = NULL;
 
+	int count = subcribe_vip->count();
+
 	int32 now_count = subcribe_mgr_->GetSubcribeInfo(subcribe_vip->uid(),
 			subcribe_vip->pos(),subcribe_vip->count(),
 			&vid);
 
+
 	std::map<int64, vip_logic::VIPUserInfo>  map;
+	std::map<int64,vip_logic::ArticleInfo>   amap;
 	//获取大V信息
 	vip_usr_mgr_->GetVIPUserInfo(vid,now_count,map);
-	//
+	//获取大V对应的最新文章
+	article_mgr_->GetVIPNewArticle(vid,now_count,amap);
+
 
 	vip_logic::net_reply::VIPUserList* vip_list = new vip_logic::net_reply::VIPUserList();
 
 	int32 index = 0;
 	std::map<int64, vip_logic::VIPUserInfo>::iterator it = map.begin();
-	for(it = map.begin();index < now_count,it != map.end();it++,index++) {
+
+	index = 0;
+	for(;index < count,it != map.end();it++,index++) {
+		vip_logic::VIPUserInfo vip_user = it->second;
+		vip_logic::ArticleInfo article;
+		bool r = base::MapGet<std::map<int64,vip_logic::ArticleInfo> ,
+				std::map<int64,vip_logic::ArticleInfo> ::iterator,
+						int64,vip_logic::ArticleInfo>(amap,
+								vip_user.id(),article);
+		if (!r)
+			continue;
+		vip_logic::net_reply::VIPNews* news = new  vip_logic::net_reply::VIPNews();
+		news->set_aid(article.id());
+		news->set_article_source(article.source_name());
+		news->set_article_time(article.article_unix_time());
+		news->set_title(article.title());
+		news->set_vid(vip_user.id());
+		news->set_name(vip_user.name());
+		news->set_subcribe_count(vip_user.subscribe_count());
+		news->set_article_url(article.url());
+		news->set_flag(article.type());
+		news->set_introduction(vip_user.introduction());
+		news->set_protrait(vip_user.portrait());
+		vip_list->set_vip_news(news->get());
+	}
+
+
+	/*for(it = map.begin();index < now_count,it != map.end();it++,index++) {
 		vip_logic::VIPUserInfo vip_user = it->second;
 		vip_logic::net_reply::VIPUser* user = new  vip_logic::net_reply::VIPUser();
 		user->set_home_page(vip_user.home_page());
@@ -326,8 +359,9 @@ void VIPFactory::OnUserSubcribe(const int socket,
 		user->set_subscribe_count(vip_user.subscribe_count());
 		user->set_vid(vip_user.id());
 		user->set_vip(vip_user.vip());
+
 		vip_list->set_vip_news(user->get());
-	}
+	}*/
 	/*vip_list->set_type(george_logic::VIP_TYPE);
 	vip_list->set_operator_code(VIP_SUBCRIBE_RLY);
 	packet_json_->PackPacket(socket, vip_list->packet());*/
@@ -345,14 +379,13 @@ void VIPFactory::SendPacket(const int socket, george_logic::PacketHead* packet,
 	packet->set_operator_code(operator_code);
 	packet->set_type(type);
 	if(attach->format()=="jsonp") {
-		//
 		packet->attach_field()->set_callback(attach->callback());
 		packet_jsonp_->PackPacket(socket,packet->packet());
 	}
 	else
 		packet_json_->PackPacket(socket,packet->packet());
-
 }
+
 
 
 }

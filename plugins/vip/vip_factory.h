@@ -31,6 +31,8 @@ class VIPFactory {
 	void InitParam(config::FileConfig* config);
 
 	void Test();
+
+	//void SendError(const int socket,const int16 operator_code);
  public:
 	void OnVIPNewsEvent(const int socket,
 			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);

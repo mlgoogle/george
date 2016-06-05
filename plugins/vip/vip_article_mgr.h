@@ -40,6 +40,9 @@ class ArticleManager {
 	bool GetArticleInfo(const int64* aid,
 			std::map<int64,vip_logic::ArticleInfo>& map);
 
+	bool GetVIPNewArticle(const int64* uid,const int32 n,
+			std::map<int64,vip_logic::ArticleInfo>& map);
+
 	bool GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const int32 count);
 
 	bool GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const int32 pos,

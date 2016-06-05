@@ -81,8 +81,10 @@ bool VIPLogic::OnVIPMessage(struct server *srv, const int socket,
                 || len < 0)
     	return false;
 
-    packet_->UnpackPacket(socket, msg,len,george_logic::VIP_TYPE,
+    r = packet_->UnpackPacket(socket, msg,len,george_logic::VIP_TYPE,
     		vip_logic::http_packet::PacketProcess::PacketPocessGet);
+    if (!r) //异常
+    	return false;
 
     return true;
 }
