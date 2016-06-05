@@ -285,13 +285,16 @@ void VIPFactory::OnSetVIPSubcribe(const int socket,
 
 	subcribe_mgr_->SetSubcribeInfo(set_subcribe_vip->uid(),
 			set_subcribe_vip->vid());
-	george_logic::PacketHead * head = new george_logic::PacketHead();
+
+	SendHeader(socket, packet->attach_field(),VIP_SETSUB_RLY,
+			george_logic::VIP_TYPE);
+	/*george_logic::PacketHead * head = new george_logic::PacketHead();
 	SendPacket(socket,head,packet->attach_field(),
 			VIP_SETSUB_RLY,george_logic::VIP_TYPE);
 	/*head->set_type(george_logic::VIP_TYPE);
 	head->set_operator_code(VIP_SETSUB_RLY);
-	packet_json_->PackPacket(socket, head->packet());*/
-	if(head) {delete head; head = NULL;}
+	packet_json_->PackPacket(socket, head->packet());
+	if(head) {delete head; head = NULL;}*/
 }
 
 
@@ -378,12 +381,24 @@ void VIPFactory::SendPacket(const int socket, george_logic::PacketHead* packet,
 		const int16 operator_code, const int8 type) {
 	packet->set_operator_code(operator_code);
 	packet->set_type(type);
-	if(attach->format()=="jsonp") {
+	if (attach != NULL && attach->format()=="jsonp") {
 		packet->attach_field()->set_callback(attach->callback());
-		packet_jsonp_->PackPacket(socket,packet->packet());
-	}
-	else
+				packet_jsonp_->PackPacket(socket,packet->packet());
+	} else
 		packet_json_->PackPacket(socket,packet->packet());
+}
+
+void VIPFactory::SendError(const int socket,george_logic::AttachField* attach,
+			const int16 operator_code) {
+	SendHeader(socket, attach, operator_code, george_logic::ERROR_TYPE);
+}
+
+
+void VIPFactory::SendHeader(const int socket,george_logic::AttachField* attach,
+			const int16 operator_code, const int8 type) {
+	george_logic::PacketHead *header  = new george_logic::PacketHead();
+	SendPacket(socket, header, attach, operator_code, type);
+	if (header) {delete header;header = NULL;}
 }
 
 
