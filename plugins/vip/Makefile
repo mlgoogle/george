@@ -124,17 +124,14 @@ data_mysql_engine.o : ./$(PUB_DIR)/storage/data_mysql_engine.cc ./$(PUB_DIR)/sto
 mysql_pool.o : ./$(PUB_DIR)/storage/mysql_pool.cc ./$(PUB_DIR)/storage/mysql_pool.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(PUB_DIR)/storage/mysql_pool.cc $(INCLUDE_PATHS)
 
-tools.o : ./$(PUB_DIR)/tools/tools.cc ./$(PUB_DIR)/tools/tools.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(PUB_DIR)/tools/tools.cc $(INCLUDE_PATHS)
-	
-tea.o : ./$(PUB_DIR)/tea/tea.cc ./$(PUB_DIR)/tea/tea.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(PUB_DIR)/tea/tea.cc $(INCLUDE_PATHS)
+token.o : ./$(PUB_DIR)/check/token.cc ./$(PUB_DIR)/check/token.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./$(PUB_DIR)/check/token.cc $(INCLUDE_PATHS)
 
 $(TEST) : 
 
-$(PLUGIN) : vip_init.o vip_logic.o vip_basic_info.o vip_db.o vip_factory.o tea.o\
+$(PLUGIN) : vip_init.o vip_logic.o vip_basic_info.o vip_db.o vip_factory.o\
 	vip_user_mgr.o vip_article_mgr.o vip_packet_process.o packet_process.o\
-	vip_proto_buf.o proto_buf.o vip_subcribe_mgr.o tools.o\
+	vip_proto_buf.o proto_buf.o vip_subcribe_mgr.o token.o\
 	data_engine.o data_mysql_engine.o mysql_pool.o\
 	$(CUSTOM_THIRD_PATH)/dmg_fp/lib/dmg_fp.a $(LIB_DIR)/mylib/base/lib/mybase.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LINK_PATHS) -lexpat -lrt -lpthread -ldl -lmysqlclient \

@@ -129,6 +129,24 @@ bool ArticleManager::GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const
 	return true;
 }
 
+bool ArticleManager::GetVIPNewArticle(const int64* uid,const int32 n,
+			std::map<int64,vip_logic::ArticleInfo>& map) {
+	base_logic::RLockGd lk(lock_);
+	bool r = false;
+	for (int32 i = 0; i < n; i++) {
+		ARTICLEINFO_VEC vec;
+		r = base::MapGet<VIPARTICLE_VEC,VIPARTICLE_VEC::iterator,
+				int64,ARTICLEINFO_VEC>(article_cache_->vip_article_info_vec_,
+						uid[i],vec);
+		if(r) {
+			vip_logic::ArticleInfo article = vec[0];
+			map[uid[i]] = article;
+		}
+	}
+
+	return true;
+}
+
 
 bool ArticleManager::GetVIPArticle(const int64 vid,
 			std::list<vip_logic::ArticleInfo>& list,const int32 pos,
@@ -184,7 +202,6 @@ bool ArticleManager::GetVIPArticleT(std::list<vip_logic::ArticleInfo>& list,cons
 	}
 	return true;
 }
-
 
 
 }
