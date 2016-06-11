@@ -520,8 +520,8 @@ public:
 	base_logic::DictionaryValue* body() {
 		body_value_ = new base_logic::DictionaryValue();
 		base_logic::DictionaryValue* dict  = new base_logic::DictionaryValue();
-		if(article_list_->GetSize() > 0) dict->Set(L"article", article_list_);
-		if(live_list_->GetSize() > 0) dict->Set(L"live", live_list_);
+		if(article_list_ != NULL ) dict->Set(L"article", article_list_);
+		if(live_list_ != NULL) dict->Set(L"live", live_list_);
 		body_value_->SetWithoutPathExpansion(L"info",dict);
 		body_value_->SetWithoutPathExpansion(L"vip",vip_info_);
 		return body_value_;

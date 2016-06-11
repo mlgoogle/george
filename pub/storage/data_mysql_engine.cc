@@ -21,13 +21,12 @@ bool DataMYSQLEngine::WriteData(const int32 type, base_logic::Value* value) {
     if (engine == NULL) {
           LOG_ERROR("GetConnection Error");
           return false;
-      }
+    }
      r = engine->SQLExec(sql.c_str());
       if (!r) {
           LOG_ERROR("exec sql error");
           return false;
      }
-
       db_pool_.DBConnectionPush(engine);
 
     /*base_db::AutoMysqlCommEngine auto_engine;ß
@@ -59,18 +58,17 @@ bool DataMYSQLEngine::ReadData(const int32 type, base_logic::Value* value,
     if (engine == NULL) {
           LOG_ERROR("GetConnection Error");
           return false;
-      }
-     engine->Release();
+    }
      r = engine->SQLExec(sql.c_str());
       if (!r) {
           LOG_ERROR("exec sql error");
           return false;
      }
 
-      if (storage_get == NULL)
-          return r;
-      storage_get(reinterpret_cast<void*>(engine), value);
+      if (storage_get != NULL)
+    	  storage_get(reinterpret_cast<void*>(engine), value);
 
+      engine->Release();
       db_pool_.DBConnectionPush(engine);
     /*base_db::AutoMysqlCommEngine auto_engine;
     base_storage::DBStorageEngine* engine  = auto_engine.GetDBEngine();

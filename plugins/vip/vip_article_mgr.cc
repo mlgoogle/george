@@ -152,15 +152,16 @@ bool ArticleManager::GetVIPArticle(const int64 vid,
 			std::list<vip_logic::ArticleInfo>& list,const int32 pos,
 			const int32 count,const int8 flag) {
 	base_logic::RLockGd lk(lock_);
-
-	if (flag==0 || flag == 1) {
+	/*if (flag == 1) */{
 		ARTICLEINFO_VEC vec;
 		bool r = base::MapGet<VIPARTICLE_VEC,VIPARTICLE_VEC::iterator,
 					int64,ARTICLEINFO_VEC>(article_cache_->vip_article_info_vec_,
 							vid,vec);
 		if (r)
 			GetVIPArticleT(list, pos, count,vec);
-	}else if(flag==0 || flag == 2) {
+	}
+
+	/*if(flag == 2) */{
 		ARTICLEINFO_VEC vec;
 		bool r = base::MapGet<VIPARTICLE_VEC,VIPARTICLE_VEC::iterator,
 					int64,ARTICLEINFO_VEC>(article_cache_->vip_live_info_vec_,

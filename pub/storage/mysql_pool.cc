@@ -44,6 +44,7 @@ void MYSQL_Pool::Init(std::list<base::ConnAddr>& addrlist,
 
 void MYSQL_Pool::DBConnectionPush(base_storage::DBStorageEngine* engine){
 	base_logic::WLockGd lk(db_pool_lock_);
+	engine->Release();
 	db_conn_pool_.push_back(engine);
 }
 
