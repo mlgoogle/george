@@ -11,7 +11,9 @@ namespace news {
 
 #define RELATE_NEWS_REQ   george_logic::NEWS_TYPE * 1000 + 1
 #define RELATE_NEWS_RLY   george_logic::NEWS_TYPE * 1000 + 2
+
 #define RELATE_COUNT_REQ  george_logic::NEWS_TYPE * 1000 + 3
+#define RELATE_COUNT_RLY  george_logic::NEWS_TYPE * 1000 + 4
 
 }  // namespace news
 

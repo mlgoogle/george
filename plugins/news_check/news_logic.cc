@@ -72,9 +72,14 @@ bool Newslogic::OnNewsConnect(struct server *srv, const int socket) {
 
 bool Newslogic::OnNewsMessage(struct server *srv, const int socket,
                               const void *msg, const int len) {
+  bool r = false;
   LOG_DEBUG2("msg:[%s]", msg);
-  packet_->UnpackPacket(socket, msg,len,george_logic::NEWS_TYPE,
+  r = packet_->UnpackPacket(socket, msg,len,george_logic::NEWS_TYPE,
                         NewsPacket::PacketPocessGet);
+  if (!r) {//异常
+      news_interface_->SendError(socket,NULL,0);
+    return false;
+  }
   return true;
 }
 
@@ -99,14 +104,13 @@ bool Newslogic::OnBroadcastClose(struct server *srv, const int socket) {
 }
 
 bool Newslogic::OnIniTimer(struct server *srv) {
-  srv->add_time_task(srv, "news", UPDATE_NEWS, 10, -1);
+  srv->add_time_task(srv, "news", UPDATE_NEWS, 60*5, -1);
   return true;
 }
 
 
 
 bool Newslogic::OnTimeout(struct server *srv, char *id, int opcode, int time) {
-  LOG_DEBUG2("OnTimeout news:%s", "222");
    switch (opcode) {
      case UPDATE_NEWS: {
        news_interface_->UpdateNews();

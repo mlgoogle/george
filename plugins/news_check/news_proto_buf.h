@@ -97,17 +97,7 @@ class SendNews {
     value_ = NULL;
   }
   ~SendNews() {
-    if (nid_) { delete nid_; nid_ = NULL; }
-    if (type_) { delete type_; type_ = NULL; }
-    if (time_) { delete time_; time_ = NULL; }
-    if (sentiment_) { delete sentiment_; sentiment_ = NULL; }
-    if (title_) { delete title_; title_ = NULL; }
-    if (url_) { delete url_; url_ = NULL; }
-    if (summary_) { delete summary_; summary_ = NULL; }
-    if (stock_) { delete stock_; stock_ = NULL; }
-    if (industry_) { delete industry_; industry_ = NULL; }
-    if (section_) { delete section_; section_ = NULL; }
-    if (from_) { delete from_; from_ = NULL; }
+    if (value_) { delete value_; value_ = NULL; }
   }
 
   void set_nid(const int64 id) { nid_ = new base_logic::FundamentalValue(id); }
@@ -162,9 +152,9 @@ class SendSt {
     value_ = NULL;
   }
   ~SendSt() {
-    if (count_) { delete count_; count_ = NULL; }
-    if (non_nagative_) { delete non_nagative_; non_nagative_ = NULL; }
-    if (nagative_) { delete nagative_; nagative_ = NULL; }
+    if (value_) { delete value_; value_ = NULL; }
+//    if (non_nagative_) { delete non_nagative_; non_nagative_ = NULL; }
+//    if (nagative_) { delete nagative_; nagative_ = NULL; }
   }
 
   void set_count(const int32 count) { count_ = new base_logic::FundamentalValue(count); }
@@ -191,13 +181,10 @@ class NewsList : public george_logic::PacketHead {
  public:
   NewsList() {
     list_ = new base_logic::ListValue();
+    jsonpcallback_ = NULL;
   }
 
   virtual ~NewsList() {
-    if (list_ != NULL) {
-        delete list_;
-        list_ = NULL;
-    }
     if (body_value_ != NULL) {
         delete body_value_;
         body_value_ = NULL;
@@ -208,10 +195,19 @@ class NewsList : public george_logic::PacketHead {
       list_->Append(value);
   }
 
+  void set_jsonpcallback(const std::string& callback) {
+    if (jsonpcallback_ == NULL) {
+      jsonpcallback_ = new base_logic::StringValue(callback);
+    }
+  }
+
   base_logic::DictionaryValue* body() {
     body_value_ = new base_logic::DictionaryValue();
     body_value_->SetWithoutPathExpansion(L"list",list_);
     body_value_->SetInteger(L"count",list_->GetSize());
+    if (jsonpcallback_ != NULL) {
+      body_value_->Set(L"jsonpcallback",jsonpcallback_);
+    }
     return body_value_;
   }
 
@@ -223,6 +219,7 @@ class NewsList : public george_logic::PacketHead {
 
  private:
   base_logic::ListValue* list_;
+  base_logic::StringValue* jsonpcallback_;
 };
 
 }  // namespace send

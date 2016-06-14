@@ -23,11 +23,11 @@ void NewsPacket::PacketPocessGet(const int socket, DicValue* dict,
 
   switch (operate_code) {
    case RELATE_NEWS_REQ: {
-     interface->OnRelateNewsEvent(socket, dict);
+     interface->OnRelateNewsEvent(socket, dict, packet);
      break;
    }
    case RELATE_COUNT_REQ: {
-     interface->OnStNewsEvent(socket, dict);
+     interface->OnStNewsEvent(socket, dict, packet);
      break;
    }
    default:

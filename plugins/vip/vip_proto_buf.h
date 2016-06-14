@@ -206,13 +206,13 @@ class SubcribeVIP: public george_logic::PacketHead{
 	}
 
 	const int32 pos() const {
-		int32 pos;
+		int32 pos = 0;
 		pos_->GetAsInteger(&pos);
 		return pos;
 	}
 
 	const int32 count() const {
-		int32 count;
+		int32 count = 10;
 		count_->GetAsInteger(&count);
 		return count;
 	}
@@ -287,7 +287,8 @@ class VIPNews{
 	VIPNews() {
 		article_type_ =  NULL;
 		vid_ = aid_ =  article_time_ = NULL;
-		name_ = title_ = article_source_  =  NULL;
+		name_ = title_ = article_source_  =  protrait_ =  introduction_ = NULL;
+		subcribe_count_ = NULL;
 		value_ = NULL;
 
 	}
@@ -301,6 +302,16 @@ class VIPNews{
 		else
 			title_ = new base_logic::StringValue(title);
 	}
+
+	void set_protrait(const std::string& protrait) {
+		protrait_  = new base_logic::StringValue(protrait);
+	}
+
+	void set_introduction(const std::string& introduction) {
+		introduction_  = new base_logic::StringValue(introduction);
+	}
+
+	void set_subcribe_count(const int64 subcribe_count) {subcribe_count_ = new base_logic::FundamentalValue(subcribe_count);}
 
 	void set_article_source(const std::string& article_source) {article_source_
 		= new base_logic::StringValue(article_source);}
@@ -345,18 +356,27 @@ class VIPNews{
 			value_->Set(L"url",article_url_);
 		if(flag_ != NULL)
 			value_->Set(L"flag", flag_);
+		if(subcribe_count_ != NULL)
+			value_->Set(L"subcribe_count",subcribe_count_);
+		if(protrait_ != NULL)
+			value_->Set(L"protrait",protrait_);
+		if(introduction_ != NULL)
+			value_->Set(L"introduction",introduction_);
 		return value_;
 	}
 
  private:
 	base_logic::FundamentalValue*       vid_;
 	base_logic::FundamentalValue*       aid_;
+	base_logic::FundamentalValue*       subcribe_count_;
 	base_logic::StringValue*            name_;
 	base_logic::StringValue*            title_;
 	base_logic::FundamentalValue*       flag_;
 	base_logic::StringValue*            article_source_;
 	base_logic::StringValue*            article_url_;
 	base_logic::ListValue*              article_type_;
+	base_logic::StringValue*            protrait_;
+	base_logic::StringValue*            introduction_;
 	base_logic::FundamentalValue*       article_time_;
 	base_logic::DictionaryValue*        value_;
 };

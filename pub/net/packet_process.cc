@@ -17,15 +17,20 @@ PacketProcess::~PacketProcess() {
 	if (serializer_){delete serializer_; serializer_ = 	NULL;}
 }
 
-void PacketProcess::UnpackPacket(const int socket, const void *msg, const int len, const int8 type,
+bool PacketProcess::UnpackPacket(const int socket, const void *msg, const int len, const int8 type,
 		void (*packet_process)(const int socket, base_logic::DictionaryValue*,
 				george_logic::PacketHead*)) {
 
   std::string error_str;
   int error_code = 0;
 	std::string packet_stream((const char*)msg,len);
+	if (len <= 0 || socket < 0 || msg == NULL )
+		return false;
 	base_logic::Value* value = serializer_->Deserialize(&packet_stream,
 			&error_code, &error_str);
+
+	if (value == NULL)
+		return false;
 
 	george_logic::PacketHead* packet = new george_logic::PacketHead;
 
@@ -36,6 +41,7 @@ void PacketProcess::UnpackPacket(const int socket, const void *msg, const int le
 	//通过type判断数据什么packet
 	if (packet->type() == type)
 		packet_process(socket, dict, packet);
+	return true;
 }
 
 

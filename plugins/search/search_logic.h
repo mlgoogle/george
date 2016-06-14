@@ -7,56 +7,36 @@
 #include "net/operator_code.h"
 #include "net/error_comm.h"
 #include "core/common.h"
+#include "search/search_interface.h"
+#include "pub/net/packet_process.h"
 
-#define DEFAULT_CONFIG_PATH     "./plugins/search/search_config.xml"
-
-namespace search_logic {
-class Searchlogic {
+namespace search {
+class SearchLogic {
  public:
-  virtual ~Searchlogic();
+  virtual ~SearchLogic();
 
  private:
-  Searchlogic();
+  SearchLogic();
 
-class crelease {
-  ~crelease() {
-    if (instance_ != NULL) {
-      delete instance_;
-      instance_ = NULL;
-    }
-  }
-};
-
-  static crelease release_;
-  static Searchlogic *instance_;
+  static SearchLogic *instance_;
 
  public:
-  static Searchlogic *GetInstance() {
-    if (instance_ == NULL) {
-      instance_ = new Searchlogic();
-    }
-    return instance_;
-  }
+  static SearchLogic *GetInstance();
+  static void FreeInstance();
 
  public:
   bool OnSearchConnect(struct server *srv, const int socket);
 
-  bool OnSearchMessage(struct server *srv, \
-                        const int socket, \
-                         const void *msg, \
-                           const int len);
+  bool OnSearchMessage(struct server *srv, const int socket, const void *msg,
+                       const int len);
 
   bool OnSearchClose(struct server *srv, const int socket);
 
-  bool OnBroadcastConnect(struct server *srv, \
-                            const int socket, \
-                            const void *data, \
-                               const int len);
+  bool OnBroadcastConnect(struct server *srv, const int socket,
+                          const void *data, const int len);
 
-  bool OnBroadcastMessage(struct server *srv, \
-                            const int socket, \
-                             const void *msg, \
-                                const int len);
+  bool OnBroadcastMessage(struct server *srv, const int socket, const void *msg,
+                          const int len);
 
   bool OnBroadcastClose(struct server *srv, const int socket);
 
@@ -65,14 +45,9 @@ class crelease {
   bool OnTimeout(struct server *srv, char* id, int opcode, int time);
 
  private:
-  bool OnSearch(struct server *srv, \
-                  const int socket, \
-                  NetBase* netbase, \
-            const void* msg = NULL, \
-                 const int len = 0);
-
- private:
   bool Init();
+  SearchInterface* search_interface_;
+  george_logic::http_packet::PacketProcess* packet_;
 };
 
 }  //  namespace search_logic

@@ -131,7 +131,8 @@ void NewsMemery::UpdateNewsCount(SimpleNews new_sim, SimpleNews old_sim) {
     if (it != co_map_.end()) {
       std::deque<NewsCount*>& deq = it->second;
       int32 pos = GetDaysToCur(new_sim.time());
-      assert(pos < 7 && pos >= 0);
+      if (pos >=7 || pos < 0)
+        continue;
       NewsCount* nnews = deq[pos];
       nnews->count_--;
       if (old_sim.sentiment() == 1)
@@ -146,7 +147,8 @@ void NewsMemery::UpdateNewsCount(SimpleNews new_sim, SimpleNews old_sim) {
     if (it != co_map_.end()) {
       std::deque<NewsCount*>& deq = it->second;
       int32 pos = GetDaysToCur(new_sim.time());
-      assert(pos < 7 && pos >= 0);
+      if (pos >=7 || pos < 0)
+        continue;
       NewsCount* nnews = deq[pos];
       nnews->count_--;
       if (new_sim.sentiment() == 1)
@@ -161,7 +163,8 @@ void NewsMemery::UpdateNewsCount(SimpleNews new_sim, SimpleNews old_sim) {
     if (it != co_map_.end()) {
       std::deque<NewsCount*>& deq = it->second;
       int32 pos = GetDaysToCur(new_sim.time());
-      assert(pos < 7 && pos >= 0);
+      if (pos >=7 || pos < 0)
+        continue;
       NewsCount* nnews = deq[pos];
       if (new_sim.sentiment() != old_sim.sentiment()) {
         if (new_sim.sentiment() == 1)
@@ -194,7 +197,8 @@ void NewsMemery::CountStNews(SimpleNews news) {
       if (it != co_map_.end()) {
         std::deque<NewsCount*>& count_vec = it->second;
         int32 pos = GetDaysToCur(time);
-        assert(pos < 7 && pos >= 0);
+        if (pos >= 7 || pos < 0)
+           continue;
         NewsCount* nnews = count_vec[pos];
         nnews->count_++;
         if (senti == 1)

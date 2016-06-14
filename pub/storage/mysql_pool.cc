@@ -17,7 +17,6 @@ MYSQL_Pool::MYSQL_Pool()
 void MYSQL_Pool::Init(std::list<base::ConnAddr>& addrlist,
 				  const int32 db_conn_num/* = 5*/) {
 	addrlist_ = addrlist;
-
 	bool r =false;
 	InitThreadrw(&db_pool_lock_);
 	for (int i = 0; i<db_conn_num;i++){
@@ -35,7 +34,7 @@ void MYSQL_Pool::Init(std::list<base::ConnAddr>& addrlist,
 			LOG_ERROR("db conntion error");
 			continue;
 		}
-
+	  LOG_ERROR("init db_conn_pool_-----");
 		db_conn_pool_.push_back(engine);
 
 	}
@@ -43,16 +42,22 @@ void MYSQL_Pool::Init(std::list<base::ConnAddr>& addrlist,
 
 
 void MYSQL_Pool::DBConnectionPush(base_storage::DBStorageEngine* engine){
+  LOG_ERROR("DBConnectionPush");
 	base_logic::WLockGd lk(db_pool_lock_);
 	db_conn_pool_.push_back(engine);
+	LOG_ERROR2("push---db_conn_pool_size[%d]", db_conn_pool_.size());
 }
 
 base_storage::DBStorageEngine* MYSQL_Pool::DBConnectionPop(){
-	if(db_conn_pool_.size()<=0)
+  LOG_ERROR("DBConnectionPop");
+	if(db_conn_pool_.size()<=0) {
+	 LOG_ERROR("db_conn_pool_size 0");
 		return NULL;
+	}
 	base_logic::WLockGd lk(db_pool_lock_);
     base_storage::DBStorageEngine* engine = db_conn_pool_.front();
     db_conn_pool_.pop_front();
+    LOG_ERROR2("pop---db_conn_pool_size[%d]", db_conn_pool_.size());
     return engine;
 }
 
