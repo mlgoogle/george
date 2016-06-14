@@ -16,18 +16,18 @@ bool DataMYSQLEngine::WriteData(const int32 type, base_logic::Value* value) {
     base_logic::DictionaryValue* dict =(base_logic::DictionaryValue*)(value);
     r = dict->GetString(L"sql", &sql);
     if (!r) {
-        LOG_DEBUG("WriteData sql error");
+        LOG_ERROR("WriteData sql error");
         return r;
     }
     base_storage::DBStorageEngine* engine = db_pool_.DBConnectionPop();
     engine->Release();
     if (engine == NULL) {
-        LOG_DEBUG("GetConnection Error");
+        LOG_ERROR("GetConnection Error");
           return false;
       }
      r = engine->SQLExec(sql.c_str());
       if (!r) {
-          LOG_DEBUG("exec sql error");
+          LOG_ERROR("exec sql error");
           return false;
      }
 
