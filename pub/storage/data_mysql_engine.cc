@@ -20,11 +20,11 @@ bool DataMYSQLEngine::WriteData(const int32 type, base_logic::Value* value) {
         return r;
     }
     base_storage::DBStorageEngine* engine = db_pool_.DBConnectionPop();
-    engine->Release();
     if (engine == NULL) {
         LOG_ERROR("GetConnection Error");
           return false;
       }
+    engine->Release();
      r = engine->SQLExec(sql.c_str());
       if (!r) {
           LOG_ERROR("exec sql error");
