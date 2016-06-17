@@ -1,5 +1,7 @@
 //  Copyright (c) 2015-2015 The db_redis.cc Authors. All rights reserved.
 
+#include "../news/db_redis.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <list>
@@ -8,13 +10,13 @@
 #include <vector>
 #include <algorithm>
 #include <sstream>
+
+#include "../news/db_mysql.h"
+#include "../news/news_logic.h"
 #include "public/basic/radom_in.h"
 #include "tools/tools.h"
 #include "net/error_comm.h"
 #include "net/http_data.h"
-#include "news/news_logic.h"
-#include "news/db_mysql.h"
-#include "news/db_redis.h"
 
 namespace news {
 DbRedis::DbRedis() {
@@ -142,7 +144,7 @@ void DbRedis::SetSendByPage(std::string filed, std::string value, \
         std::string news_summary, news_url;
         v->GetString(L"url", &news_url);
         if (news_url.length() > 0) {
-          news::DbMysql::QueryNewsSummary(news_url, news_summary);
+          news::NewsMysql::QueryNewsSummary(news_url, news_summary);
         }
         if (news_summary.length() > NEWS_SUMMARY_LENGTH_MAX) {
           TruncatedUTF8String(&news_summary, NEWS_SUMMARY_LENGTH_MAX);
@@ -510,7 +512,7 @@ int32 DbRedis::GetRationNewsByPage(int32 &page_index, int32 page,
         std::string news_summary, news_url;
         v->GetString(L"url", &news_url);
         if (news_url.length() > 0) {
-          news::DbMysql::QueryNewsSummary(news_url, news_summary);
+          news::NewsMysql::QueryNewsSummary(news_url, news_summary);
         }
         if (news_summary.length() > NEWS_SUMMARY_LENGTH_MAX) {
           TruncatedUTF8String(&news_summary, NEWS_SUMMARY_LENGTH_MAX);

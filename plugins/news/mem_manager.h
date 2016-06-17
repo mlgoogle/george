@@ -8,7 +8,7 @@
 #include <string>
 #include <map>
 
-#include "news/news_base.h"
+#include "../news/news_base.h"
 
 class MemManager {
  private:

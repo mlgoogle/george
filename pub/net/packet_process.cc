@@ -21,8 +21,8 @@ bool PacketProcess::UnpackPacket(const int socket, const void *msg, const int le
 		void (*packet_process)(const int socket, base_logic::DictionaryValue*,
 				george_logic::PacketHead*)) {
 
-    std::string error_str;
-    int error_code = 0;
+  std::string error_str;
+  int error_code = 0;
 	std::string packet_stream((const char*)msg,len);
 	if (len <= 0 || socket < 0 || msg == NULL )
 		return false;
@@ -36,6 +36,8 @@ bool PacketProcess::UnpackPacket(const int socket, const void *msg, const int le
 
 	base_logic::DictionaryValue* dict = (base_logic::DictionaryValue*)value;
 	packet->set_http_head(dict);
+	LOG_DEBUG2("type:[%d]", type);
+	LOG_DEBUG2("packettype:[%d]", packet->type());
 	//通过type判断数据什么packet
 	if (packet->type() == type)
 		packet_process(socket, dict, packet);

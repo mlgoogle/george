@@ -7,48 +7,41 @@
 #include "core/common.h"
 #include "core/plugins.h"
 #include "logic/logic_comm.h"
-
-struct searchplugin {
-    char* id;
-    char* name;
-    char* version;
-    char* provider;
-};
+#include "pub/net/comm_struct.h"
 
 static void *OnSearchStart() {
-    signal(SIGPIPE, SIG_IGN);
-    struct searchplugin* search = (struct searchplugin*)calloc(1, \
-                                   sizeof(struct searchplugin));
+  signal(SIGPIPE, SIG_IGN);
+  PluginInfo* search = (PluginInfo*)calloc(1, sizeof(PluginInfo));
 
-    search->id = "search";
+  search->id = "search";
 
-    search->name = "search";
+  search->name = "search";
 
-    search->version = "1.0.0";
+  search->version = "1.0.0";
 
-    search->provider = "jiaoyongqing";
+  search->provider = "paco";
 
-    return search;
+  return search;
 }
 
 static handler_t OnSearchShutdown(struct server* srv, void* pd) {
-    return HANDLER_GO_ON;
+  return HANDLER_GO_ON;
 }
 
 static handler_t OnSearchConnect(struct server *srv, \
                                             int fd, \
                                         void *data, \
                                            int len) {
-    search_logic::Searchlogic::GetInstance()->OnSearchConnect(srv, fd);
+  search::SearchLogic::GetInstance()->OnSearchConnect(srv, fd);
 
-    return HANDLER_GO_ON;
+  return HANDLER_GO_ON;
 }
 
 static handler_t OnSearchMessage(struct server *srv, \
                                             int fd, \
                                         void *data, \
                                            int len) {
-  bool r = search_logic::Searchlogic::GetInstance()->OnSearchMessage(srv, \
+  bool r = search::SearchLogic::GetInstance()->OnSearchMessage(srv, \
                                                                       fd, \
                                                                     data, \
                                                                      len);
@@ -60,7 +53,7 @@ static handler_t OnSearchMessage(struct server *srv, \
 
 static handler_t OnSearchClose(struct server *srv, \
                                           int fd) {
-    search_logic::Searchlogic::GetInstance()->OnSearchClose(srv, fd);
+  search::SearchLogic::GetInstance()->OnSearchClose(srv, fd);
 
     return HANDLER_GO_ON;
 }
@@ -73,7 +66,7 @@ static handler_t OnBroadcastConnect(struct server* srv, \
                                                 int fd, \
                                             void *data, \
                                                int len) {
-    search_logic::Searchlogic::GetInstance()->OnBroadcastConnect(srv, \
+  search::SearchLogic::GetInstance()->OnBroadcastConnect(srv, \
                                                                    fd, \
                                                                  data, \
                                                                   len);
@@ -81,7 +74,7 @@ static handler_t OnBroadcastConnect(struct server* srv, \
 }
 
 static handler_t OnBroadcastClose(struct server* srv, int fd) {
-    search_logic::Searchlogic::GetInstance()->OnBroadcastClose(srv, fd);
+  search::SearchLogic::GetInstance()->OnBroadcastClose(srv, fd);
 
     return HANDLER_GO_ON;
 }
@@ -90,7 +83,7 @@ static handler_t OnBroadcastMessage(struct server* srv, \
                                                 int fd, \
                                             void *data, \
                                                int len) {
-    search_logic::Searchlogic::GetInstance()->OnBroadcastMessage(srv, \
+  search::SearchLogic::GetInstance()->OnBroadcastMessage(srv, \
                                                                    fd, \
                                                                  data, \
                                                                   len);
@@ -98,13 +91,13 @@ static handler_t OnBroadcastMessage(struct server* srv, \
 }
 
 static handler_t OnIniTimer(struct server* srv) {
-    search_logic::Searchlogic::GetInstance()->OnIniTimer(srv);
+  search::SearchLogic::GetInstance()->OnIniTimer(srv);
 
     return HANDLER_GO_ON;
 }
 
 static handler_t OnTimeOut(struct server* srv, char* id, int opcode, int time) {
-    search_logic::Searchlogic::GetInstance()->OnTimeout(srv, id, opcode, time);
+  search::SearchLogic::GetInstance()->OnTimeout(srv, id, opcode, time);
 
     return HANDLER_GO_ON;
 }

@@ -1,11 +1,13 @@
 //  Copyright (c) 2015-2015 The news_init.cc Authors. All rights reserved.
 
-#include "news/news_init.h"
+#include "../news/news_init.h"
+
 #include <signal.h>
 #include <stdlib.h>
+
+#include "../news/news_logic.h"
 #include "core/common.h"
 #include "core/plugins.h"
-#include "news/news_logic.h"
 #include "net/comm_struct.h"
 #include "base/logic/logic_comm.h"
 

@@ -1,5 +1,7 @@
 //  Copyright (c) 2015-2015 The db_mysql.cc Authors. All rights reserved.
 
+#include "../news/db_mysql.h"
+
 #include <assert.h>
 #include <mysql/mysql.h>
 #include <bits/stl_pair.h>
@@ -7,23 +9,22 @@
 #include <vector>
 #include <sstream>
 #include "base/db/base_db_mysql_auto.h"
-#include "news/db_mysql.h"
 namespace news {
-DbMysql::DbMysql() {
+NewsMysql::NewsMysql() {
 }
 
-DbMysql::~DbMysql() {
+NewsMysql::~NewsMysql() {
 }
 
-void DbMysql::Dest() {
+void NewsMysql::Dest() {
   base_db::MysqlDBPool::Dest();
 }
 
-void DbMysql::Init(std::list<base::ConnAddr> *const addrlist) {
+void NewsMysql::Init(std::list<base::ConnAddr> *const addrlist) {
   base_db::MysqlDBPool::Init(*addrlist);
 }
 
-bool DbMysql::QueryStockHy(StringMap* hy) {
+bool NewsMysql::QueryStockHy(StringMap* hy) {
   assert(hy);
   hy->clear();
   bool r = false;
@@ -59,7 +60,7 @@ bool DbMysql::QueryStockHy(StringMap* hy) {
   return r;
 }
 
-bool DbMysql::QueryStockGn(StringMap* gn) {
+bool NewsMysql::QueryStockGn(StringMap* gn) {
   assert(gn);
   gn->clear();
   bool r = false;
@@ -95,7 +96,7 @@ bool DbMysql::QueryStockGn(StringMap* gn) {
   return r;
 }
 
-int32 DbMysql::GetNewsAffect(int64 type, std::string name,
+int32 NewsMysql::GetNewsAffect(int64 type, std::string name,
                              StockNewsSend* send_news,
                              std::string starttime,
                              std::string endtime) {
@@ -144,7 +145,7 @@ int32 DbMysql::GetNewsAffect(int64 type, std::string name,
   return err;
 }
 
-bool DbMysql::QueryStockName(StringMap* stock_map) {
+bool NewsMysql::QueryStockName(StringMap* stock_map) {
   assert(stock_map);
   stock_map->clear();
   bool r = false;
@@ -181,7 +182,7 @@ bool DbMysql::QueryStockName(StringMap* stock_map) {
   return r;
 }
 
-std::vector<std::string> DbMysql::GetUserSubscribe(
+std::vector<std::string> NewsMysql::GetUserSubscribe(
     int64 user_id, int get_type) {
   bool r = false;
   std::vector<std::string> result;
@@ -216,7 +217,7 @@ std::vector<std::string> DbMysql::GetUserSubscribe(
   return result;
 }
 
-bool DbMysql::QueryNewsSummary(std::string url, std::string & out_result) {
+bool NewsMysql::QueryNewsSummary(std::string url, std::string & out_result) {
   base_db::AutoMysqlCommEngine auto_engine;
   base_storage::DBStorageEngine *engine = auto_engine.GetDBEngine();
   if (NULL == engine) {
