@@ -11,7 +11,9 @@ Stock::Stock() {
 }
 
 Stock::~Stock() {
-
+  if (data_ != NULL) {
+    data_->Release();
+  }
 }
 
 Stock::Stock(const Stock& stock) : data_(stock.data_){
@@ -35,6 +37,7 @@ void Stock::Serialization(DicValue* value) {
   value->GetString(L"code", &data_->code_);
   value->GetString(L"name", &data_->name_);
   value->GetString(L"sefspell", &data_->sef_spell_);
+  value->GetString(L"simspell", &data_->sim_spell_);
   value->GetString(L"stock_type", &data_->stock_type_);
 }
 
@@ -43,7 +46,9 @@ StockPrice::StockPrice() {
 }
 
 StockPrice::~StockPrice() {
-
+  if (data_ != NULL) {
+    data_->Release();
+  }
 }
 
 StockPrice::StockPrice(const StockPrice& stock) : data_(stock.data_){

@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include <regex.h>
+#include <algorithm>
 
 #include "pub/tools/tools.h"
 
@@ -80,6 +81,7 @@ void SearchMemery::QuerySearchStock(int64 uid, std::string key_name,
   std::string sub_str;
   search_mysql_->QuerySubScribe(uid, &sub_str);
   StockMap::iterator it = stock_map_.begin();
+  std::transform(key_name.begin(), key_name.end(), key_name.begin(), toupper);
   for (; it != stock_map_.end(); ++it) {
     Stock stock = it->second;
     if (stock.code().find(key_name) != std::string::npos) {
@@ -96,14 +98,21 @@ void SearchMemery::QuerySearchStock(int64 uid, std::string key_name,
       if (list->size() >= SEARCH_LIST_SIZE)
         break;
       continue;
-    } else if (stock.sef_spell().find(key_name) != std::string::npos) {
+    } else if (stock.sim_spell().find(key_name) != std::string::npos) {
       send::SendStock* send_stock = new send::SendStock();
       SetSendStock(send_stock, stock, sub_str);
       list->set_stock(send_stock->get());
       if (list->size() >= SEARCH_LIST_SIZE)
         break;
       continue;
-    }
+    }else if (stock.sef_spell().find(key_name) != std::string::npos) {
+        send::SendStock* send_stock = new send::SendStock();
+        SetSendStock(send_stock, stock, sub_str);
+        list->set_stock(send_stock->get());
+        if (list->size() >= SEARCH_LIST_SIZE)
+          break;
+        continue;
+      }
   }
 }
 

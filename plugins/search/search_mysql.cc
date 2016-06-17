@@ -248,6 +248,8 @@ void SearchMysql::CallQueryAllStock(void* param, base_logic::Value* value) {
         info_value->SetString(L"sefspell", rows[2]);
       if (rows[3] != NULL)
         info_value->SetString(L"name", rows[3]);
+      if (rows[4] != NULL)
+        info_value->SetString(L"simspell", rows[4]);
       list->Append((base_logic::Value*)(info_value));
     }
   }

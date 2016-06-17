@@ -6,6 +6,7 @@
 #define PLUGINS_SEARCH_SEARCH_H_
 
 #include <string>
+#include <algorithm>
 #include "search/mutexlock.h"
 #include "pub/net/typedef.h"
 
@@ -24,10 +25,16 @@ class Stock {
   std::string name() { return data_->name_; }
   std::string sef_spell() { return data_->sef_spell_; }
   std::string stock_type() { return data_->stock_type_; }
+  std::string sim_spell() { return data_->sim_spell_; }
 
   void set_code(std::string code) { data_->code_ = code; }
   void set_name(std::string name) { data_->name_ = name; }
-  void set_sef_spell(std::string spell) { data_->sef_spell_ = spell; }
+  void set_sef_spell(std::string spell) {
+    std::transform(spell.begin(), spell.end(), spell.begin(), toupper);
+    data_->sef_spell_ = spell; }
+  void set_sim_spell(std::string spell) {
+      std::transform(spell.begin(), spell.end(), spell.begin(), toupper);
+      data_->sim_spell_ = spell; }
   void set_stock_type(std::string type) { data_->stock_type_ = type; }
 class Data {
  public:
@@ -38,6 +45,7 @@ class Data {
   std::string code_;
   std::string name_;
   std::string sef_spell_;
+  std::string sim_spell_;
   void AddRef() {
     MutexLock lock(&refs_mutex_);
     ++refs_;

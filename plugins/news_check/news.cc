@@ -12,7 +12,9 @@ News::News() {
 }
 
 News::~News() {
-
+  if (data_ != NULL) {
+    data_->Release();
+  }
 }
 
 News::News(const News& news) : data_(news.data_){
@@ -56,7 +58,9 @@ SimpleNews::SimpleNews() {
 }
 
 SimpleNews::~SimpleNews() {
-
+  if (data_ != NULL) {
+    data_->Release();
+  }
 }
 
 SimpleNews::SimpleNews(const SimpleNews& news) : data_(news.data_){
