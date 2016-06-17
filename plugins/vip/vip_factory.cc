@@ -334,18 +334,25 @@ void VIPFactory::OnUserSubcribe(const int socket,
 				std::map<int64,vip_logic::ArticleInfo> ::iterator,
 						int64,vip_logic::ArticleInfo>(amap,
 								vip_user.id(),article);
-		if (!r)
-			continue;
+		//if (!r)
+			//continue;
 		vip_logic::net_reply::VIPNews* news = new  vip_logic::net_reply::VIPNews();
-		news->set_aid(article.id());
-		news->set_article_source(article.source_name());
-		news->set_article_time(article.article_unix_time());
-		news->set_title(article.title());
+		if (r) {
+			news->set_aid(article.id());
+			news->set_article_source(article.source_name());
+			news->set_article_time(article.article_unix_time());
+			news->set_title(article.title());
+			news->set_article_url(article.url());
+			news->set_flag(article.type());
+		}else{
+			news->set_article_url(article.url());
+			news->set_flag(article.type());
+			news->set_title("暂无最新文章");
+		}
+
 		news->set_vid(vip_user.id());
 		news->set_name(vip_user.name());
 		news->set_subcribe_count(vip_user.subscribe_count());
-		news->set_article_url(article.url());
-		news->set_flag(article.type());
 		news->set_introduction(vip_user.introduction());
 		news->set_protrait(vip_user.portrait());
 		vip_list->set_vip_news(news->get());

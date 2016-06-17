@@ -122,7 +122,9 @@ bool ArticleManager::GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const
 	while (index < pos)
 		index++;
 
-	while (index < count) {
+	int32 vec_size = article_cache_->article_info_vec_.size();
+
+	while (index < vec_size && list.size() < count) {
 		list.push_back(article_cache_->article_info_vec_[index]);
 		index++;
 	}

@@ -148,6 +148,10 @@ void VIPDB::CallFectchArticleInfo(void* param,
             	info_value->SetInteger(L"source",atol(rows[6]));
             if(rows[7] != NULL)
             	info_value->SetString(L"stock",rows[7]);
+            if(rows[8] != NULL)
+            	info_value->SetString(L"digest", rows[8]);
+            if(rows[9] != NULL)
+            	info_value->SetString(L"summary", rows[9]);
 
             /*if (rows[1] != NULL)
                 info_value->SetBigInteger(L"user_id", atoll(rows[1]));

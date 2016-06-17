@@ -29,7 +29,7 @@ void VIPNews::set_http_packet(base_logic::DictionaryValue* value) {
 	set_count(count);
 
 	r = value->GetBigInteger(L"pos",&pos);
-	set_pos(pos);
+	set_pos(pos*count);
 
 }
 
@@ -61,7 +61,7 @@ void VIPArticle::set_http_packet(base_logic::DictionaryValue* value) {
 	set_count(count);
 
 	r = value->GetBigInteger(L"pos",&pos);
-	set_pos(pos);
+	set_pos(pos*count);
 
 }
 
@@ -90,7 +90,7 @@ void SubcribeVIP::set_http_packet(base_logic::DictionaryValue* value) {
 	set_count(count);
 
 	r = value->GetBigInteger(L"pos",&pos);
-	set_pos(pos);
+	set_pos(pos*count);
 
 }
 

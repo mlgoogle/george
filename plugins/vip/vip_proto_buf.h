@@ -16,9 +16,11 @@ namespace vip_logic {
 namespace net_request {
 class VIPNews : public george_logic::PacketHead{
  public:
-	VIPNews() {
-		uid_ = pos_ = count_ = NULL;
-		token_ = NULL;
+	VIPNews()
+ 	 :uid_(NULL)
+ 	 ,pos_(NULL)
+ 	 ,count_(NULL)
+ 	 ,token_(NULL){
 	}
 
 	~VIPNews() {
@@ -79,9 +81,13 @@ typedef VIPNews HotVIP;
 
 class VIPArticle: public george_logic::PacketHead{
  public:
-	VIPArticle() {
-		uid_ = pos_ = count_ = vid_ = flag_ = NULL;
-		token_ = NULL;
+	VIPArticle()
+ 	 :uid_(NULL)
+ 	 ,pos_(NULL)
+ 	 ,count_(NULL)
+ 	 ,vid_(NULL)
+ 	 ,flag_(NULL)
+ 	 ,token_(NULL){
 	}
 
 	~VIPArticle(){
@@ -286,9 +292,17 @@ class VIPNews{
  public:
 	VIPNews() {
 		article_type_ =  NULL;
-		vid_ = aid_ =  article_time_ = NULL;
-		name_ = title_ = article_source_  =  protrait_ =  introduction_ = NULL;
+		vid_ = NULL;
+		aid_ =  NULL;
+		article_time_ = NULL;
+		name_ = NULL;
+		title_ = NULL;
+		article_source_  =  NULL;
+		protrait_ =  NULL;
+		introduction_ = NULL;
 		subcribe_count_ = NULL;
+		flag_ = NULL;
+		article_url_ = NULL;
 		value_ = NULL;
 
 	}
@@ -311,7 +325,9 @@ class VIPNews{
 		introduction_  = new base_logic::StringValue(introduction);
 	}
 
-	void set_subcribe_count(const int64 subcribe_count) {subcribe_count_ = new base_logic::FundamentalValue(subcribe_count);}
+	void set_subcribe_count(const int64 subcribe_count) {
+		subcribe_count_ = new base_logic::FundamentalValue(subcribe_count);
+	}
 
 	void set_article_source(const std::string& article_source) {article_source_
 		= new base_logic::StringValue(article_source);}
@@ -333,7 +349,7 @@ class VIPNews{
 
 
 	~VIPNews() {
-		if(value_) {delete vid_; vid_ = NULL;}
+		if(value_) {delete value_; value_ = NULL;}
 	}
 
 	base_logic::DictionaryValue* get() {
@@ -489,7 +505,6 @@ class VIPUser {
 };
 
 typedef VIPNewsList VIPUserList;
-
 
 class VIPArticleList : public george_logic::PacketHead {
 public:
