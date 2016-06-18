@@ -10,6 +10,7 @@
 #include "basic/basictypes.h"
 #include "message/hy_gn_unit.h"
 #include "net/comm_struct.h"
+#include "base/logic/base_values.h"
 
 typedef std::map<std::string, std::string> MapStrToStr;
 typedef std::map<std::string, int64> MapStrToInt64;
@@ -21,6 +22,7 @@ typedef std::vector<std::string> ContainerStr;
 typedef std::vector<int64> ContainerInt;
 
 typedef std::vector<HyGnUnit> ContainerHyGnUnit;
+typedef base_logic::DictionaryValue DicValue;
 
 #define REDIS_TIME  53
 

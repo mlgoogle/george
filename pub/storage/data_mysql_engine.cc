@@ -15,13 +15,16 @@ bool DataMYSQLEngine::WriteData(const int32 type, base_logic::Value* value) {
     std::string sql;
     base_logic::DictionaryValue* dict =(base_logic::DictionaryValue*)(value);
     r = dict->GetString(L"sql", &sql);
-    if (!r)
+    if (!r) {
+        LOG_ERROR("WriteData sql error");
         return r;
+    }
     base_storage::DBStorageEngine* engine = db_pool_.DBConnectionPop();
     if (engine == NULL) {
           LOG_ERROR("GetConnection Error");
           return false;
     }
+    engine->Release();
      r = engine->SQLExec(sql.c_str());
       if (!r) {
           LOG_ERROR("exec sql error");
@@ -48,27 +51,36 @@ bool DataMYSQLEngine::WriteData(const int32 type, base_logic::Value* value) {
 bool DataMYSQLEngine::ReadData(const int32 type, base_logic::Value* value,
         void (*storage_get)(void*, base_logic::Value*)) {
     bool r = false;
+    base_storage::DBStorageEngine* engine = db_pool_.DBConnectionPop();
+    do {
     std::string sql;
     base_logic::DictionaryValue* dict =(base_logic::DictionaryValue*)(value);
     r = dict->GetString(L"sql", &sql);
-    if (!r)
-        return r;
-
-    base_storage::DBStorageEngine* engine = db_pool_.DBConnectionPop();
+    if (!r) {
+      LOG_ERROR("ReadData sql error");
+      r = false;
+      break;
+    }
     if (engine == NULL) {
           LOG_ERROR("GetConnection Error");
-          return false;
+        r = false;
+        break;
     }
+     engine->Release();
      r = engine->SQLExec(sql.c_str());
       if (!r) {
           LOG_ERROR("exec sql error");
-          return false;
+          r = false;
+          break;
      }
 
-      if (storage_get != NULL)
+      if (storage_get == NULL) {
+        r = false;
+        break;
+      } else {
     	  storage_get(reinterpret_cast<void*>(engine), value);
-
-      engine->Release();
+      }
+    }while (0);
       db_pool_.DBConnectionPush(engine);
     /*base_db::AutoMysqlCommEngine auto_engine;
     base_storage::DBStorageEngine* engine  = auto_engine.GetDBEngine();

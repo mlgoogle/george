@@ -12,6 +12,11 @@
 #include <vector>
 #include "basic/basictypes.h"
 #include "tools/tools.h"
+#include "pub/arithmetic/tea/tea.h"
+#include "net/typedef.h"
+#include "base/logic/logic_comm.h"
+#include "db/db_comm.h"
+#include "logic/logic_unit.h"
 #include "tea/tea.h"
 //#include "net/typedef.h"
 //#include "base/logic/logic_comm.h"
