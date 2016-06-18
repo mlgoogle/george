@@ -28,6 +28,8 @@ class VIPDB {
 			std::list<vip_logic::ArticleInfo>& list,
 			std::vector<vip_logic::ArticleInfo>& vec);
 
+	bool FectchNewArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map);
+
 	bool FectchSubcribeInfo(std::map<std::string, vip_logic::SubcribeInfo>& map);
 
 	bool RecordSubcribe(const std::string& uid, std::string& subcribe);
