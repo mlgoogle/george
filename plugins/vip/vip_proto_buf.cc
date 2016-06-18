@@ -117,5 +117,28 @@ void SetSubcribeVIP::set_http_packet(base_logic::DictionaryValue* value) {
 	set_vid(vid);
 }
 
+void VIPNewsDigest::set_http_packet(base_logic::DictionaryValue* value) {
+	bool r = false;
+	int64 uid = 0;
+	int64 article_id = 0;
+	std::string token;
+	std::string str_uid;
+
+
+	r = value->GetBigInteger(L"uid",&uid);
+	if(!r)
+		r = value->GetString(L"uid",&str_uid);
+	else
+		str_uid = base::BasicUtil::StringUtil::Int64ToString(uid);
+	set_uid(str_uid);
+
+	r = value->GetString(L"token",&token);
+	if (r)
+		set_token(token);
+
+	r = value->GetBigInteger(L"aid", &article_id);
+	set_article_id(article_id);
+}
+
 }
 }

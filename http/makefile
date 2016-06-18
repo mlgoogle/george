@@ -53,7 +53,7 @@ VIPNAME = vip_
 VIPPROC_PATH = /vip
 VIP_OBJECT_PATH = ./obj$(VIPPROC_PATH)
 OTJERPROC_VERSION = /v1
-vipproc:$(VIPPROC_PATH)/vipnews.fcgi $(VIPPROC_PATH)/hotvip.fcgi $(VIPPROC_PATH)/viparticle.fcgi $(VIPPROC_PATH)/subcribevip.fcgi $(VIPPROC_PATH)/setsub.fcgi
+vipproc:$(VIPPROC_PATH)/vipnews.fcgi $(VIPPROC_PATH)/hotvip.fcgi $(VIPPROC_PATH)/viparticle.fcgi $(VIPPROC_PATH)/subcribevip.fcgi $(VIPPROC_PATH)/setsub.fcgi $(VIPPROC_PATH)/newsdigest.fcgi
 
 $(VIPPROC_PATH)/vipnews.fcgi: $(VIP_OBJECT_PATH)/$(VIPNAME)vipnews.o $(POBJ)
 	$(LINKALL) -o $(OUTPUT_FILE)$(VIPPROC_PATH)$(OTJERPROC_VERSION)/vipnews.fcgi
@@ -69,6 +69,9 @@ $(VIPPROC_PATH)/subcribevip.fcgi: $(VIP_OBJECT_PATH)/$(VIPNAME)subcribevip.o $(P
 	
 $(VIPPROC_PATH)/setsub.fcgi: $(VIP_OBJECT_PATH)/$(VIPNAME)setsub.o $(POBJ)
 	$(LINKALL) -o $(OUTPUT_FILE)$(VIPPROC_PATH)$(OTJERPROC_VERSION)/setsub.fcgi
+	
+$(VIPPROC_PATH)/newsdigest.fcgi: $(VIP_OBJECT_PATH)/$(VIPNAME)newsdigest.o $(POBJ)
+	$(LINKALL) -o $(OUTPUT_FILE)$(VIPPROC_PATH)$(OTJERPROC_VERSION)/newsdigest.fcgi
 	
 ### 编译
 
@@ -86,6 +89,9 @@ $(VIP_OBJECT_PATH)/$(VIPNAME)subcribevip.o:
 	
 $(VIP_OBJECT_PATH)/$(VIPNAME)setsub.o:
 	$(COMPILE) .$(VIPPROC_PATH)$(OTJERPROC_VERSION)/setsub/setsub.cc
+
+$(VIP_OBJECT_PATH)/$(VIPNAME)newsdigest.o:
+	$(COMPILE) .$(VIPPROC_PATH)$(OTJERPROC_VERSION)/newsdigest/newsdigest.cc
 
 
 

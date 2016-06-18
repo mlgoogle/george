@@ -25,7 +25,7 @@ void ArticleManager::Init() {
 
 void ArticleManager::Init(vip_logic::VIPDB* vip_db) {
 	vip_db_ = vip_db;
-	vip_db_->FectchArticleInfo(article_cache_->article_info_map_,
+	vip_db_->FectchArticleInfo(0,article_cache_->article_info_map_,
 			article_cache_->article_info_list_,article_cache_->article_info_vec_);
 	std::sort(article_cache_->article_info_vec_.begin(),
 			article_cache_->article_info_vec_.end(),vip_logic::ArticleInfo::cmp);
@@ -33,6 +33,18 @@ void ArticleManager::Init(vip_logic::VIPDB* vip_db) {
 	SetVIPArticle();
 }
 
+void ArticleManager::UpdateArticle() {
+	base_logic::WLockGd lk(lock_);
+	vip_db_->FectchArticleInfo(100,article_cache_->article_info_map_,
+			article_cache_->article_info_list_,article_cache_->article_info_vec_);
+	std::sort(article_cache_->article_info_vec_.begin(),
+			article_cache_->article_info_vec_.end(),vip_logic::ArticleInfo::cmp);
+	article_cache_->article_info_list_.sort(vip_logic::ArticleInfo::cmp);
+	SetVIPArticle();
+	LOG_MSG2("map %d, vec %d ,list %d",article_cache_->article_info_map_.size(),
+			article_cache_->article_info_vec_.size(),
+			article_cache_->article_info_list_.size());
+}
 
 void ArticleManager::SetVIPArticle() {
 	for (ARTICLEINFO_MAP::iterator it = article_cache_->article_info_map_.begin();

@@ -36,6 +36,8 @@ class ArticleManager {
  public:
 	void Init(vip_logic::VIPDB* vip_db);
  public:
+	void UpdateArticle();
+ public:
 	bool GetArticleInfo(const int64 aid, vip_logic::ArticleInfo& article);
 	bool GetArticleInfo(const int64* aid,
 			std::map<int64,vip_logic::ArticleInfo>& map);

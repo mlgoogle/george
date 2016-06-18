@@ -40,6 +40,10 @@ void PacketProcess::PacketPocessGet(const int socket,base_logic::DictionaryValue
 		 factory->OnSetVIPSubcribe(socket, dict, packet);
 		 break;
 	 }
+	 case VIP_NEWDIGEST_REQ : {
+		 factory->OnNewsDigest(socket, dict, packet);
+		 break;
+	 }
 	 default:
 		break;
 	}
