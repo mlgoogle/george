@@ -50,7 +50,7 @@ class ArticleManager {
 	bool GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const int32 pos,
 			const int32 count);
 
-	void SetVIPArticle(void);
+	void SetVIPArticle(ARTICLEINFO_MAP& article_info_map);
 
 	bool GetVIPArticle(const int64 vid,
 			std::list<vip_logic::ArticleInfo>& list,const int32 pos,
