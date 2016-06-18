@@ -13,6 +13,8 @@
 #include "basic/scoped_ptr.h"
 #include "net/packet_process.h"
 
+#define TIME_UPDATE_ACRTICLE     10005
+
 namespace vip_logic {
 
 class VIPFactory {
@@ -32,17 +34,26 @@ class VIPFactory {
 
 	void Test();
 
+	void TimeEvent(int opcode, int time);
+
 	//void SendError(const int socket,const int16 operator_code);
  public:
 	void OnVIPNewsEvent(const int socket,
 			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
+
 	void OnHotVIPUser(const int socket,
 			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
+
 	void OnVIPArticle(const int socket,
 			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
+
 	void OnUserSubcribe(const int socket,
 	    	base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
+
 	void OnSetVIPSubcribe(const int socket,
+			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
+
+	void OnNewsDigest(const int socket,
 			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet);
 
  private:

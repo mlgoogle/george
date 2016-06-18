@@ -112,15 +112,15 @@ bool VIPLogic::OnBroadcastClose(struct server *srv, const int socket) {
 }
 
 bool VIPLogic::OnIniTimer(struct server *srv) {
+	if (srv->add_time_task != NULL) {
+		srv->add_time_task(srv, "vip", TIME_UPDATE_ACRTICLE, 10, -1);
+	}
     return true;
 }
 
 bool VIPLogic::OnTimeout(struct server *srv, char *id,
         int opcode, int time) {
-    switch (opcode) {
-     default:
-        break;
-    }
+	factory_->TimeEvent(opcode,time);
     return true;
 }
 

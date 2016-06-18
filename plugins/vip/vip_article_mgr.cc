@@ -25,7 +25,7 @@ void ArticleManager::Init() {
 
 void ArticleManager::Init(vip_logic::VIPDB* vip_db) {
 	vip_db_ = vip_db;
-	vip_db_->FectchArticleInfo(article_cache_->article_info_map_,
+	vip_db_->FectchArticleInfo(0,article_cache_->article_info_map_,
 			article_cache_->article_info_list_,article_cache_->article_info_vec_);
 	std::sort(article_cache_->article_info_vec_.begin(),
 			article_cache_->article_info_vec_.end(),vip_logic::ArticleInfo::cmp);
@@ -33,6 +33,18 @@ void ArticleManager::Init(vip_logic::VIPDB* vip_db) {
 	SetVIPArticle();
 }
 
+void ArticleManager::UpdateArticle() {
+	base_logic::WLockGd lk(lock_);
+	vip_db_->FectchArticleInfo(100,article_cache_->article_info_map_,
+			article_cache_->article_info_list_,article_cache_->article_info_vec_);
+	std::sort(article_cache_->article_info_vec_.begin(),
+			article_cache_->article_info_vec_.end(),vip_logic::ArticleInfo::cmp);
+	article_cache_->article_info_list_.sort(vip_logic::ArticleInfo::cmp);
+	SetVIPArticle();
+	LOG_MSG2("map %d, vec %d ,list %d",article_cache_->article_info_map_.size(),
+			article_cache_->article_info_vec_.size(),
+			article_cache_->article_info_list_.size());
+}
 
 void ArticleManager::SetVIPArticle() {
 	for (ARTICLEINFO_MAP::iterator it = article_cache_->article_info_map_.begin();
@@ -122,7 +134,9 @@ bool ArticleManager::GetNewArticle(std::list<vip_logic::ArticleInfo>& list,const
 	while (index < pos)
 		index++;
 
-	while (index < count) {
+	int32 vec_size = article_cache_->article_info_vec_.size();
+
+	while (index < vec_size && list.size() < count) {
 		list.push_back(article_cache_->article_info_vec_[index]);
 		index++;
 	}
@@ -152,15 +166,16 @@ bool ArticleManager::GetVIPArticle(const int64 vid,
 			std::list<vip_logic::ArticleInfo>& list,const int32 pos,
 			const int32 count,const int8 flag) {
 	base_logic::RLockGd lk(lock_);
-
-	if (flag==0 || flag == 1) {
+	/*if (flag == 1) */{
 		ARTICLEINFO_VEC vec;
 		bool r = base::MapGet<VIPARTICLE_VEC,VIPARTICLE_VEC::iterator,
 					int64,ARTICLEINFO_VEC>(article_cache_->vip_article_info_vec_,
 							vid,vec);
 		if (r)
 			GetVIPArticleT(list, pos, count,vec);
-	}else if(flag==0 || flag == 2) {
+	}
+
+	/*if(flag == 2) */{
 		ARTICLEINFO_VEC vec;
 		bool r = base::MapGet<VIPARTICLE_VEC,VIPARTICLE_VEC::iterator,
 					int64,ARTICLEINFO_VEC>(article_cache_->vip_live_info_vec_,

@@ -117,6 +117,17 @@ void VIPFactory::Test() {
 	LOG_MSG2("%s",json.c_str());*/
 }
 
+void VIPFactory::TimeEvent(int opcode, int time) {
+	switch (opcode) {
+	  case TIME_UPDATE_ACRTICLE : {
+		  article_mgr_->UpdateArticle();
+		  break;
+	  }
+	  default:
+		  break;
+	}
+}
+
 void VIPFactory::OnHotVIPUser(const int socket,
 		base_logic::DictionaryValue* dict,george_logic::PacketHead* packet) {
 	vip_logic::net_request::HotVIP* hot_vip = new vip_logic::net_request::HotVIP;
@@ -297,6 +308,28 @@ void VIPFactory::OnSetVIPSubcribe(const int socket,
 	if(head) {delete head; head = NULL;}*/
 }
 
+void VIPFactory::OnNewsDigest(const int socket,
+			base_logic::DictionaryValue* dict,george_logic::PacketHead* packet) {
+	vip_logic::net_request::VIPNewsDigest* digest =
+			new vip_logic::net_request::VIPNewsDigest;
+	digest->set_http_packet(dict);
+	vip_logic::ArticleInfo article;
+
+	//查询文章
+	bool r = article_mgr_->GetArticleInfo(digest->article_id(), article);
+	vip_logic::net_reply::VIPNewsDigest* news_digest =
+			new vip_logic::net_reply::VIPNewsDigest;
+	if (r){
+		news_digest->set_digest(article.digest());
+		news_digest->set_summary(article.full_text());
+		news_digest->set_url(article.url());
+	}
+
+	SendPacket(socket,news_digest,packet->attach_field(),
+			VIP_NEWDIGEST_RLY,george_logic::VIP_TYPE);
+	if (digest) { delete digest; digest = NULL;}
+	if (news_digest) { delete news_digest; news_digest = NULL;}
+}
 
 void VIPFactory::OnUserSubcribe(const int socket,
 	    	base_logic::DictionaryValue* dict,george_logic::PacketHead* packet) {
@@ -334,18 +367,25 @@ void VIPFactory::OnUserSubcribe(const int socket,
 				std::map<int64,vip_logic::ArticleInfo> ::iterator,
 						int64,vip_logic::ArticleInfo>(amap,
 								vip_user.id(),article);
-		if (!r)
-			continue;
+		//if (!r)
+			//continue;
 		vip_logic::net_reply::VIPNews* news = new  vip_logic::net_reply::VIPNews();
-		news->set_aid(article.id());
-		news->set_article_source(article.source_name());
-		news->set_article_time(article.article_unix_time());
-		news->set_title(article.title());
+		if (r) {
+			news->set_aid(article.id());
+			news->set_article_source(article.source_name());
+			news->set_article_time(article.article_unix_time());
+			news->set_title(article.title());
+			news->set_article_url(article.url());
+			news->set_flag(article.type());
+		}else{
+			news->set_article_url(article.url());
+			news->set_flag(article.type());
+			news->set_title("暂无最新文章");
+		}
+
 		news->set_vid(vip_user.id());
 		news->set_name(vip_user.name());
 		news->set_subcribe_count(vip_user.subscribe_count());
-		news->set_article_url(article.url());
-		news->set_flag(article.type());
 		news->set_introduction(vip_user.introduction());
 		news->set_protrait(vip_user.portrait());
 		vip_list->set_vip_news(news->get());

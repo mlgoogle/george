@@ -79,20 +79,30 @@ ArticleInfo& ArticleInfo::operator =(
 void ArticleInfo::set_platname(const int32 plt_id) {
 
 	switch (plt_id) {
-	  case 1001: {
+	  case 40001: {
 		  data_->source_name_ = "雪球";
 		  break;
 	  }
-	  case 1002: {
+	  case 40003: {
 		  data_->source_name_ = "摩尔金融";
 		  break;
 	  }
-	  case 1003 : {
+	  case 40002 : {
 		  data_->source_name_ = "中金博客";
 		  break;
 	  }
-	  case 1004 : {
+	  case 40004 : {
 		  data_->source_name_ = "淘股吧";
+		  break;
+	  }
+	  case 40005 : {
+		  data_->source_name_ = "微博";
+		  break;
+	  }
+
+	  default:{
+		  data_->source_name_ = "未知";
+		  break;
 	  }
 	}
 }
@@ -116,13 +126,16 @@ void ArticleInfo::ValueSerialization(base_logic::DictionaryValue* dict){
     if (dict->GetString(L"stock",&stock_info)) {
     	analyzer_stock(stock_info);
     }
+
+    dict->GetString(L"digest",&data_->digest_);
+    dict->GetString(L"summary",&data_->full_text_);
 }
 
 
 
 bool ArticleInfo::cmp(const vip_logic::ArticleInfo& t_article,
 		const vip_logic::ArticleInfo& r_article) {
-	return t_article.article_unix_time() > r_article.article_unix_time();
+	return t_article.id() > r_article.id();
 }
 
 void ArticleInfo::analyzer_stock(const std::string& str) {
