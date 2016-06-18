@@ -22,6 +22,7 @@ typedef std::vector<std::string> ContainerStr;
 typedef std::vector<int64> ContainerInt;
 
 typedef std::vector<HyGnUnit> ContainerHyGnUnit;
+
 typedef base_logic::DictionaryValue DicValue;
 
 #define REDIS_TIME  53

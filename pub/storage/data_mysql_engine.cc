@@ -21,29 +21,17 @@ bool DataMYSQLEngine::WriteData(const int32 type, base_logic::Value* value) {
     }
     base_storage::DBStorageEngine* engine = db_pool_.DBConnectionPop();
     if (engine == NULL) {
-          LOG_ERROR("GetConnection Error");
+        LOG_ERROR("GetConnection Error");
           return false;
-    }
+      }
     engine->Release();
      r = engine->SQLExec(sql.c_str());
       if (!r) {
           LOG_ERROR("exec sql error");
           return false;
      }
-      db_pool_.DBConnectionPush(engine);
 
-    /*base_db::AutoMysqlCommEngine auto_engine;ß
-    base_storage::DBStorageEngine* engine  = auto_engine.GetDBEngine();
-    if (engine == NULL) {
-        LOG_ERROR("GetConnection Error");
-        return false;
-    }
-   r = engine->SQLExec(sql.c_str());
-    if (!r) {
-        LOG_ERROR("exec sql error");
-        return false;
-      LOG_MSG2("[%s]", sql.c_str());
-   }*/
+      db_pool_.DBConnectionPush(engine);
     return true;
 }
 
@@ -62,10 +50,10 @@ bool DataMYSQLEngine::ReadData(const int32 type, base_logic::Value* value,
       break;
     }
     if (engine == NULL) {
-          LOG_ERROR("GetConnection Error");
+        LOG_ERROR("GetConnection Error");
         r = false;
         break;
-    }
+      }
      engine->Release();
      r = engine->SQLExec(sql.c_str());
       if (!r) {
@@ -78,31 +66,12 @@ bool DataMYSQLEngine::ReadData(const int32 type, base_logic::Value* value,
         r = false;
         break;
       } else {
-    	  storage_get(reinterpret_cast<void*>(engine), value);
+          storage_get(reinterpret_cast<void*>(engine), value);
       }
     }while (0);
-      db_pool_.DBConnectionPush(engine);
-    /*base_db::AutoMysqlCommEngine auto_engine;
-    base_storage::DBStorageEngine* engine  = auto_engine.GetDBEngine();
-    if (engine == NULL) {
-        LOG_ERROR("GetConnection Error");
-        return false;
-    }
-    LOG_MSG2("[%s]", sql.c_str());
-    r = engine->SQLExec(sql.c_str());
-
-    if (!r) {
-        LOG_ERROR("exec sql error");
-        return false;
-    }
-
-    if (storage_get == NULL)
-        return r;
-    storage_get(reinterpret_cast<void*>(engine), value);
-    */
+    db_pool_.DBConnectionPush(engine);
     return r;
 }
-
 
 
 }

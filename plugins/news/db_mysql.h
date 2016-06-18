@@ -6,16 +6,17 @@
 #include <vector>
 #include <list>
 #include <string>
+
+#include "../news/news_base.h"
+#include "../news/news_packet.h"
 #include "public/basic/basic_info.h"
 
-#include "news/news_base.h"
-#include "news/news_packet.h"
 
 namespace news {
-class DbMysql {
+class NewsMysql {
  public:
-    DbMysql();
-    ~DbMysql();
+    NewsMysql();
+    ~NewsMysql();
 
     static void Init(std::list<base::ConnAddr>* const addrlist);
     static void Dest();

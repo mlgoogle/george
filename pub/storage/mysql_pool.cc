@@ -17,7 +17,6 @@ MYSQL_Pool::MYSQL_Pool()
 void MYSQL_Pool::Init(std::list<base::ConnAddr>& addrlist,
 				  const int32 db_conn_num/* = 5*/) {
 	addrlist_ = addrlist;
-
 	bool r =false;
 	InitThreadrw(&db_pool_lock_);
 	for (int i = 0; i<db_conn_num;i++){
@@ -35,7 +34,6 @@ void MYSQL_Pool::Init(std::list<base::ConnAddr>& addrlist,
 			LOG_ERROR("db conntion error");
 			continue;
 		}
-
 		db_conn_pool_.push_back(engine);
 
 	}

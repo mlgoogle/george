@@ -1,0 +1,168 @@
+//  Copyright (c) 2015-2015 The george Authors. All rights reserved.
+//  Created on: 2016年5月17日 Author: kerry
+
+
+#include "net/comm_head.h"
+#include "basic/basictypes.h"
+#include  <string>
+#include <list>
+#include <iostream>
+#include "core/common.h"
+#include "logic/logic_comm.h"
+#include "stock_logic.h"
+#include "stock_packet_process.h"
+
+#define DEFAULT_CONFIG_PATH     "./plugins/stock/stock_config.xml"
+
+#define UPDATE_REALTIME_STOCK_INFO           55000
+#define UPDATE_LIMIT_DATA_TO_DB              55001
+#define UPDATE_LIMIT_DATA_TO_MEMORY          55002
+#define UPDATE_INDUSTRY_HIST_DATA            55003
+#define UPDATE_STOCK_HIST_DATA               55004
+#define DELETE_OLD_LIMIT_DATA                55005
+#define UPDATE_STOCK_K_LINE                  55006
+
+namespace stock_logic {
+
+StockLogic* StockLogic::instance_ = NULL;
+
+StockLogic::StockLogic() {
+    if (!Init())
+        assert(0);
+}
+
+StockLogic::~StockLogic() {
+	if (factory_) {
+		delete factory_;
+		factory_ = NULL;
+	}
+
+	if (packet_) {delete packet_; packet_ = NULL;}
+}
+
+bool StockLogic::Init() {
+
+	packet_ = new george_logic::http_packet::PacketProcess();
+	factory_ = stock_logic::StockFactory::GetInstance();
+    config::FileConfig* config = config::FileConfig::GetFileConfig();
+    std::string path = DEFAULT_CONFIG_PATH;
+    if (config == NULL)
+        return false;
+    bool r = config->LoadConfig(path);
+    if (!r)
+    	return r;
+	factory_->InitParam(config);
+    return true;
+}
+
+StockLogic*
+StockLogic::GetInstance() {
+    if (instance_ == NULL)
+        instance_ = new StockLogic();
+    return instance_;
+}
+
+
+
+void StockLogic::FreeInstance() {
+    delete instance_;
+    instance_ = NULL;
+}
+
+
+bool StockLogic::OnStockConnect(struct server *srv, const int socket) {
+    return true;
+}
+
+
+
+bool StockLogic::OnStockMessage(struct server *srv, const int socket,
+        const void *msg, const int len) {
+    bool r = false;
+
+    if (srv == NULL || socket < 0 || msg == NULL
+                || len < 0)
+    	return false;
+
+    packet_->UnpackPacket(socket, msg,len,george_logic::STO_TYPE,
+    		stock_logic::http_packet::PacketProcess::PacketPocessGet);
+
+    return true;
+}
+
+bool StockLogic::OnStockClose(struct server *srv, const int socket) {
+    return true;
+}
+
+
+
+bool StockLogic::OnBroadcastConnect(struct server *srv, const int socket,
+        const void *msg, const int len) {
+    return true;
+}
+
+bool StockLogic::OnBroadcastMessage(struct server *srv, const int socket,
+        const void *msg, const int len) {
+    return true;
+}
+
+bool StockLogic::OnBroadcastClose(struct server *srv, const int socket) {
+    return true;
+}
+
+bool StockLogic::OnIniTimer(struct server *srv) {
+	srv->add_time_task(srv, "stock", UPDATE_REALTIME_STOCK_INFO, 60, -1);
+	srv->add_time_task(srv, "stock", UPDATE_LIMIT_DATA_TO_DB, 60, -1);
+	srv->add_time_task(srv, "stock", DELETE_OLD_LIMIT_DATA, 60, -1);
+	srv->add_time_task(srv, "stock", UPDATE_LIMIT_DATA_TO_MEMORY, 60, -1);
+	srv->add_time_task(srv, "stock", UPDATE_INDUSTRY_HIST_DATA, 60, -1);
+	srv->add_time_task(srv, "stock", UPDATE_STOCK_HIST_DATA, 5, 2);
+	srv->add_time_task(srv, "stock", UPDATE_STOCK_K_LINE, 60, -1);
+
+	LOG_DEBUG("add time task success");
+    return true;
+}
+
+bool StockLogic::OnTimeout(struct server *srv, char *id,
+        int opcode, int time) {
+	LOG_MSG2("call OnTimeout opcode=%d",opcode);
+    switch (opcode) {
+
+    case UPDATE_REALTIME_STOCK_INFO: {
+    	LOG_MSG("call OnUpdateRealtimeStockInfo");
+    	factory_->OnUpdateRealtimeStockInfo();
+    	break;
+    }
+    case UPDATE_LIMIT_DATA_TO_DB: {
+    	factory_->TimeWriteLimitData(time);
+    	break;
+    }
+    case DELETE_OLD_LIMIT_DATA: {
+		factory_->TimeDeleteOldLimitData();
+		break;
+	}
+    case UPDATE_LIMIT_DATA_TO_MEMORY: {
+        factory_->OnUpdateLimitData();
+        break;
+    }
+    case UPDATE_INDUSTRY_HIST_DATA: {
+        factory_->TimeUpdateWeekMonthData();
+        break;
+    }
+    case UPDATE_STOCK_HIST_DATA: {
+    	factory_->OnUpdateStockHistData();
+    	break;
+    }
+    case UPDATE_STOCK_K_LINE: {
+    	factory_->OnUpdateStockKLineData();
+    	break;
+    }
+     default:
+        break;
+    }
+    return true;
+}
+
+
+
+}

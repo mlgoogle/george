@@ -1,9 +1,10 @@
 //  Copyright (c) 2015-2015 The mem_manager.cc Authors. All rights reserved.
 //  Created on: 2016年1月9日 Author: paco
 
-#include "news/mem_manager.h"
+#include "../news/mem_manager.h"
+
+#include "../news/db_mysql.h"
 #include "base/logic/logic_comm.h"
-#include "news/db_mysql.h"
 
 MemManager* MemManager::instance_;
 pthread_mutex_t MemManager::lock_ = PTHREAD_MUTEX_INITIALIZER;
@@ -24,7 +25,7 @@ MemManager* MemManager::GetInstance() {
 }
 
 void MemManager::InitHyMap() {
-  news::DbMysql::QueryStockHy(&hy_stock_map_);
+  news::NewsMysql::QueryStockHy(&hy_stock_map_);
   LOG_DEBUG2("InitHyMap,size:%d", hy_stock_map_.size());
 }
 
@@ -46,12 +47,12 @@ std::string MemManager::GetGnByCode(std::string code) {
 }
 
 void MemManager::InitGnMap() {
-  news::DbMysql::QueryStockGn(&gn_stock_map_);
+  news::NewsMysql::QueryStockGn(&gn_stock_map_);
   LOG_DEBUG2("InitGnMap,size:%d", gn_stock_map_.size());
 }
 
 void MemManager::InitStockNameMap() {
-  news::DbMysql::QueryStockName(&stock_name_map_);
+  news::NewsMysql::QueryStockName(&stock_name_map_);
   LOG_DEBUG2("InitStockNameMap,size:%d", stock_name_map_.size());
 }
 

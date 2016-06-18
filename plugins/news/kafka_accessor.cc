@@ -9,7 +9,8 @@
 #    Description  : 
 =============================================================================*/
 
-#include "news/kafka_accessor.h"
+#include "../news/kafka_accessor.h"
+
 #include <assert.h>
 
 namespace news {
