@@ -2,6 +2,7 @@
 //  Created on: 2016年5月18日 Author: kerry
 
 #include "vip_db.h"
+#include "basic/basic_util.h"
 #include <mysql.h>
 namespace vip_logic {
 
@@ -46,11 +47,39 @@ bool VIPDB::FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map,
     return true;
 }
 
-bool VIPDB::FectchArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map,
+bool VIPDB::FectchNewArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map) {
+	bool r = false;
+	std::string sql = "call vip.proc_FectchNewArticle()";
+    scoped_ptr<base_logic::DictionaryValue> dict(
+                new base_logic::DictionaryValue());
+    base_logic::ListValue* listvalue;
+    dict->SetString(L"sql", sql);
+    r = mysql_engine_->ReadData(0, (base_logic::Value*)(dict.get()),
+    		CallFectchArticleInfo);
+    if (!r)
+    	return false;
+    dict->GetList(L"resultvalue", &listvalue);
+    while (listvalue->GetSize()) {
+    	vip_logic::ArticleInfo article;
+    	base_logic::Value* result_value;
+    	listvalue->Remove(0, &result_value);
+        base_logic::DictionaryValue* dict_result_value =
+                (base_logic::DictionaryValue*)(result_value);
+        article.ValueSerialization(dict_result_value);
+        map[article.id()] = article;
+        delete dict_result_value;
+        dict_result_value = NULL;
+    }
+    return true;
+}
+
+bool VIPDB::FectchArticleInfo(const int64 count,std::map<int64, vip_logic::ArticleInfo>& map,
 		std::list<vip_logic::ArticleInfo>& list,
 		std::vector<vip_logic::ArticleInfo>& vec) {
 	bool r = false;
-	std::string sql = "call proc_FectchArticle()";
+	std::string sql = "call proc_FectchArticle(" +
+			base::BasicUtil::StringUtil::Int64ToString(count) +
+			")";
     scoped_ptr<base_logic::DictionaryValue> dict(
                 new base_logic::DictionaryValue());
     base_logic::ListValue* listvalue;
@@ -68,9 +97,13 @@ bool VIPDB::FectchArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map,
                 (base_logic::DictionaryValue*)(result_value);
         article.ValueSerialization(dict_result_value);
         //list->push_back(task);
-        map[article.id()] = article;
-        list.push_back(article);
-        vec.push_back(article);
+        std::map<int64, vip_logic::ArticleInfo>::iterator it =
+        		map.find(article.id());
+        if(it == map.end()) {
+        	map[article.id()] = article;
+        	list.push_back(article);
+        	vec.push_back(article);
+        }
         delete dict_result_value;
         dict_result_value = NULL;
     }
@@ -148,6 +181,10 @@ void VIPDB::CallFectchArticleInfo(void* param,
             	info_value->SetInteger(L"source",atol(rows[6]));
             if(rows[7] != NULL)
             	info_value->SetString(L"stock",rows[7]);
+            if(rows[8] != NULL)
+            	info_value->SetString(L"digest", rows[8]);
+            if(rows[9] != NULL)
+            	info_value->SetString(L"summary", rows[9]);
 
             /*if (rows[1] != NULL)
                 info_value->SetBigInteger(L"user_id", atoll(rows[1]));

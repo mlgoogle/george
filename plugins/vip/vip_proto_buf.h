@@ -16,9 +16,11 @@ namespace vip_logic {
 namespace net_request {
 class VIPNews : public george_logic::PacketHead{
  public:
-	VIPNews() {
-		uid_ = pos_ = count_ = NULL;
-		token_ = NULL;
+	VIPNews()
+ 	 :uid_(NULL)
+ 	 ,pos_(NULL)
+ 	 ,count_(NULL)
+ 	 ,token_(NULL){
 	}
 
 	~VIPNews() {
@@ -79,9 +81,13 @@ typedef VIPNews HotVIP;
 
 class VIPArticle: public george_logic::PacketHead{
  public:
-	VIPArticle() {
-		uid_ = pos_ = count_ = vid_ = flag_ = NULL;
-		token_ = NULL;
+	VIPArticle()
+ 	 :uid_(NULL)
+ 	 ,pos_(NULL)
+ 	 ,count_(NULL)
+ 	 ,vid_(NULL)
+ 	 ,flag_(NULL)
+ 	 ,token_(NULL){
 	}
 
 	~VIPArticle(){
@@ -163,9 +169,11 @@ class VIPArticle: public george_logic::PacketHead{
 
 class SubcribeVIP: public george_logic::PacketHead{
  public:
-	SubcribeVIP() {
-		pos_ = count_ = NULL;
-		uid_ =  token_ = NULL;
+	SubcribeVIP()
+ 	 :pos_(NULL)
+ 	 ,count_(NULL)
+ 	 ,uid_(NULL)
+ 	 ,token_(NULL){
 	}
 
 	~SubcribeVIP(){
@@ -227,9 +235,10 @@ class SubcribeVIP: public george_logic::PacketHead{
 
 class SetSubcribeVIP: public george_logic::PacketHead{
  public:
-	SetSubcribeVIP() {
-		uid_ =  token_ = NULL;
-		vid_ = NULL;
+	SetSubcribeVIP()
+ 	 :uid_(NULL)
+ 	 ,token_(NULL)
+ 	 ,vid_(NULL){
 	}
 
 	~SetSubcribeVIP(){
@@ -242,7 +251,7 @@ class SetSubcribeVIP: public george_logic::PacketHead{
 	virtual void set_http_packet(base_logic::DictionaryValue* value);
 
 
-	void set_uid(const std::string uid) { uid_ =
+	void set_uid(const std::string& uid) { uid_ =
 		new base_logic::StringValue(uid);}
 
 	void set_token(const std::string& token) { token_ =
@@ -277,7 +286,57 @@ class SetSubcribeVIP: public george_logic::PacketHead{
 	base_logic::FundamentalValue*     vid_;
 };
 
+class VIPNewsDigest: public george_logic::PacketHead{
+ public:
+	VIPNewsDigest()
+ 	 :uid_(NULL)
+ 	 ,token_(NULL)
+ 	 ,article_id_(NULL) {}
 
+	~VIPNewsDigest(){
+		if(uid_ != NULL) {delete uid_; uid_ = NULL;}
+		if(token_ != NULL) {delete token_; token_ = NULL;}
+		if(article_id_ != NULL) {delete article_id_; article_id_ = NULL;}
+	}
+
+	void set_uid(const std::string& uid) {
+		uid_ = new base_logic::StringValue(uid);
+	}
+
+	void set_token(const std::string& token) {
+		token_ = new base_logic::StringValue(token);
+	}
+
+	void set_article_id(const int64 article_id) {
+		article_id_ =
+				new base_logic::FundamentalValue(article_id);
+	}
+
+	virtual void set_http_packet(base_logic::DictionaryValue* value);
+
+	const std::string uid() const {
+		std::string uid = "0";
+		uid_->GetAsString(&uid);
+		return uid;
+	}
+
+
+	const std::string token() const {
+		std::string token;
+		token_->GetAsString(&token);
+		return token;
+	}
+
+	const int64 article_id() const {
+		int64 article_id;
+		article_id_->GetAsBigInteger(&article_id);
+		return article_id;
+	}
+ public:
+	base_logic::StringValue*               uid_;
+	base_logic::StringValue*               token_;
+	base_logic::FundamentalValue*          article_id_;
+};
 
 }
 
@@ -286,9 +345,17 @@ class VIPNews{
  public:
 	VIPNews() {
 		article_type_ =  NULL;
-		vid_ = aid_ =  article_time_ = NULL;
-		name_ = title_ = article_source_  =  protrait_ =  introduction_ = NULL;
+		vid_ = NULL;
+		aid_ =  NULL;
+		article_time_ = NULL;
+		name_ = NULL;
+		title_ = NULL;
+		article_source_  =  NULL;
+		protrait_ =  NULL;
+		introduction_ = NULL;
 		subcribe_count_ = NULL;
+		flag_ = NULL;
+		article_url_ = NULL;
 		value_ = NULL;
 
 	}
@@ -311,7 +378,9 @@ class VIPNews{
 		introduction_  = new base_logic::StringValue(introduction);
 	}
 
-	void set_subcribe_count(const int64 subcribe_count) {subcribe_count_ = new base_logic::FundamentalValue(subcribe_count);}
+	void set_subcribe_count(const int64 subcribe_count) {
+		subcribe_count_ = new base_logic::FundamentalValue(subcribe_count);
+	}
 
 	void set_article_source(const std::string& article_source) {article_source_
 		= new base_logic::StringValue(article_source);}
@@ -333,7 +402,7 @@ class VIPNews{
 
 
 	~VIPNews() {
-		if(value_) {delete vid_; vid_ = NULL;}
+		if(value_) {delete value_; value_ = NULL;}
 	}
 
 	base_logic::DictionaryValue* get() {
@@ -490,7 +559,6 @@ class VIPUser {
 
 typedef VIPNewsList VIPUserList;
 
-
 class VIPArticleList : public george_logic::PacketHead {
 public:
 	VIPArticleList(){
@@ -520,8 +588,8 @@ public:
 	base_logic::DictionaryValue* body() {
 		body_value_ = new base_logic::DictionaryValue();
 		base_logic::DictionaryValue* dict  = new base_logic::DictionaryValue();
-		if(article_list_->GetSize() > 0) dict->Set(L"article", article_list_);
-		if(live_list_->GetSize() > 0) dict->Set(L"live", live_list_);
+		if(article_list_ != NULL ) dict->Set(L"article", article_list_);
+		if(live_list_ != NULL) dict->Set(L"live", live_list_);
 		body_value_->SetWithoutPathExpansion(L"info",dict);
 		body_value_->SetWithoutPathExpansion(L"vip",vip_info_);
 		return body_value_;
@@ -534,6 +602,45 @@ private:
 	base_logic::DictionaryValue*   vip_info_;
 };
 
+
+class VIPNewsDigest : public george_logic::PacketHead {
+public:
+	VIPNewsDigest()
+	:digest_(NULL)
+	,summary_(NULL)
+	,url_(NULL){}
+
+	~VIPNewsDigest(){
+		if (body_value_) {delete body_value_; body_value_ = NULL;}
+	}
+
+	void set_digest(const std::string& digest) {
+		digest_ = new base_logic::StringValue(digest);
+	}
+
+	void set_summary(const std::string& summary) {
+		summary_ = new base_logic::StringValue(summary);
+	}
+
+	void set_url(const std::string& url) {
+		url_ = new base_logic::StringValue(url);
+	}
+
+	base_logic::DictionaryValue* body() {
+		body_value_ = new base_logic::DictionaryValue();
+		if(digest_ != NULL )
+			body_value_->SetWithoutPathExpansion(L"digest",digest_);
+		if(summary_ != NULL)
+			body_value_->SetWithoutPathExpansion(L"summary",summary_);
+		if(url_ != NULL)
+			body_value_->SetWithoutPathExpansion(L"url",url_);
+		return body_value_;
+	}
+private:
+	base_logic::StringValue*    digest_;
+	base_logic::StringValue*    summary_;
+	base_logic::StringValue*    url_;
+};
 
 
 

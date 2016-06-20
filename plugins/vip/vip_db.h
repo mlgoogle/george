@@ -24,9 +24,11 @@ class VIPDB {
 	bool FectchVIPUserInfo(std::map<int64,vip_logic::VIPUserInfo>& map,
 			std::vector<vip_logic::VIPUserInfo>& vec);
 
-	bool FectchArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map,
+	bool FectchArticleInfo(const int64 count,std::map<int64, vip_logic::ArticleInfo>& map,
 			std::list<vip_logic::ArticleInfo>& list,
 			std::vector<vip_logic::ArticleInfo>& vec);
+
+	bool FectchNewArticleInfo(std::map<int64, vip_logic::ArticleInfo>& map);
 
 	bool FectchSubcribeInfo(std::map<std::string, vip_logic::SubcribeInfo>& map);
 

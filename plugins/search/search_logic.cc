@@ -1,148 +1,113 @@
 //  Copyright (c) 2016-2016 The jindowin Authors. All rights reserved.
 //  Created on: 2016/3/28 Author: jiaoyongqing
 
-#include <string>
-
 #include "search/search_logic.h"
-#include "search/handle_search.h"
-#include "logic/logic_comm.h"
-#include "logic/logic_unit.h"
-#include "net/search_comm.h"
-#include "db/db_comm.h"
-#include "tools/tools.h"
 
-namespace search_logic {
+#include <assert.h>
 
-Searchlogic* Searchlogic::instance_ = NULL;
+#include "search/search_packet.h"
+#include "pub/net/comm_head.h"
 
-Searchlogic::Searchlogic() {
+#include "base/logic/logic_comm.h"
+#include "core/common.h"
+
+#define DEFAULT_CONFIG_PATH     "./plugins/search/search_config.xml"
+#define UPDATE_STOCK_PRICE  120
+namespace search {
+SearchLogic* SearchLogic::instance_ = NULL;
+
+SearchLogic::SearchLogic() {
   if (!Init()) {
     assert(0);
   }
 }
 
-Searchlogic::~Searchlogic() {
-  db::DbSql::Dest();
-}
-
-bool Searchlogic::Init() {
-  bool r = false;
-  std::string path = DEFAULT_CONFIG_PATH;
-  config::FileConfig* config = config::FileConfig::GetFileConfig();
-  if (config == NULL) {
-    return false;
+SearchLogic::~SearchLogic() {
+  SearchInterface::FreeInstance();
+  if (packet_ != NULL) {
+    delete packet_;
+    packet_ = NULL;
   }
-  r = config->LoadConfig(path);
-
-  db::DbSql::Init(&config->mysql_db_list_);
-  return true;
 }
 
-bool Searchlogic::OnSearchConnect(struct server *srv, const int socket) {
-  return true;
+SearchLogic* SearchLogic::GetInstance() {
+  if (instance_ == NULL)
+    instance_ = new SearchLogic();
+  return instance_;
 }
 
-bool Searchlogic::OnSearchMessage(struct server *srv, \
-                                  const int socket, \
-                                   const void *msg, \
-                                     const int len) {
-  std::string token;
-  //tools::GetToken(1234556, token);
-  //tools::CheckToken(1234556, token);
-  const char* packet_stream = reinterpret_cast<const char*>(msg);
-  std::string http_str(packet_stream, len);
-  std::string error_str;
-  int error_code = 0;
-
-  scoped_ptr<base_logic::ValueSerializer> serializer(\
-    base_logic::ValueSerializer::Create(base_logic::IMPL_HTTP, &http_str));
-
-  NetBase*  value = reinterpret_cast<NetBase*>\
-    (serializer.get()->Deserialize(&error_code, &error_str));
-  LOG_DEBUG2("search %s", "1");
-  if (value == NULL) {
-    error_code = STRUCT_ERROR;
-    send_error(error_code, socket);
-    return true;
-  }
-  LOG_DEBUG2("search %s", "2");
-
-  scoped_ptr<RecvPacketBase> packet(\
-    new RecvPacketBase(value));
-
-  int32 type = packet->GetType();
-  switch (type) {
-    case SEARCH_FUN:
-    {
-      LOG_DEBUG2("search: %s", "search_fun");
-      if(!tools::CheckUserIdAndToken(value,socket))
-        return false;
-      OnSearch(srv, socket, value);
+bool SearchLogic::Init() {
+  bool r = true;
+  do {
+    packet_ = new george_logic::http_packet::PacketProcess();
+    search_interface_ = SearchInterface::GetInstance();
+    config::FileConfig* config = config::FileConfig::GetFileConfig();
+    std::string path = DEFAULT_CONFIG_PATH;
+    if (config == NULL) {
+      LOG_ERROR("news config init error");
+      r = false;
       break;
     }
-    default:  //  end
-      return false;
-  }
+    r = config->LoadConfig(path);
+    if (!r) {
+      LOG_ERROR("news config load error");
+      break;
+    }
+    search_interface_->InitConfig(config);
+    search_interface_->InitMem();
+    search_interface_->UpdateStockPrice();
+  } while (0);
+  return r;
+}
+
+bool SearchLogic::OnSearchConnect(struct server *srv, const int socket) {
   return true;
 }
 
-bool Searchlogic::OnSearchClose(struct server *srv, const int socket) {
-  return true;
-}
-
-bool Searchlogic::OnBroadcastConnect(struct server *srv, \
-                                      const int socket, \
-                                       const void *msg, \
-                                         const int len) {
-  return true;
-}
-
-bool Searchlogic::OnBroadcastMessage(struct server *srv, \
-                                      const int socket, \
-                                       const void *msg, \
-                                         const int len) {
-  return true;
-}
-
-bool Searchlogic::OnBroadcastClose(struct server *srv, const int socket) {
-  return true;
-}
-
-bool Searchlogic::OnIniTimer(struct server *srv) {
-  return true;
-}
-
-bool Searchlogic::OnTimeout(struct server *srv, \
-                                      char *id, \
-                                    int opcode, \
-                                      int time) {
-  return true;
-}
-
-bool Searchlogic::OnSearch(struct server *srv, \
-                             const int socket, \
-                             NetBase* netbase, \
-                              const void* msg, \
-                               const int len ) {
-  netcomm_recv::RecvSearch search_info(netbase);
-  std::string str = search_info.GetJsonp();
-  int json_type = str == "" ? 0 : 3;
-  int error_code = search_info.GetResult();
-  if (0 != error_code) {
-    send_error(error_code, socket, json_type, str);
+bool SearchLogic::OnSearchMessage(struct server *srv, const int socket,
+                                  const void *msg, const int len) {
+  bool r = false;
+  LOG_DEBUG2("msg:[%s]", msg);
+  r = packet_->UnpackPacket(socket, msg,len,george_logic::SEARCH_TYPE,
+                        SearchPacket::PacketPocessGet);
+  if (!r) {//异常
+      search_interface_->SendError(socket,NULL,0);
     return false;
   }
+  return true;
+}
 
-  HandleSearch search(search_info.message(), str, socket);
-  search.GetData();
-  error_code = search.get_error_info();
-  if (0 != error_code) {
-    send_error(error_code, socket, json_type, str);
-    return false;
-  } else {
-    search.SendMessage();
+bool SearchLogic::OnSearchClose(struct server *srv, const int socket) {
+  return true;
+}
+
+bool SearchLogic::OnBroadcastConnect(struct server *srv,  const int socket,
+                                     const void *msg, const int len) {
+  return true;
+}
+
+bool SearchLogic::OnBroadcastMessage(struct server *srv, const int socket,
+                                     const void *msg, const int len) {
+  return true;
+}
+
+bool SearchLogic::OnBroadcastClose(struct server *srv, const int socket) {
+  return true;
+}
+
+bool SearchLogic::OnIniTimer(struct server *srv) {
+  srv->add_time_task(srv, "news", UPDATE_STOCK_PRICE, 20, -1);
+  return true;
+}
+
+bool SearchLogic::OnTimeout(struct server *srv, char *id, int opcode,
+                            int time) {
+   switch (opcode) {
+     case UPDATE_STOCK_PRICE: {
+       search_interface_->UpdateStockPrice();
+       break;
+     }
   }
-
   return true;
 }
 

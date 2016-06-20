@@ -3,9 +3,10 @@
 #ifndef _HOME_TIANYIHENG_TEST_JINDOWIN_RUNNER_JINDOWIN_PLUGINS_NEWS_NEWS_LOGIC_H_
 #define _HOME_TIANYIHENG_TEST_JINDOWIN_RUNNER_JINDOWIN_PLUGINS_NEWS_NEWS_LOGIC_H_
 #include <string>
+
+#include "../news/news_packet.h"
 #include "core/common.h"
 #include "net/http_data.h"
-#include "news/news_packet.h"
 
 #define DEFAULT_CONFIG_PATH           "./plugins/news/news_config.xml"
 #define NUM_DATE_DIV                  1000000

@@ -10,15 +10,6 @@
 
 # Where to find user code.
 # c++ access hbase dependence
-THRIFT_INC=/usr/local/thrift/include/ 
-THRIFT_DIR=/usr/local/thrift/include/thrift/
-THRIFT_LIB_DIR=/usr/local/thrift/lib/
-BOOST_DIR=/usr/local/boost/include/
-GEN_DIR=/usr/local/hbase/gen-cpp/
-GEN_SRC = /usr/local/hbase/gen-cpp/Hbase.cpp \
-					/usr/local/hbase/gen-cpp/Hbase_types.cpp \
-			    /usr/local/hbase/gen-cpp/Hbase_constants.cpp
-
 KAFKA_DIR = ./../../../library/base/kafka/
 KAFKALIB_DIR=./../../../library/third_party/librdkafka/
 
@@ -62,10 +53,6 @@ INCLUDE_PATHS = -I/usr/local/libmemcached-1.0.7/include \
 				-I$(LIB_DIR)/third_party/hiredis\
 				-I$(LIB_DIR)/third_party\
 				-I$(ARITHMETIC) \
-				-I${THRIFT_INC} \
-				-I${THRIFT_DIR} \
-				-I${BOOST_DIR} \
-				-I${GEN_DIR} \
 				-I${KAFKA_DIR} \
 				-I${KAFKALIB_DIR}/src
 				
@@ -97,18 +84,6 @@ mem_manager.o : ./mem_manager.cc ./mem_manager.h
 	
 news_packet.o : ./news_packet.cc ./news_packet.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./news_packet.cc $(INCLUDE_PATHS)
-
-db_hbase.o : ./db_hbase.cc ./db_hbase.h
-	  $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./db_hbase.cc ${GEN_SRC} $(INCLUDE_PATHS)
-
-Hbase.o:${GEN_DIR}/Hbase.cpp ${GEN_DIR}/Hbase.h                                                                          
-	g++ -c -I${BOOST_DIR} -I${THRIFT_INC} -I${THRIFT_DIR} -I${GEN_DIR} -L${LIB_DIR} -lthrift ${GEN_DIR}/Hbase.cpp
-
-Hbase_constants.o:${GEN_DIR}/Hbase_constants.cpp ${GEN_DIR}/Hbase_constants.h
-	g++ -c -I${BOOST_DIR} -I${THRIFT_INC} -I${THRIFT_DIR} -I${GEN_DIR} -L${LIB_DIR} -lthrift ${GEN_DIR}/Hbase_constants.cpp 
-
-Hbase_types.o:${GEN_DIR}/Hbase_types.cpp ${GEN_DIR}/Hbase_types.h
-	g++ -c -I${BOOST_DIR} -I${THRIFT_INC} -I${THRIFT_DIR} -I${GEN_DIR} -L${LIB_DIR} -lthrift ${GEN_DIR}/Hbase_types.cpp
 
 #kafka
 kafka_producer.o : $(KAFKA_DIR)/kafka_producer.cc $(KAFKA_DIR)/kafka_producer.h

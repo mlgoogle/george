@@ -10,7 +10,9 @@ namespace george_logic {
 enum PACKET_TYPE {
 	ERROR_TYPE = 0,
 	STO_TYPE = 1,
-	VIP_TYPE = 2
+  VIP_TYPE = 2,
+  NEWS_TYPE = 3,
+  SEARCH_TYPE = 4
 };
 
 }

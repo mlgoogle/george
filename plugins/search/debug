@@ -1,2 +1,0 @@
-make -f makefile_debug clean
-make -f makefile_debug

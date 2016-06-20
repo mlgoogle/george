@@ -1,9 +1,10 @@
 //  Copyright (c) 2015-2015 The news_packet.cc Authors. All rights reserved.
 
+#include "../news/news_packet.h"
+
 #include <algorithm>
 #include <vector>
 #include <string>
-#include "news/news_packet.h"
 #include "net/error_comm.h"
 
 //------------------------- recv -------------------------------
