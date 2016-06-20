@@ -50,15 +50,27 @@ void StockFactory::Dest() {
 }
 
 void StockFactory::OnVIPGetLimitData(const int socket,
-		base_logic::DictionaryValue* dict) {
+		base_logic::DictionaryValue* dict, george_logic::PacketHead* packet) {
 	std::string limit_data_json;
-	stock_usr_mgr_->GetLimitData(limit_data_json);
+	std::string format = "json";
+	dict->GetString(L"format", &format);
+	stock_usr_mgr_->GetLimitData(limit_data_json, format);
 	LOG_MSG2("limit_data_json=%s", limit_data_json.c_str());
+	if ("jsonp" == format) {
+		std::string limit_data_jsonp = "";
+		stock_logic::net_reply::VIPNewsList* vip_list = new stock_logic::net_reply::VIPNewsList();
+		StockUtil::Instance()->filter_character(limit_data_json, '\r');
+		StockUtil::Instance()->filter_character(limit_data_json, '\n');
+		vip_list->set_string_value(L"jsonp_result", limit_data_json);
+		StockUtil::Instance()->wrap_jsonp_serialize(vip_list, packet->attach_field(), limit_data_json, limit_data_jsonp);
+        limit_data_json = limit_data_jsonp;
+	}
+	StockUtil::Instance()->filter_character(limit_data_json, '\\');
 	base_logic::LogicComm::SendFull(socket, limit_data_json.c_str(),limit_data_json.length());
 }
 
 void StockFactory::OnVIPGetHotDiagramData(const int socket,
-		base_logic::DictionaryValue* dict) {
+		base_logic::DictionaryValue* dict, george_logic::PacketHead* packet) {
 
 	std::string type = "";
 	std::string stock_code = "";
@@ -84,23 +96,36 @@ void StockFactory::OnVIPGetHotDiagramData(const int socket,
 
     std::string cycle_type = "day";
     r = dict->GetString(L"cycle_type", &cycle_type);
-    LOG_MSG2("cycle_type=%s,type=%s", cycle_type.c_str(),type.c_str());
+    std::string format = "json";
+    dict->GetString(L"format", &format);
+    LOG_MSG2("cycle_type=%s,type=%s,format=%s", cycle_type.c_str(), type.c_str(), format.c_str());
 	if ("industry" == type)
-		ProcessHotDiagramIndustryData(socket, cycle_type);
+		ProcessHotDiagramIndustryData(socket, cycle_type, format, packet, dict);
 	/*else if ("" != industry_name) {
 		ProcessHotDiagramByIndustry(socket, cycle_type, industry_name);
 	} */
 	else if ("" != stock_code) {
 		if (stock_code.size() > 1)
 			stock_code.erase(stock_code.begin());
-        ProcessStockKLine(socket, stock_code);
+        ProcessStockKLine(socket, stock_code, format, packet, dict);
 	}
 }
 
 //YGTODO 更改json字符串取值位置
-void StockFactory::ProcessHotDiagramIndustryData(int socket, std::string type) {
-	std::string industry_json = stock_usr_mgr_->GetIndustryHotDiagram(type);
+void StockFactory::ProcessHotDiagramIndustryData(int socket, std::string type, std::string format,
+		george_logic::PacketHead* packet, base_logic::DictionaryValue* dict) {
+	std::string industry_json = stock_usr_mgr_->GetIndustryHotDiagram(type, format);
 	LOG_MSG2("industry_json=%s",industry_json.c_str());
+	if ("jsonp" == format) {
+		std::string industry_jsonp = "";
+		stock_logic::net_reply::VIPNewsList* vip_list = new stock_logic::net_reply::VIPNewsList();
+		StockUtil::Instance()->filter_character(industry_json, '\r');
+		StockUtil::Instance()->filter_character(industry_json, '\n');
+		vip_list->set_string_value(L"jsonp_result", industry_json);
+		StockUtil::Instance()->wrap_jsonp_serialize(vip_list, packet->attach_field(), industry_json, industry_jsonp);
+		industry_json = industry_jsonp;
+	}
+	StockUtil::Instance()->filter_character(industry_json, '\\');
 	base_logic::LogicComm::SendFull(socket, industry_json.c_str(),industry_json.length());
 }
 
@@ -110,9 +135,20 @@ void StockFactory::ProcessHotDiagramByIndustry(int socket, std::string type, std
     base_logic::LogicComm::SendFull(socket, stocks_json.c_str(),stocks_json.length());
 }
 
-void StockFactory::ProcessStockKLine(int socket, std::string stock_code) {
-    std::string stock_kline = stock_usr_mgr_->GetStockKLineByCode(stock_code);
+void StockFactory::ProcessStockKLine(int socket, std::string stock_code, std::string format,
+		george_logic::PacketHead* packet, base_logic::DictionaryValue* dict) {
+    std::string stock_kline = stock_usr_mgr_->GetStockKLineByCode(stock_code, format);
     LOG_MSG2("stock_kline=%s,stock_code=%s", stock_kline.c_str(),stock_code.c_str());
+    if ("jsonp" == format) {
+		std::string stock_kline_jsonp = "";
+		stock_logic::net_reply::VIPNewsList* vip_list = new stock_logic::net_reply::VIPNewsList();
+		StockUtil::Instance()->filter_character(stock_kline, '\r');
+		StockUtil::Instance()->filter_character(stock_kline, '\n');
+		vip_list->set_string_value(L"jsonp_result", stock_kline);
+		StockUtil::Instance()->wrap_jsonp_serialize(vip_list, packet->attach_field(), stock_kline, stock_kline_jsonp);
+		stock_kline = stock_kline_jsonp;
+	}
+    StockUtil::Instance()->filter_character(stock_kline, '\\');
     base_logic::LogicComm::SendFull(socket, stock_kline.c_str(),stock_kline.length());
 }
 

@@ -329,22 +329,33 @@ class VIPNewsList: public george_logic::PacketHead{
 		list_->Append(value);
 	}
 
+	base_logic::ListValue*& get_list() {
+		return list_;
+	}
+
 	base_logic::DictionaryValue* body() {
-		body_value_ = new base_logic::DictionaryValue();
+		if (NULL == body_value_)
+		    body_value_ = new base_logic::DictionaryValue();
 		body_value_->SetWithoutPathExpansion(L"list",list_);
 		body_value_->SetInteger(L"count",list_->GetSize());
 		return body_value_;
 	}
 
 	void set_string_value(std::wstring key, std::string value) {
+		if (NULL == body_value_)
+			body_value_ = new base_logic::DictionaryValue();
 		body_value_->SetString(key, value);
 	}
 
 	void set_integer_value(std::wstring key, int32 value) {
+		if (NULL == body_value_)
+			body_value_ = new base_logic::DictionaryValue();
 		body_value_->SetInteger(key, value);
 	}
 
 	void set_double_value(std::wstring key, double value) {
+		if (NULL == body_value_)
+			body_value_ = new base_logic::DictionaryValue();
 		body_value_->SetReal(key, value);
 	}
 

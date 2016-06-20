@@ -76,9 +76,12 @@ void StockUserManager::UpdateWeekMonthData() {
 	stock_db_->UpdateWeekMonthData(stock_user_cache_->stock_total_info_);
 }
 
-void StockUserManager::GetLimitData(std::string& market_limit_info_str) {
+void StockUserManager::GetLimitData(std::string& market_limit_info_str, std::string format) {
 	base_logic::WLockGd lk(lock_);
-	market_limit_info_str = stock_user_cache_->cached_json_info_.market_limit_json();
+	if ("jsonp" == format)
+		market_limit_info_str = stock_user_cache_->cached_json_info_.market_limit_jsonp();
+	else
+		market_limit_info_str = stock_user_cache_->cached_json_info_.market_limit_json();
 }
 
 void StockUserManager::GetHotDiagramIndustryData(std::list<HotDiagramPerIndustry>& hot_diagram_industry_data) {
@@ -93,6 +96,7 @@ void StockUserManager::GetHotDiagramDataByIndustry(std::list<HotDiagramPerStock>
 void StockUserManager::UpdateLimitData() {
 	base_logic::WLockGd lk(lock_);
 	stock_user_cache_->market_limit_info_.clear();
+	//stock_user_cache_->cached_json_info_.clear_list();
 	stock_db_->GetLimitData(stock_user_cache_->market_limit_info_);
 	MARKET_LIMIT& market_limit_info = stock_user_cache_->market_limit_info_;
 	stock_logic::net_reply::VIPNewsList* vip_list = new stock_logic::net_reply::VIPNewsList();
@@ -102,13 +106,17 @@ void StockUserManager::UpdateLimitData() {
 		limit_data->set_time(iter->first);
 		limit_data->set_surged_stock_num(iter->second[0]);
 		limit_data->set_decline_stock_num(iter->second[1]);
-		vip_list->set_vip_news(limit_data->get());
+		base_logic::Value* limit_data_value = limit_data->get();
+		vip_list->set_vip_news(limit_data_value);
+		//stock_user_cache_->cached_json_info_.add_value_to_list(limit_data_value);
 		delete limit_data;
 		limit_data = NULL;
 	}
     base_logic::DictionaryValue* vip_list_packet = vip_list->packet();
     stock_user_cache_->cached_json_info_.market_limit_json_ = "";
     StockUtil::Instance()->serialize(vip_list_packet, stock_user_cache_->cached_json_info_.market_limit_json_);
+    stock_user_cache_->cached_json_info_.set_market_limit_jsonp("");
+    StockUtil::Instance()->jsonp_serialize(vip_list_packet, stock_user_cache_->cached_json_info_.market_limit_jsonp_);
     delete vip_list_packet;
     vip_list_packet = NULL;
     delete vip_list;
@@ -175,10 +183,10 @@ void StockUserManager::UpdateStockHotDiagram() {
 	StockUtil::Instance()->serialize(vip_list->packet(), stocks_hot_diagram_json);*/
 }
 
-std::string StockUserManager::GetIndustryHotDiagram(std::string type) {
+std::string StockUserManager::GetIndustryHotDiagram(std::string type, std::string format) {
 	base_logic::RLockGd lk(lock_);
 	//std::string industry_json = vip_user_cache_->cached_json_info_.industry_json(type);
-	std::string industry_json = stock_user_cache_->industry_info_.get_industry_hot_diagram_by_type(type);
+	std::string industry_json = stock_user_cache_->industry_info_.get_industry_hot_diagram_by_type(type, format);
 	return industry_json;
 }
 
@@ -294,12 +302,15 @@ void StockUserManager::UpdateStockKLine() {
 	}
 }
 
-std::string StockUserManager::GetStockKLineByCode(std::string stock_code) {
+std::string StockUserManager::GetStockKLineByCode(std::string stock_code, std::string format) {
 	base_logic::WLockGd lk(lock_);
 	STOCKINFO_MAP& stocks_map = stock_user_cache_->stock_total_info_;
 	STOCKINFO_MAP::iterator iter = stocks_map.find(stock_code);
 	if (stocks_map.end() != iter) {
-		return iter->second.getLineJson();
+		if ("jsonp" == format)
+			return iter->second.getKLineJsonp();
+		else
+		    return iter->second.getLineJson();
 	} else
 		return "null";
 }

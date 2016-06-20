@@ -103,7 +103,7 @@ void BasicIndustryInfo::update_hot_diagram_stock_json() {
 	update_hot_diagram_stock_json_by_month();
 }
 
-std::string IndustryInfo::get_industry_json(std::string type, std::list<BasicIndustryInfo>& industry_list) {
+std::string IndustryInfo::set_industry_json(std::string type, std::list<BasicIndustryInfo>& industry_list) {
 	stock_logic::net_reply::VIPNewsList* vip_list = new stock_logic::net_reply::VIPNewsList();
 	std::list<BasicIndustryInfo>::iterator iter = industry_list.begin();
 	int count = 0;
@@ -120,7 +120,10 @@ std::string IndustryInfo::get_industry_json(std::string type, std::list<BasicInd
 			industry_data->set_change_percent(iter->industry_month_changepoint());
 			industry_data->set_volume(iter->month_industry_volume());
 		}
-		vip_list->set_vip_news(industry_data->get());
+		base_logic::Value* industry_data_value = industry_data->get();
+		vip_list->set_vip_news(industry_data_value);
+		delete industry_data;
+		industry_data = NULL;
 		//industry_info_map_[iter->industry_name()].update_hot_diagram_stock_json();
 		count++;
 		if (count > 9)
@@ -130,6 +133,7 @@ std::string IndustryInfo::get_industry_json(std::string type, std::list<BasicInd
 	std::string stocks_hot_diagram_json;
 	base_logic::DictionaryValue* dict = vip_list->packet();
 	StockUtil::Instance()->serialize(dict, stocks_hot_diagram_json);
+	StockUtil::Instance()->jsonp_serialize(dict, industry_hot_diagram_jsonp_[type]);
 	delete vip_list;
 	vip_list = NULL;
 	delete dict;
@@ -303,6 +307,7 @@ void IndustryInfo::ValueSerialization(base_logic::DictionaryValue* dict){
 
 void StockTotalInfo::update_kline_json() {
 	KLine_json_ = "";
+	setKLineJsonp("");
 	std::map<std::string, HistDataPerDay>& hist_data = hist_data_info_.stock_hist_data_;
 	stock_logic::net_reply::VIPNewsList* vip_list = new stock_logic::net_reply::VIPNewsList();
 	int count = 0;
@@ -331,12 +336,13 @@ void StockTotalInfo::update_kline_json() {
 	}
 	base_logic::DictionaryValue* kline_value = vip_list->packet();
 	StockUtil::Instance()->serialize(kline_value, KLine_json_);
+	StockUtil::Instance()->jsonp_serialize(kline_value, KLine_jsonp_);
 	delete kline_value;
 	kline_value = NULL;
 	delete vip_list;
 	vip_list = NULL;
 	if ("000001" == basic_info_.code()) {
-		LOG_MSG2("code=%s,KLine_json=%s", basic_info_.code().c_str(), KLine_json_.c_str());
+		LOG_MSG2("code=%s,KLine_json=%s,KLine_jsonp=%s", basic_info_.code().c_str(), KLine_json_.c_str(), KLine_jsonp_.c_str());
 	}
 }
 

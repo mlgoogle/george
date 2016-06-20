@@ -35,10 +35,10 @@ class StockFactory {
  public:
 
 	void OnVIPGetLimitData(const int socket,
-			base_logic::DictionaryValue* dict);
+			base_logic::DictionaryValue* dict, george_logic::PacketHead* packet);
 
 	void OnVIPGetHotDiagramData(const int socket,
-			base_logic::DictionaryValue* dict);
+			base_logic::DictionaryValue* dict, george_logic::PacketHead* packet);
 
 	void OnUpdateRealtimeStockInfo();
 
@@ -48,11 +48,13 @@ class StockFactory {
 
 	void OnUpdateLimitData();
 
-	void ProcessHotDiagramIndustryData(int socket, std::string type);
+	void ProcessHotDiagramIndustryData(int socket, std::string type, std::string format,
+			george_logic::PacketHead* packet, base_logic::DictionaryValue* dict);
 
 	void ProcessHotDiagramByIndustry(int socket, std::string type, std::string industry_name);
 
-	void ProcessStockKLine(int socket, std::string stock_code);
+	void ProcessStockKLine(int socket, std::string stock_code, std::string format,
+			george_logic::PacketHead* packet, base_logic::DictionaryValue* dict);
 
 	void TimeWriteLimitData(int current_trade_time);
 

@@ -48,6 +48,10 @@ public:
 class CachedJsonInfo {
 public:
 
+	CachedJsonInfo() {
+		market_limit_list_ = new base_logic::ListValue();
+	}
+
 	std::string industry_json(std::string type) {return industry_json_[type];}
 
 	void set_industry_json(std::string type, std::string industry_json) {
@@ -58,6 +62,12 @@ public:
 
 	void set_market_limit_json(std::string market_limit_json) {
 		market_limit_json_ = market_limit_json;
+	}
+
+	std::string market_limit_jsonp() const{return market_limit_jsonp_;}
+
+	void set_market_limit_jsonp(std::string market_limit_jsonp) {
+		market_limit_jsonp_ = market_limit_jsonp;
 	}
 
 	std::string get_stocks_json(std::string type, std::string industry_name) {
@@ -73,8 +83,19 @@ public:
 		stocks_per_industry_json_.clear();
 	}
 
+	void clear_list() {
+		if (NULL != market_limit_list_)
+		    market_limit_list_->Clear();
+	}
+
+	void add_value_to_list(base_logic::Value* value) {
+		market_limit_list_->Append(value);
+	}
+
 	std::map<std::string, std::string> industry_json_;
 	std::string market_limit_json_;
+	std::string market_limit_jsonp_;
+	base_logic::ListValue* market_limit_list_;
 	std::map<std::string, STOCKS_PER_INDUSTRY_JSON> stocks_per_industry_json_;
 };
 
@@ -126,7 +147,7 @@ class StockUserManager {
 
 	void UpdateStockKLine();
 
-	std::string GetStockKLineByCode(std::string stock_code);
+	std::string GetStockKLineByCode(std::string stock_code, std::string format);
 
 	void UpdateIndustryMarketValue();
 
@@ -136,7 +157,7 @@ class StockUserManager {
 
 	void UpdateStockLimitInfo();
 
-	void GetLimitData(std::string& market_limit_info_str);
+	void GetLimitData(std::string& market_limit_info_str, std::string format);
 
 	void GetHotDiagramIndustryData(std::list<HotDiagramPerIndustry>& hot_diagram_industry_data);
 
@@ -154,7 +175,7 @@ class StockUserManager {
 
 	void UpdateStockHotDiagram();
 
-    std::string GetIndustryHotDiagram(std::string type);
+    std::string GetIndustryHotDiagram(std::string type, std::string format);
 
     std::string GetStocksHotDiagram(std::string type, std::string industry_name);
 

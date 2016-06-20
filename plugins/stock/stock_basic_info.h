@@ -121,6 +121,35 @@ public:
 		return r;
 	}
 
+	bool jsonp_serialize(base_logic::DictionaryValue* value, std::string& jsonp) {
+		base_logic::ValueSerializer* serializer = base_logic::ValueSerializer::Create(base_logic::IMPL_JSONP);
+		bool r = serializer->Serialize(*value, &jsonp);
+		delete serializer;
+		serializer = NULL;
+		return r;
+	}
+
+	bool wrap_jsonp_serialize(stock_logic::net_reply::VIPNewsList* value,george_logic::AttachField* attach,
+			std::string list_info, std::string& wraped_jsonp) {
+		if (NULL != attach)
+		    value->attach_field()->set_callback(attach->callback());
+		base_logic::ValueSerializer* serializer = base_logic::ValueSerializer::Create(base_logic::IMPL_JSONP);
+		bool r = serializer->Serialize(*value->packet(), &wraped_jsonp);
+		delete serializer;
+		serializer = NULL;
+		return r;
+	}
+
+	void filter_character(std::string& dest_str, const char c) {
+		std::string filtered_str = "";
+		for (int i = 0; i < dest_str.length(); i++) {
+			if (dest_str[i] == c)
+				continue;
+			filtered_str += dest_str[i];
+		}
+		dest_str = filtered_str;
+	}
+
 	static StockUtil* instance_;
 	std::set<std::string> holiday_in_2016_;
 };
@@ -356,9 +385,18 @@ public:
 		KLine_json_ = lineJson;
 	}
 
+	const std::string& getKLineJsonp() const {
+		return KLine_jsonp_;
+	}
+
+	void setKLineJsonp(std::string jsonp) {
+		KLine_jsonp_ = jsonp;
+	}
+
     StockHistDataInfo hist_data_info_;
 	StockBasicInfo basic_info_;
 	std::string KLine_json_;
+	std::string KLine_jsonp_;
 };
 
 class HotDiagramPerStock {
@@ -637,20 +675,28 @@ public:
 
 	void update_hottest_industry_by_day() {
 		hot_diagram_industry_.sort(BasicIndustryInfo::cmp);
-		day_industry_hot_diagram_ = get_industry_json("day", hot_diagram_industry_);
+		day_industry_hot_diagram_ = set_industry_json("day", hot_diagram_industry_);
 	}
 
 	void update_hottest_industry_by_week() {
 		hot_diagram_industry_.sort(BasicIndustryInfo::week_cmp);
-		week_industry_hot_diagram_ = get_industry_json("week", hot_diagram_industry_);
+		week_industry_hot_diagram_ = set_industry_json("week", hot_diagram_industry_);
 	}
 
 	void update_hottest_industry_by_month() {
 		hot_diagram_industry_.sort(BasicIndustryInfo::month_cmp);
-		month_industry_hot_diagram_ = get_industry_json("month", hot_diagram_industry_);
+		month_industry_hot_diagram_ = set_industry_json("month", hot_diagram_industry_);
 	}
 
-	std::string get_industry_json(std::string type, std::list<BasicIndustryInfo>& industry_list);
+	void set_jsonp_by_type(std::string type, std::string jsonp_str) {
+		industry_hot_diagram_jsonp_[type] = jsonp_str;
+	}
+
+	std::string get_jsonp_by_type(std::string type) {
+		return industry_hot_diagram_jsonp_[type];
+	}
+
+	std::string set_industry_json(std::string type, std::list<BasicIndustryInfo>& industry_list);
 
 	void set_dapan_info(stock_logic::net_reply::VIPNewsList* vip_list);
 
@@ -658,7 +704,9 @@ public:
 		return industry_info_map_[industry_name];
 	}
 
-	std::string get_industry_hot_diagram_by_type(std::string type) {
+	std::string get_industry_hot_diagram_by_type(std::string type, std::string format) {
+		if ("jsonp" == format)
+			return industry_hot_diagram_jsonp_[type];
 		if ("week" == type)
 			return week_industry_hot_diagram_;
 		else if ("month" == type)
@@ -670,6 +718,7 @@ public:
     std::string day_industry_hot_diagram_;
     std::string week_industry_hot_diagram_;
     std::string month_industry_hot_diagram_;
+    std::map<std::string, std::string> industry_hot_diagram_jsonp_;
     std::list<BasicIndustryInfo> hot_diagram_industry_;
 };
 
