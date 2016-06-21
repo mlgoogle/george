@@ -705,8 +705,8 @@ public:
 	}
 
 	std::string get_industry_hot_diagram_by_type(std::string type, std::string format) {
-		if ("jsonp" == format)
-			return industry_hot_diagram_jsonp_[type];
+		//if ("jsonp" == format)
+		//	return industry_hot_diagram_jsonp_[type];
 		if ("week" == type)
 			return week_industry_hot_diagram_;
 		else if ("month" == type)
