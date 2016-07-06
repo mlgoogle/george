@@ -113,6 +113,39 @@ public:
 		stock_data_inited_ = stock_data_inited;
 	}
 
+	bool check_stock_code(std::string& stock_code) {
+		STOCKINFO_MAP::iterator iter = stock_total_info_.find(stock_code);
+		if (stock_total_info_.end() != iter)
+			return true;
+		else
+			return false;
+	}
+
+	StockTotalInfo& get_stock_total_info(std::string& stock_code) {
+		return stock_total_info_[stock_code];
+	}
+
+	StockBasicInfo& get_stock_basic_info(std::string& stock_code) {
+		return stock_total_info_[stock_code].basic_info_;
+	}
+
+	std::map<std::string, HistDataPerDay>& get_hs300_hist_data() {
+		return stock_total_info_[HSSANBAI].hist_data_info_.stock_hist_data_;
+	}
+
+	std::map<int, YieldInfoUnit>& get_hs300_yield_data() {
+		return stock_total_info_[HSSANBAI].basic_info_.yield_infos_;
+	}
+
+	void clear_yield_info(int end_time) {
+		STOCKINFO_MAP::iterator stock_iter = stock_total_info_.begin();
+		for (; stock_iter != stock_total_info_.end(); stock_iter++) {
+			stock_iter->second.clear_stock_yield_info(end_time);
+		}
+		industry_info_.clear_industry_yield_info(end_time);
+	}
+
+
 	STOCKINFO_MAP stock_total_info_;
 	INDUSTRYINFO_MAP industry_info_;
 	MARKET_LIMIT market_limit_info_;
@@ -137,9 +170,13 @@ class StockUserManager {
 
 	void UpdateStockHistData();
 
+	void UpdateIndustryHistData();
+
 	bool UpdateStockDayKLineData();
 
-	void UpdateIndustryPriceInfo();
+	void UpdateIndustryPriceInfo(int& current_trade_time);
+
+	void UpdateIndustryYieldInfo(int& current_trade_time);
 
 	void UpdateIndustryVolume();
 
@@ -147,7 +184,16 @@ class StockUserManager {
 
 	void UpdateStockKLine();
 
-	std::string GetStockKLineByCode(std::string stock_code, std::string format);
+	void UpdateEventsData();
+
+	void UpdateYieldDataFromDB();
+
+	void DeleteOldYieldData();
+
+	void UpdateYieldDataToDB();
+
+	std::string GetStockKLineByCode(std::string stock_code, std::string format, std::string& cycle_type,
+			std::string& start_date);
 
 	void UpdateIndustryMarketValue();
 
@@ -167,7 +213,11 @@ class StockUserManager {
 
 	void UpdateWeekMonthData();
 
-	void WriteLimitData(int trade_time);
+	void WriteLimitData(int& trade_time);
+
+	void UpdateEventsYield(int current_trade_time);
+
+	void DeleteOldEventsData();
 
 	void UpdateHotDiagram();
 
@@ -177,11 +227,16 @@ class StockUserManager {
 
     std::string GetIndustryHotDiagram(std::string type, std::string format);
 
+    std::string GetEventHotDiagram();
+
+    bool GetYieldJsonByName(std::string& cycle_type, std::string& start_date, std::string& industry_name, std::string& yield_json);
+
     std::string GetStocksHotDiagram(std::string type, std::string industry_name);
 
 	struct threadrw_t*                 lock_;
-	StockUserCache*                      stock_user_cache_;
-	stock_logic::StockDB*                  stock_db_;
+	StockUserCache*                    stock_user_cache_;
+	stock_logic::StockDB*              stock_db_;
+	bool                               old_yield_data_deleted;
 };
 
 class StockUserEngine {

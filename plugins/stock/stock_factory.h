@@ -46,7 +46,18 @@ class StockFactory {
 
 	void OnUpdateStockKLineData();
 
+	void OnUpdateEventsData();
+
+	void OnUpdateYieldDataFromDB();
+
+	void OnUpdateYieldDataToDB();
+
+	void OnDeleteOldYieldData();
+
 	void OnUpdateLimitData();
+
+	void ProcessHotDiagramEventData(int socket,
+			george_logic::PacketHead* packet, base_logic::DictionaryValue* dict);
 
 	void ProcessHotDiagramIndustryData(int socket, std::string type, std::string format,
 			george_logic::PacketHead* packet, base_logic::DictionaryValue* dict);
@@ -54,7 +65,10 @@ class StockFactory {
 	void ProcessHotDiagramByIndustry(int socket, std::string type, std::string industry_name);
 
 	void ProcessStockKLine(int socket, std::string stock_code, std::string format,
-			george_logic::PacketHead* packet, base_logic::DictionaryValue* dict);
+			george_logic::PacketHead* packet, base_logic::DictionaryValue* dict, std::string& cycle_type, std::string& start_date);
+
+	void ProcessEventYieldByName(int socket, std::string& start_date, std::string& industry_name,
+			george_logic::PacketHead* packet, std::string& cycle_type);
 
 	void TimeWriteLimitData(int current_trade_time);
 
