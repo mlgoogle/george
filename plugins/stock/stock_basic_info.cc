@@ -72,6 +72,45 @@ std::string BasicIndustryInfo::get_stocks_json(std::string type) {
 	return stocks_hot_diagram_json;
 }
 
+void BasicIndustryInfo::update_hist_data() {
+	//TODO 需要改进效率，只更新最新的hist data
+	clear_yield_info();
+	std::map<std::string, double>::iterator iter = stock_price_info_.begin();
+	for (; iter != stock_price_info_.end(); iter++) {
+		std::string stock_name = iter->first;
+        StockTotalInfo& stock_total_info =
+        		StockFactory::GetInstance()->stock_usr_mgr_->stock_user_cache_->get_stock_total_info(stock_name);
+        StockHistDataInfo& stock_hist_info = stock_total_info.hist_data_info_;
+        std::map<std::string, HistDataPerDay>& stock_hist_data = stock_hist_info.stock_hist_data_;
+        std::map<std::string, HistDataPerDay>::iterator hist_data_iter = stock_hist_data.begin();
+        for(;hist_data_iter != stock_hist_data.end(); hist_data_iter++) {
+        	std::string date = hist_data_iter->first;
+        	add_yield_info_by_stock(date, stock_total_info.basic_info_.market_value(), hist_data_iter->second);
+        }
+	}
+}
+
+void BasicIndustryInfo::add_yield_info_by_stock(std::string date, double stock_market_value, HistDataPerDay& hist_data_unit) {
+    HistDataPerDay& hist_data = industry_hist_data_info_.stock_hist_data_[date];
+    double stock_yield = hist_data_unit.day_yield_;
+    hist_data.day_yield_ += stock_yield * stock_market_value/industry_market_value_;
+}
+
+void BasicIndustryInfo::clear_yield_info() {
+	industry_hist_data_info_.stock_hist_data_.clear();
+}
+
+bool BasicIndustryInfo::get_chart_json(std::string& yield_json, std::map<int, YieldInfoUnit>& hs300_yield_data) {
+	return StockUtil::Instance()->get_json_of_yield_data(hs300_yield_data,
+			industry_yield_infos_, yield_json);
+}
+
+bool BasicIndustryInfo::get_hist_data_json(std::map<std::string, HistDataPerDay>& hs300_hist_data,
+		std::string& start_date, std::string& json_str) {
+	return StockUtil::Instance()->get_json_of_hist_data(hs300_hist_data,
+			start_date, industry_hist_data_info_.stock_hist_data_, json_str);
+}
+
 void BasicIndustryInfo::update_hot_diagram_stock_json() {
 	std::map<std::string,stock_logic::StockTotalInfo>& stocks_map =
 			StockFactory::GetInstance()->stock_usr_mgr_->stock_user_cache_->stock_total_info_;
@@ -103,33 +142,47 @@ void BasicIndustryInfo::update_hot_diagram_stock_json() {
 	update_hot_diagram_stock_json_by_month();
 }
 
-std::string IndustryInfo::get_industry_json(std::string type, std::list<BasicIndustryInfo>& industry_list) {
+std::string IndustryInfo::set_industry_json(std::string type, std::list<BasicIndustryInfo>& industry_list) {
 	stock_logic::net_reply::VIPNewsList* vip_list = new stock_logic::net_reply::VIPNewsList();
 	std::list<BasicIndustryInfo>::iterator iter = industry_list.begin();
 	int count = 0;
 	for (; iter != industry_list.end(); iter++) {
+		//过滤掉事件类型
+		if (0 != iter->type())
+			continue;
 		stock_logic::net_reply::STOIndustryData* industry_data = new  stock_logic::net_reply::STOIndustryData();
-		industry_data->set_name(iter->industry_name());
+		std::string industry_name = iter->industry_name();
+		int industry_len = industry_name.length();
+		int con_industry_len = strlen("industry");
+		if (industry_len > con_industry_len)
+		    industry_name = industry_name.substr(0, industry_len - con_industry_len);
+		industry_data->set_name(industry_name);
 		if ("day" == type) {
 			industry_data->set_change_percent(iter->industry_changepoint());
 			industry_data->set_volume(iter->industry_volume());
 		} else if ("week" == type) {
 			industry_data->set_change_percent(iter->industry_week_changepoint());
-			industry_data->set_volume(iter->week_industry_volume());
+			//industry_data->set_volume(iter->week_industry_volume());TODO数据不精确用volume代替
+			industry_data->set_volume(iter->industry_volume());
 		} else if ("month" == type) {
 			industry_data->set_change_percent(iter->industry_month_changepoint());
-			industry_data->set_volume(iter->month_industry_volume());
+			//industry_data->set_volume(iter->month_industry_volume());TODO数据不精确用volume代替
+			industry_data->set_volume(iter->industry_volume());
 		}
-		vip_list->set_vip_news(industry_data->get());
+		base_logic::Value* industry_data_value = industry_data->get();
+		vip_list->set_vip_news(industry_data_value);
+		delete industry_data;
+		industry_data = NULL;
 		//industry_info_map_[iter->industry_name()].update_hot_diagram_stock_json();
 		count++;
 		if (count > 9)
 			break;
 	}
 	set_dapan_info(vip_list);
-	std::string stocks_hot_diagram_json;
+	std::string stocks_hot_diagram_json = "";
 	base_logic::DictionaryValue* dict = vip_list->packet();
 	StockUtil::Instance()->serialize(dict, stocks_hot_diagram_json);
+	//StockUtil::Instance()->jsonp_serialize(dict, industry_hot_diagram_jsonp_[type]);
 	delete vip_list;
 	vip_list = NULL;
 	delete dict;
@@ -188,12 +241,22 @@ void StockBasicInfo::RealtimeValueSerialization(base_logic::DictionaryValue* dic
 	dict->GetReal(L"settlement", &current_settlement_);
 	dict->GetReal(L"volume", &volume_);
 
-	if(code_ == "000001" || code_ == "601002") {
+	if(code_ == "hs300" || code_ == "601002") {
 		LOG_MSG2("code=%s,changepercent=%f,current_trade_=%f,"
 				"current_open_=%f,current_high_=%f,current_low_=%f,current_settlement_=%f,time=%d,volume=%f",
 				code_.c_str(),change_percent_,current_trade_,
 				current_open_,current_high_,current_low_,current_settlement_,current_trade_time_,volume_);
 	}
+}
+
+void StockBasicInfo::YieldValueSerialization(base_logic::DictionaryValue* dict) {
+	std::string code;
+	double yield;
+	int trade_time;
+	dict->GetString(L"code", &code);
+	dict->GetInteger(L"time", &trade_time);
+	dict->GetReal(L"yield", &yield);
+	add_yield_info(trade_time, yield, yield);
 }
 
 void StockBasicInfo::UpdateTodayKLine() {
@@ -202,10 +265,11 @@ void StockBasicInfo::UpdateTodayKLine() {
 	stock_logic::StockTotalInfo& total_info = stocks_map[code_];
 	stock_logic::StockHistDataInfo& hist_data_info = total_info.hist_data_info_;
 	std::string current_day = StockUtil::Instance()->get_current_day_str();
-	hist_data_info.add_hist_data(current_day,current_open_,current_high_,current_trade_,current_low_);
-	if (code_ == "000001")
+	hist_data_info.add_hist_data(current_day,current_open_,current_high_,current_trade_,current_low_,current_trade_);
+	if (code_ == "hs300")
 		LOG_MSG2("UpdateTodayKLine,current_day=%s,current_open=%f,current_high_=%f,current_trade_=%f,current_low_=%f",
 				current_day.c_str(),current_open_,current_high_,current_trade_,current_low_);
+	hist_data_info.CountSupportPressurePos();
 }
 
 void StockBasicInfo::MonthWeekDataValueSerialization(base_logic::DictionaryValue* dict) {
@@ -236,12 +300,19 @@ void StockBasicInfo::MonthWeekDataValueSerialization(base_logic::DictionaryValue
 	}
 }
 
-void StockHistDataInfo::add_hist_data(std::string date, double open, double high, double close, double low) {
+void StockHistDataInfo::add_hist_data(std::string date, double open, double high, double close, double low, double qfq_price) {
+	/*std::map<std::string, HistDataPerDay>::iterator iter = stock_hist_data_.begin();
+	if (stock_hist_data_.end() != iter)
+		continue;*///TODO 交易时间会出现数据错误问题
 	HistDataPerDay hist_data_per_day;
 	hist_data_per_day.open_ = open;
 	hist_data_per_day.high_ = high;
 	hist_data_per_day.close_ = close;
 	hist_data_per_day.low_ = low;
+	if (qfq_price > 1)
+	    hist_data_per_day.qfq_close_ = qfq_price;
+	else
+		hist_data_per_day.qfq_close_ = close;
 	hist_data_per_day.mid_price_ = (high + low + close)/3;
 	hist_data_per_day.date_ = date;
 	stock_hist_data_[date] = hist_data_per_day;
@@ -253,13 +324,14 @@ void StockHistDataInfo::add_hist_data(std::string date, double open, double high
 
 void StockHistDataInfo::ValueSerialization(base_logic::DictionaryValue* dict){
 	std::string date;
-	double open, high, close, low;
+	double open, high, close, low, qfq_close = 0.0;
 	dict->GetString(L"date", &date);
 	dict->GetReal(L"open", &open);
 	dict->GetReal(L"high", &high);
 	dict->GetReal(L"close", &close);
 	dict->GetReal(L"low", &low);
-	add_hist_data(date,open,high,close,low);
+	dict->GetReal(L"qfq_close", &qfq_close);
+	add_hist_data(date,open,high,close,low, qfq_close);
 }
 
 void StockHistDataInfo::CountSupportPressurePos() {
@@ -271,6 +343,13 @@ void StockHistDataInfo::CountSupportPressurePos() {
 	int kline_num = hist_data_vec.size();
 	if (kline_num < 12)
 		return;
+	int kline_start_pos = 0;
+	double pre_qfq_close = -100;
+	int total_count = hist_data_vec.size();
+	if (total_count < 30) {
+		kline_start_pos = 0;
+	} else
+		kline_start_pos = total_count - 30;
 	for (int i = 11; i < hist_data_vec.size(); i++) {
 		double high_in_12_days = 0.0;
 		double low_in_12_days = 100000.0;
@@ -285,8 +364,17 @@ void StockHistDataInfo::CountSupportPressurePos() {
 		double support_pos = hist_data_vec[i].mid_price_ - (high_in_12_days - low_in_12_days);
 		double pressure_pos = hist_data_vec[i].mid_price_ + (high_in_12_days - low_in_12_days);
 		std::string date = hist_data_vec[i].date_;
+		if (pre_qfq_close < -1)
+			pre_qfq_close = stock_hist_data_[date].qfq_close_;
 		stock_hist_data_[date].support_pos_ = support_pos;
 		stock_hist_data_[date].pressure_pos_ = pressure_pos;
+		stock_hist_data_[date].month_init_price_ = hist_data_vec[kline_start_pos].qfq_close_;
+		stock_hist_data_[date].month_init_date_ = hist_data_vec[kline_start_pos].date_;
+		//double price_diff = stock_hist_data_[date].qfq_close_ - stock_hist_data_[date].month_init_price_;
+		//stock_hist_data_[date].day_yield_ = price_diff / stock_hist_data_[date].month_init_price_;
+		double price_diff = stock_hist_data_[date].qfq_close_ - pre_qfq_close;
+		stock_hist_data_[date].day_yield_ = price_diff / pre_qfq_close;
+		pre_qfq_close = stock_hist_data_[date].qfq_close_;
 		//if ("")
 		//LOG_MSG2("")
 	}
@@ -294,20 +382,48 @@ void StockHistDataInfo::CountSupportPressurePos() {
 }
 
 void IndustryInfo::ValueSerialization(base_logic::DictionaryValue* dict){
-	std::string code,industry_name;
+	std::string code,industry_name,board_code;
 	dict->GetString(L"symbol", &code);
 	dict->GetString(L"keyname", &industry_name);
+	dict->GetString(L"boardcode", &board_code);
+    if ("1105" == board_code) {
+    	industry_name += "concept";
+    	industry_info_map_[industry_name].set_type(2);
+    }
+    else if ("1109" == board_code) {
+    	industry_name += "industry";
+    	industry_info_map_[industry_name].set_type(0);
+    }
     industry_info_map_[industry_name].add_price_info(code,0);
     industry_info_map_[industry_name].set_industry_name(industry_name);
 }
 
+void IndustryInfo::EventsValueSerialization(base_logic::DictionaryValue* dict) {
+	std::string stocks,event_name;
+	dict->GetString(L"name", &event_name);
+	std::map<std::string, BasicIndustryInfo>::iterator iter = industry_info_map_.find(event_name);
+	//if (iter != industry_info_map_.end())
+	//	event_name = event_name + "2";
+	event_name += "event";
+	dict->GetString(L"stock", &stocks);
+	std::string split_chars = ",";
+	std::vector<std::string> stock_vec;
+	StockUtil::Instance()->stock_split(stocks, split_chars, stock_vec);
+	for (int i = 0; i < stock_vec.size(); i++) {
+		industry_info_map_[event_name].add_price_info(stock_vec[i],0);
+	}
+	industry_info_map_[event_name].set_industry_name(event_name);
+	industry_info_map_[event_name].set_type(1);
+}
+
 void StockTotalInfo::update_kline_json() {
 	KLine_json_ = "";
-	std::map<std::string, HistDataPerDay>& hist_data = hist_data_info_.stock_hist_data_;
+	setKLineJsonp("");
+	std::map<std::string, HistDataPerDay>& stock_hist_data = hist_data_info_.stock_hist_data_;
 	stock_logic::net_reply::VIPNewsList* vip_list = new stock_logic::net_reply::VIPNewsList();
 	int count = 0;
-	std::map<std::string, HistDataPerDay>::reverse_iterator iter = hist_data.rbegin();
-	for (; iter != hist_data.rend(); iter++) {
+	std::map<std::string, HistDataPerDay>::reverse_iterator iter = stock_hist_data.rbegin();
+	for (; iter != stock_hist_data.rend(); iter++) {
 		stock_logic::net_reply::STOIndustryData* kline_data = new  stock_logic::net_reply::STOIndustryData();
 		HistDataPerDay& hist_data = iter->second;
 		kline_data->setDate(iter->first);
@@ -317,26 +433,31 @@ void StockTotalInfo::update_kline_json() {
 		kline_data->setClose(hist_data.close_);
 		kline_data->setSupport(hist_data.support_pos_);
 		kline_data->setPressure(hist_data.pressure_pos_);
+		kline_data->setDayYield(hist_data.day_yield_);
+		kline_data->setMonthInitPrice(hist_data.month_init_price_);
+		kline_data->setMonthInitDate(hist_data.month_init_date_);
+		kline_data->setQfqClose(hist_data.qfq_close_);
 		vip_list->set_vip_news(kline_data->get());
 		delete kline_data;
 		kline_data = NULL;
-		if ("000001" == basic_info_.code()) {
-			LOG_MSG2("code=%s,date=%s,open=%f,high=%f,low=%f,close=%f,support_pos=%f,pressure_pos=%f",
+		/*if ("000001" == basic_info_.code()) {
+			LOG_MSG2("code=%s,date=%s,open=%f,high=%f,low=%f,close=%f,support_pos=%f,pressure_pos=%f,day_yield=%f,month_init_price=%f",
 					basic_info_.code().c_str(),iter->first.c_str(),hist_data.open_,hist_data.high_,hist_data.low_,
-					hist_data.close_,hist_data.support_pos_,hist_data.pressure_pos_);
-		}
+					hist_data.close_,hist_data.support_pos_,hist_data.pressure_pos_,hist_data.day_yield_,hist_data.month_init_price_);
+		}*/
 		count++;
 		if (count > 29)
 			break;
 	}
 	base_logic::DictionaryValue* kline_value = vip_list->packet();
 	StockUtil::Instance()->serialize(kline_value, KLine_json_);
+	StockUtil::Instance()->jsonp_serialize(kline_value, KLine_jsonp_);
 	delete kline_value;
 	kline_value = NULL;
 	delete vip_list;
 	vip_list = NULL;
 	if ("000001" == basic_info_.code()) {
-		LOG_MSG2("code=%s,KLine_json=%s", basic_info_.code().c_str(), KLine_json_.c_str());
+		LOG_MSG2("code=%s,KLine_json=%s,KLine_jsonp=%s", basic_info_.code().c_str(), KLine_json_.c_str(), KLine_jsonp_.c_str());
 	}
 }
 

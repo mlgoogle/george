@@ -48,6 +48,10 @@ public:
 class CachedJsonInfo {
 public:
 
+	CachedJsonInfo() {
+		market_limit_list_ = new base_logic::ListValue();
+	}
+
 	std::string industry_json(std::string type) {return industry_json_[type];}
 
 	void set_industry_json(std::string type, std::string industry_json) {
@@ -58,6 +62,12 @@ public:
 
 	void set_market_limit_json(std::string market_limit_json) {
 		market_limit_json_ = market_limit_json;
+	}
+
+	std::string market_limit_jsonp() const{return market_limit_jsonp_;}
+
+	void set_market_limit_jsonp(std::string market_limit_jsonp) {
+		market_limit_jsonp_ = market_limit_jsonp;
 	}
 
 	std::string get_stocks_json(std::string type, std::string industry_name) {
@@ -73,8 +83,19 @@ public:
 		stocks_per_industry_json_.clear();
 	}
 
+	void clear_list() {
+		if (NULL != market_limit_list_)
+		    market_limit_list_->Clear();
+	}
+
+	void add_value_to_list(base_logic::Value* value) {
+		market_limit_list_->Append(value);
+	}
+
 	std::map<std::string, std::string> industry_json_;
 	std::string market_limit_json_;
+	std::string market_limit_jsonp_;
+	base_logic::ListValue* market_limit_list_;
 	std::map<std::string, STOCKS_PER_INDUSTRY_JSON> stocks_per_industry_json_;
 };
 
@@ -91,6 +112,39 @@ public:
 	void set_stock_data_inited(bool stock_data_inited) {
 		stock_data_inited_ = stock_data_inited;
 	}
+
+	bool check_stock_code(std::string& stock_code) {
+		STOCKINFO_MAP::iterator iter = stock_total_info_.find(stock_code);
+		if (stock_total_info_.end() != iter)
+			return true;
+		else
+			return false;
+	}
+
+	StockTotalInfo& get_stock_total_info(std::string& stock_code) {
+		return stock_total_info_[stock_code];
+	}
+
+	StockBasicInfo& get_stock_basic_info(std::string& stock_code) {
+		return stock_total_info_[stock_code].basic_info_;
+	}
+
+	std::map<std::string, HistDataPerDay>& get_hs300_hist_data() {
+		return stock_total_info_[HSSANBAI].hist_data_info_.stock_hist_data_;
+	}
+
+	std::map<int, YieldInfoUnit>& get_hs300_yield_data() {
+		return stock_total_info_[HSSANBAI].basic_info_.yield_infos_;
+	}
+
+	void clear_yield_info(int end_time) {
+		STOCKINFO_MAP::iterator stock_iter = stock_total_info_.begin();
+		for (; stock_iter != stock_total_info_.end(); stock_iter++) {
+			stock_iter->second.clear_stock_yield_info(end_time);
+		}
+		industry_info_.clear_industry_yield_info(end_time);
+	}
+
 
 	STOCKINFO_MAP stock_total_info_;
 	INDUSTRYINFO_MAP industry_info_;
@@ -116,9 +170,13 @@ class StockUserManager {
 
 	void UpdateStockHistData();
 
+	void UpdateIndustryHistData();
+
 	bool UpdateStockDayKLineData();
 
-	void UpdateIndustryPriceInfo();
+	void UpdateIndustryPriceInfo(int& current_trade_time);
+
+	void UpdateIndustryYieldInfo(int& current_trade_time);
 
 	void UpdateIndustryVolume();
 
@@ -126,7 +184,16 @@ class StockUserManager {
 
 	void UpdateStockKLine();
 
-	std::string GetStockKLineByCode(std::string stock_code);
+	void UpdateEventsData();
+
+	void UpdateYieldDataFromDB();
+
+	void DeleteOldYieldData();
+
+	void UpdateYieldDataToDB();
+
+	std::string GetStockKLineByCode(std::string stock_code, std::string format, std::string& cycle_type,
+			std::string& start_date);
 
 	void UpdateIndustryMarketValue();
 
@@ -136,7 +203,7 @@ class StockUserManager {
 
 	void UpdateStockLimitInfo();
 
-	void GetLimitData(std::string& market_limit_info_str);
+	void GetLimitData(std::string& market_limit_info_str, std::string format);
 
 	void GetHotDiagramIndustryData(std::list<HotDiagramPerIndustry>& hot_diagram_industry_data);
 
@@ -146,7 +213,11 @@ class StockUserManager {
 
 	void UpdateWeekMonthData();
 
-	void WriteLimitData(int trade_time);
+	void WriteLimitData(int& trade_time);
+
+	void UpdateEventsYield(int current_trade_time);
+
+	void DeleteOldEventsData();
 
 	void UpdateHotDiagram();
 
@@ -154,13 +225,18 @@ class StockUserManager {
 
 	void UpdateStockHotDiagram();
 
-    std::string GetIndustryHotDiagram(std::string type);
+    std::string GetIndustryHotDiagram(std::string type, std::string format);
+
+    std::string GetEventHotDiagram();
+
+    bool GetYieldJsonByName(std::string& cycle_type, std::string& start_date, std::string& industry_name, std::string& yield_json);
 
     std::string GetStocksHotDiagram(std::string type, std::string industry_name);
 
 	struct threadrw_t*                 lock_;
-	StockUserCache*                      stock_user_cache_;
-	stock_logic::StockDB*                  stock_db_;
+	StockUserCache*                    stock_user_cache_;
+	stock_logic::StockDB*              stock_db_;
+	bool                               old_yield_data_deleted;
 };
 
 class StockUserEngine {
