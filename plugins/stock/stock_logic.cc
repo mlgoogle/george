@@ -21,6 +21,9 @@
 #define UPDATE_STOCK_HIST_DATA               55004
 #define DELETE_OLD_LIMIT_DATA                55005
 #define UPDATE_STOCK_K_LINE                  55006
+#define UPDATE_EVENTS_DATA                   55007
+#define UPDATE_YIELD_DATA_TO_DB              55008
+#define DELETE_OLD_YIELD_DATA                55009
 
 namespace stock_logic {
 
@@ -113,11 +116,14 @@ bool StockLogic::OnBroadcastClose(struct server *srv, const int socket) {
 bool StockLogic::OnIniTimer(struct server *srv) {
 	srv->add_time_task(srv, "stock", UPDATE_REALTIME_STOCK_INFO, 60, -1);
 	srv->add_time_task(srv, "stock", UPDATE_LIMIT_DATA_TO_DB, 60, -1);
-	srv->add_time_task(srv, "stock", DELETE_OLD_LIMIT_DATA, 60, -1);
+	srv->add_time_task(srv, "stock", DELETE_OLD_LIMIT_DATA, 30*60, -1);
 	srv->add_time_task(srv, "stock", UPDATE_LIMIT_DATA_TO_MEMORY, 60, -1);
 	srv->add_time_task(srv, "stock", UPDATE_INDUSTRY_HIST_DATA, 60, -1);
-	srv->add_time_task(srv, "stock", UPDATE_STOCK_HIST_DATA, 5, 2);
-	srv->add_time_task(srv, "stock", UPDATE_STOCK_K_LINE, 60, -1);
+	srv->add_time_task(srv, "stock", UPDATE_STOCK_HIST_DATA, 24*60*60, 2);
+	srv->add_time_task(srv, "stock", UPDATE_STOCK_K_LINE, 24*60*60, -1);
+	srv->add_time_task(srv, "stock", UPDATE_EVENTS_DATA, 5*60, -1);
+	srv->add_time_task(srv, "stock", UPDATE_YIELD_DATA_TO_DB, 30*60, -1);
+	srv->add_time_task(srv, "stock", DELETE_OLD_YIELD_DATA, 5*60, -1);
 
 	LOG_DEBUG("add time task success");
     return true;
@@ -126,11 +132,13 @@ bool StockLogic::OnIniTimer(struct server *srv) {
 bool StockLogic::OnTimeout(struct server *srv, char *id,
         int opcode, int time) {
 	LOG_MSG2("call OnTimeout opcode=%d",opcode);
+	FuncTimeCount test_func_time(opcode);
     switch (opcode) {
 
     case UPDATE_REALTIME_STOCK_INFO: {
     	LOG_MSG("call OnUpdateRealtimeStockInfo");
-    	factory_->OnUpdateRealtimeStockInfo();
+    	if (StockUtil::Instance()->is_trading_time())
+    	    factory_->OnUpdateRealtimeStockInfo();
     	break;
     }
     case UPDATE_LIMIT_DATA_TO_DB: {
@@ -155,6 +163,18 @@ bool StockLogic::OnTimeout(struct server *srv, char *id,
     }
     case UPDATE_STOCK_K_LINE: {
     	factory_->OnUpdateStockKLineData();
+    	break;
+    }
+    case UPDATE_EVENTS_DATA: {
+		factory_->OnUpdateEventsData();
+		break;
+	}
+    case UPDATE_YIELD_DATA_TO_DB: {
+    	factory_->OnUpdateYieldDataToDB();
+    	break;
+    }
+    case DELETE_OLD_YIELD_DATA: {
+    	factory_->OnDeleteOldYieldData();
     	break;
     }
      default:

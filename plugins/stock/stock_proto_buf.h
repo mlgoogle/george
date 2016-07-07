@@ -162,6 +162,14 @@ class STOIndustryData{
 		low_ = NULL;
 		support_ = NULL;
 		pressure_ = NULL;
+		day_yield_ = NULL;
+		adjusted_day_yield_ = NULL;
+		hs300_day_yield_ = NULL;
+		hs300_adjusted_day_yield_ = NULL;
+		month_init_price_ = NULL;
+		month_init_date_ = NULL;
+		qfq_close_ = NULL;
+		time_ = NULL;
 		value_ = NULL;
 	}
 
@@ -267,6 +275,22 @@ class STOIndustryData{
 			value_->Set(L"support", support_);
 		if (pressure_ != NULL)
 			value_->Set(L"pressure", pressure_);
+		if (day_yield_ != NULL)
+			value_->Set(L"day_yield", day_yield_);
+		if (hs300_day_yield_ != NULL)
+			value_->Set(L"hs300_day_yield", hs300_day_yield_);
+		if (hs300_adjusted_day_yield_ != NULL)
+			value_->Set(L"hs300_adjusted_day_yield", hs300_adjusted_day_yield_);
+		if (adjusted_day_yield_ != NULL)
+            value_->Set(L"adjusted_day_yield", adjusted_day_yield_);
+		if (month_init_price_ != NULL)
+			value_->Set(L"month_init_price", month_init_price_);
+		if (month_init_date_ != NULL)
+			value_->Set(L"month_init_date", month_init_date_);
+		if (qfq_close_ != NULL)
+			value_->Set(L"qfq_close", qfq_close_);
+		if (time_ != NULL)
+			value_->Set(L"trade_time", time_);
 		return value_;
 	}
 
@@ -298,6 +322,38 @@ class STOIndustryData{
 		support_ = new base_logic::FundamentalValue(support);
 	}
 
+	void setDayYield(double day_yield) {
+		day_yield_ = new base_logic::FundamentalValue(day_yield);
+	}
+
+	void setAdjustedDayYield(double adjusted_day_yield) {
+		adjusted_day_yield_ = new base_logic::FundamentalValue(adjusted_day_yield);
+	}
+
+	void setHS300DayYield(double hs300_day_yield) {
+		hs300_day_yield_ = new base_logic::FundamentalValue(hs300_day_yield);
+	}
+
+	void setHS300AdjustedDayYield(double hs300_adjusted_day_yield) {
+		hs300_adjusted_day_yield_ = new base_logic::FundamentalValue(hs300_adjusted_day_yield);
+	}
+
+	void setMonthInitPrice(double month_init_price) {
+		month_init_price_ = new base_logic::FundamentalValue(month_init_price);
+	}
+
+	void setMonthInitDate(std::string month_init_date) {
+		month_init_date_ = new base_logic::StringValue(month_init_date);
+	}
+
+	void setQfqClose(double qfq_close) {
+		qfq_close_ = new base_logic::FundamentalValue(qfq_close);
+	}
+
+	void setTime(int32 trade_time) {
+		time_ = new base_logic::FundamentalValue(trade_time);
+	}
+
  private:
 	base_logic::StringValue*            code_;
 	base_logic::StringValue*            name_;
@@ -305,12 +361,20 @@ class STOIndustryData{
 	base_logic::FundamentalValue*       volume_;
 	base_logic::FundamentalValue*       current_trade_;
 	base_logic::StringValue*            date_;
+	base_logic::StringValue*            month_init_date_;
 	base_logic::FundamentalValue*       open_;
 	base_logic::FundamentalValue*       high_;
 	base_logic::FundamentalValue*       close_;
 	base_logic::FundamentalValue*       low_;
 	base_logic::FundamentalValue*       support_;
 	base_logic::FundamentalValue*       pressure_;
+	base_logic::FundamentalValue*       day_yield_;
+	base_logic::FundamentalValue*       adjusted_day_yield_;
+	base_logic::FundamentalValue*       hs300_day_yield_;
+	base_logic::FundamentalValue*       hs300_adjusted_day_yield_;
+	base_logic::FundamentalValue*       month_init_price_;
+	base_logic::FundamentalValue*       qfq_close_;
+	base_logic::FundamentalValue*       time_;
 	base_logic::DictionaryValue*        value_;
 };
 
@@ -329,22 +393,33 @@ class VIPNewsList: public george_logic::PacketHead{
 		list_->Append(value);
 	}
 
+	base_logic::ListValue*& get_list() {
+		return list_;
+	}
+
 	base_logic::DictionaryValue* body() {
-		body_value_ = new base_logic::DictionaryValue();
+		if (NULL == body_value_)
+		    body_value_ = new base_logic::DictionaryValue();
 		body_value_->SetWithoutPathExpansion(L"list",list_);
 		body_value_->SetInteger(L"count",list_->GetSize());
 		return body_value_;
 	}
 
 	void set_string_value(std::wstring key, std::string value) {
+		if (NULL == body_value_)
+			body_value_ = new base_logic::DictionaryValue();
 		body_value_->SetString(key, value);
 	}
 
 	void set_integer_value(std::wstring key, int32 value) {
+		if (NULL == body_value_)
+			body_value_ = new base_logic::DictionaryValue();
 		body_value_->SetInteger(key, value);
 	}
 
 	void set_double_value(std::wstring key, double value) {
+		if (NULL == body_value_)
+			body_value_ = new base_logic::DictionaryValue();
 		body_value_->SetReal(key, value);
 	}
 

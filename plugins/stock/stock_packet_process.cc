@@ -22,12 +22,12 @@ void PacketProcess::PacketPocessGet(const int socket,base_logic::DictionaryValue
 	LOG_MSG2("operate_code=%d,type=%d", operate_code, packet->type());
 	switch (operate_code) {
 	 case STOCK_GET_LIMIT_DATA: {
-		 factory->OnVIPGetLimitData(socket, dict);
+		 factory->OnVIPGetLimitData(socket, dict, packet);
 		 break;
 	 }
 
 	 case STOCK_GET_HOT_DIAGRAM: {
-		 factory->OnVIPGetHotDiagramData(socket, dict);
+		 factory->OnVIPGetHotDiagramData(socket, dict, packet);
 		 break;
 	 }
 	 default:
