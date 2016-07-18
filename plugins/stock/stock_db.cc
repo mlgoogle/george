@@ -197,6 +197,32 @@ bool StockDB::FectchEventsInfo(stock_logic::IndustryInfo& map) {
     return true;
 }
 
+bool StockDB::LoadCustomEvent(stock_logic::IndustryInfo& map) {
+  bool r = false;
+  std::string sql = "call proc_LoadCustomEventsInfo()";
+    base_logic::DictionaryValue* dict = new base_logic::DictionaryValue();
+    base_logic::ListValue* listvalue;
+    dict->SetString(L"sql", sql);
+    //LOG_MSG2("sql=%s",sql.c_str());
+    r = mysql_engine_->ReadData(0, (base_logic::Value*)dict,
+        CallLoadCustomEventsInfo);
+    if (!r)
+      return false;
+    dict->GetList(L"resultvalue", &listvalue);
+    while (listvalue->GetSize()) {
+      base_logic::Value* result_value;
+      listvalue->Remove(0, &result_value);
+        base_logic::DictionaryValue* dict_result_value =
+                (base_logic::DictionaryValue*)(result_value);
+        map.CustomEventsValueSerialization(dict_result_value);
+        delete dict_result_value;
+        dict_result_value = NULL;
+    }
+    delete dict;
+    dict = NULL;
+    return true;
+}
+
 bool StockDB::UpdateRealtimeStockInfo(std::map<std::string,stock_logic::StockTotalInfo>& stock_total_info) {
 	bool r = false;
 	LOG_MSG("UpdateRealtimeStockInfo");
@@ -231,6 +257,36 @@ bool StockDB::UpdateRealtimeStockInfo(std::map<std::string,stock_logic::StockTot
 	delete dict;
 	dict = NULL;
 	return true;
+}
+
+bool StockDB::UpdateALLRealtimeStockInfo(std::map<std::string,stock_logic::StockTotalInfo>& stock_total_info) {
+  bool r = false;
+  LOG_MSG("UpdateRealtimeStockInfo");
+  std::string sql = "call proc_GetAllRealtimeStockInfo();";
+  base_logic::DictionaryValue* dict = new base_logic::DictionaryValue();
+  base_logic::ListValue* listvalue;
+  dict->SetString(L"sql", sql);
+  LOG_MSG2("sql=%s",sql.c_str());
+  r = mysql_engine_->ReadData(0, (base_logic::Value*)dict,
+      CallFectchRealtimeStockInfo);
+  if (!r)
+    return false;
+  dict->GetList(L"resultvalue", &listvalue);
+  while (listvalue->GetSize()) {
+    base_logic::Value* result_value;
+    listvalue->Remove(0, &result_value);
+    base_logic::DictionaryValue* dict_result_value =
+        (base_logic::DictionaryValue*)(result_value);
+    std::string code;
+    dict_result_value->GetString(L"code", &code);
+    StockBasicInfo& stock_basic_info = stock_total_info[code].basic_info_;
+    stock_basic_info.AllRealtimeValueSerialization(dict_result_value);
+    delete dict_result_value;
+    dict_result_value = NULL;
+  }
+  delete dict;
+  dict = NULL;
+  return true;
 }
 
 bool StockDB::UpdateWeekMonthData(std::map<std::string,stock_logic::StockTotalInfo>& stock_total_info) {
@@ -472,6 +528,8 @@ bool StockDB::BatchUpdateYieldInfo(std::string code, std::map<int, YieldInfoUnit
     iter++;
     if (iter != yield_info.end())
       os << ',';
+    else
+      break;
   }
   os << ";";
   sql = os.str();
@@ -564,6 +622,35 @@ void StockDB::CallFectchEventsInfo(void* param,
         }
     }
     dict->Set(L"resultvalue", (base_logic::Value*)(list));
+}
+
+void StockDB::CallLoadCustomEventsInfo(void* param,
+                base_logic::Value* value) {
+  base_logic::DictionaryValue* dict =
+              (base_logic::DictionaryValue*)(value);
+  base_logic::ListValue* list = new base_logic::ListValue();
+  base_storage::DBStorageEngine* engine =
+          (base_storage::DBStorageEngine*)(param);
+  MYSQL_ROW rows;
+  int32 num = engine->RecordCount();
+  if (num > 0) {
+      while (rows = (*(MYSQL_ROW*)(engine->FetchRows())->proc)) {
+          base_logic::DictionaryValue* info_value =
+                  new base_logic::DictionaryValue();
+          if (rows[0] != NULL)
+              info_value->SetString(L"event_name", rows[0]);
+          if (rows[1] != NULL)
+              info_value->SetString(L"stocks", rows[1]);
+          if (rows[2] != NULL)
+              info_value->SetString(L"weight_name", rows[2]);
+          if (rows[3] != NULL)
+              info_value->SetString(L"weight", rows[3]);
+          if (rows[4] != NULL)
+              info_value->SetString(L"description", rows[4]);
+          list->Append((base_logic::Value*)(info_value));
+      }
+  }
+  dict->Set(L"resultvalue", (base_logic::Value*)(list));
 }
 
 void StockDB::CallFecthYieldData(void* param,
