@@ -41,10 +41,11 @@ void StockFactory::Init() {
 }
 
 void StockFactory::InitParam(config::FileConfig* config) {
+
 	stock_db_ = new stock_logic::StockDB(config);
 	stock_usr_mgr_->Init(stock_db_);
 	OnUpdateStockHistData();
-	OnUpdateYieldDataFromDB();
+	//OnUpdateYieldDataFromDB();
 	std::map<int, YieldInfoUnit>& hs300_yields_info = stock_usr_mgr_->stock_user_cache_->get_hs300_yield_data();
 	std::map<int, YieldInfoUnit>::iterator iter = hs300_yields_info.begin();
 	for (; iter != hs300_yields_info.end(); iter++) {
@@ -55,6 +56,7 @@ void StockFactory::InitParam(config::FileConfig* config) {
 	int current_trade_time = 0;
 	stock_usr_mgr_->UpdateIndustryPriceInfo(current_trade_time);
 	stock_usr_mgr_->UpdateIndustryJson();
+	OnUpdateEventsData();
 }
 void StockFactory::Dest() {
 	stock_logic::StockUserEngine::FreeVIPUserEngine();
@@ -247,6 +249,10 @@ void StockFactory::OnUpdateYieldDataToDB() {
 
 void StockFactory::OnDeleteOldYieldData() {
 	stock_usr_mgr_->DeleteOldYieldData();
+}
+
+void StockFactory::OnLoadCustom_Event() {
+  stock_usr_mgr_->LoadCustomEvent();
 }
 
 void StockFactory::TimeUpdateWeekMonthData() {

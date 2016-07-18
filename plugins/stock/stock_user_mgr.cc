@@ -47,12 +47,14 @@ void StockUserManager::Init(stock_logic::StockDB* vip_db) {
 	//OnUpdateRealtimeStockInfo();
 	UpdateRealtimeStockInfo();
 
-	int current_trade_time = 0;
-	UpdateIndustryPriceInfo(current_trade_time);
+	//int current_trade_time = 0;
+	//UpdateIndustryPriceInfo(current_trade_time);
 	UpdateIndustryVolume();
-	UpdateIndustryJson();
+	//UpdateIndustryJson();
 	UpdateIndustryMarketValue();
 	UpdateStockKLine();
+	UpdateAllRealtimeStockInfo();
+	//UpdateRealtimeStockInfo();
 }
 
 void StockUserManager::UpdateStockHistData() {
@@ -88,6 +90,13 @@ void StockUserManager::UpdateRealtimeStockInfo() {
 	LOG_MSG("UpdateRealtimeStockInfo");
 	//if (StockUtil::Instance()->is_trading_time())
     stock_db_->UpdateRealtimeStockInfo(stock_user_cache_->stock_total_info_);
+}
+
+void StockUserManager::UpdateAllRealtimeStockInfo() {
+  FuncTimeCount test_time("UpdateAllRealtimeStockInfo");
+  base_logic::WLockGd lk(lock_);
+  LOG_MSG("UpdateAllRealtimeStockInfo");
+  stock_db_->UpdateALLRealtimeStockInfo(stock_user_cache_->stock_total_info_);
 }
 
 void StockUserManager::UpdateWeekMonthData() {
@@ -277,7 +286,8 @@ std::string StockUserManager::GetStocksHotDiagram(std::string type, std::string 
 }
 
 void StockUserManager::UpdateIndustryYieldInfo(int& current_trade_time) {
-	LOG_MSG("UpdateIndustryYieldInfo");
+	LOG_MSG2("UpdateIndustryYieldInfo,current_trade_time=%d",
+	         current_trade_time);
 	base_logic::WLockGd lk(lock_);
 	std::string first_day_of_week = StockUtil::Instance()->get_first_day_of_week();
 	std::string first_day_of_month = StockUtil::Instance()->get_first_day_of_month();
@@ -451,6 +461,13 @@ void StockUserManager::DeleteOldYieldData() {
 	stock_db_->DeleteOldYieldInfo(end_time);
 	stock_user_cache_->clear_yield_info(end_time);
 	old_yield_data_deleted = true;
+}
+
+void StockUserManager::LoadCustomEvent() {
+  LOG_MSG("LoadCustomEvent");
+  base_logic::WLockGd lk(lock_);
+  INDUSTRYINFO_MAP& industry_info = stock_user_cache_->industry_info_;
+  stock_db_->LoadCustomEvent(industry_info);
 }
 
 void StockUserManager::UpdateYieldDataToDB() {

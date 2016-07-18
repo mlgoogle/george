@@ -24,6 +24,7 @@
 #define UPDATE_EVENTS_DATA                   55007
 #define UPDATE_YIELD_DATA_TO_DB              55008
 #define DELETE_OLD_YIELD_DATA                55009
+#define LOAD_CONSTOM_EVENT                   55010
 
 namespace stock_logic {
 
@@ -114,16 +115,17 @@ bool StockLogic::OnBroadcastClose(struct server *srv, const int socket) {
 }
 
 bool StockLogic::OnIniTimer(struct server *srv) {
-	srv->add_time_task(srv, "stock", UPDATE_REALTIME_STOCK_INFO, 60, -1);
+	srv->add_time_task(srv, "stock", UPDATE_REALTIME_STOCK_INFO, 45, -1);
 	srv->add_time_task(srv, "stock", UPDATE_LIMIT_DATA_TO_DB, 60, -1);
 	srv->add_time_task(srv, "stock", DELETE_OLD_LIMIT_DATA, 30*60, -1);
 	srv->add_time_task(srv, "stock", UPDATE_LIMIT_DATA_TO_MEMORY, 60, -1);
 	srv->add_time_task(srv, "stock", UPDATE_INDUSTRY_HIST_DATA, 60, -1);
 	srv->add_time_task(srv, "stock", UPDATE_STOCK_HIST_DATA, 24*60*60, 2);
 	srv->add_time_task(srv, "stock", UPDATE_STOCK_K_LINE, 24*60*60, -1);
-	srv->add_time_task(srv, "stock", UPDATE_EVENTS_DATA, 5*60, -1);
+	srv->add_time_task(srv, "stock", UPDATE_EVENTS_DATA, 60*60, -1);
 	srv->add_time_task(srv, "stock", UPDATE_YIELD_DATA_TO_DB, 30*60, -1);
-	srv->add_time_task(srv, "stock", DELETE_OLD_YIELD_DATA, 5*60, -1);
+	srv->add_time_task(srv, "stock", DELETE_OLD_YIELD_DATA, 2*60, -1);
+	srv->add_time_task(srv, "stock", LOAD_CONSTOM_EVENT, 60, 1);
 
 	LOG_DEBUG("add time task success");
     return true;
@@ -170,12 +172,16 @@ bool StockLogic::OnTimeout(struct server *srv, char *id,
 		break;
 	}
     case UPDATE_YIELD_DATA_TO_DB: {
-    	factory_->OnUpdateYieldDataToDB();
+    	//factory_->OnUpdateYieldDataToDB();
     	break;
     }
     case DELETE_OLD_YIELD_DATA: {
     	factory_->OnDeleteOldYieldData();
     	break;
+    }
+    case LOAD_CONSTOM_EVENT: {
+      //factory_->OnLoadCustom_Event();
+      break;
     }
      default:
         break;
