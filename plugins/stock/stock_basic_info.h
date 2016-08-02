@@ -13,8 +13,8 @@
 #include <string>
 #include <limits>
 #include "stock_proto_buf.h"
-#include "StockFilter.h"
-#include "WeightAnalyzer.h"
+//#include "StockFilter.h"
+//#include "WeightAnalyzer.h"
 
 namespace stock_logic {
 
@@ -33,6 +33,7 @@ typedef struct YieldInfoUnit {
     yield_ = 0.0;
     price_change_direction_ = 0;
     price_change_ = 0;
+    visit_count_ = -1;
   }
 
   void set_yield_data(int trade_time, double yield) {
@@ -67,6 +68,7 @@ typedef struct YieldInfoUnit {
   int price_change_direction_;
   //相对于上一分钟的价格变化量
   double price_change_;
+  int visit_count_;
 } YieldInfoUnit;
 
 typedef struct HistDataPerDay {
@@ -426,7 +428,9 @@ class StockUtil {
 
   bool get_json_of_yield_data(std::map<int, YieldInfoUnit>& hs300_yield_data,
                               std::map<int, YieldInfoUnit>& yield_infos,
-                              std::string& json_str) {
+                              std::string& json_str,
+                              std::string& name) {
+    LOG_MSG2("get_json_of_yield_data,name=%s", name.c_str());
     bool r = true;
     double last_hs300_yield = 0.0;
     json_str = "";
@@ -450,6 +454,16 @@ class StockUtil {
         yield_data->setHS300DayYield(last_hs300_yield);
       }
       yield_data->setDayYield(unit.yield_ / 100);
+      if (name == "visit") {
+        if (unit.visit_count_ != -1)
+          yield_data->setVisit(unit.visit_count_);
+        else
+          yield_data->setVisit(0);
+      }
+      LOG_MSG2("yield_=%f,trade_time_=%d,visit_count=%d",
+               unit.yield_/100,
+               unit.trade_time_,
+               unit.visit_count_);
       yield_data->setTime(unit.trade_time_);
       vip_list->set_vip_news(yield_data->get());
       delete yield_data;
@@ -705,6 +719,30 @@ class StockBasicInfo {
     yield_infos_[trade_time] = unit;
   }
 
+  void add_visit_info(int trade_time, int count) {
+    std::map<int, YieldInfoUnit>::iterator iter = yield_infos_.find(trade_time);
+    if (iter == yield_infos_.end())
+      return;
+    YieldInfoUnit& unit = iter->second;
+    unit.visit_count_ = count;
+    if (code_ == "601288" || code_ == "000002")
+      LOG_MSG2("code=%s,trade_time=%d,visit_count=%d",
+               code_.c_str(),
+               trade_time,
+               count);
+  }
+
+  bool get_visit_by_time(int trade_time, int& visit_count) {
+    std::map<int, YieldInfoUnit>::iterator iter = yield_infos_.find(trade_time);
+    if (iter == yield_infos_.end())
+      return false;
+    visit_count = iter->second.visit_count_;
+    if (-1 == visit_count)
+      return false;
+    else
+      return true;
+  }
+
   double get_yield_by_time(int trade_time) {
     std::map<int, YieldInfoUnit>::iterator iter = yield_infos_.find(trade_time);
     if (iter != yield_infos_.end()) {
@@ -726,6 +764,8 @@ class StockBasicInfo {
   void MonthWeekDataValueSerialization(base_logic::DictionaryValue* dict);
 
   void YieldValueSerialization(base_logic::DictionaryValue* dict);
+
+  void VisitDataSerialization(base_logic::DictionaryValue* dict);
 
   void UpdateTodayKLine();
 
@@ -812,11 +852,13 @@ class StockTotalInfo {
     return KLine_json_;
   }
 
-  std::string getCharmJson(std::map<int, YieldInfoUnit>& hs300_yield_data) {
+  std::string getCharmJson(std::map<int, YieldInfoUnit>& hs300_yield_data,
+                           std::string& name) {
     std::string yield_json = "";
     StockUtil::Instance()->get_json_of_yield_data(hs300_yield_data,
                                                   basic_info_.yield_infos_,
-                                                  yield_json);
+                                                  yield_json,
+                                                  name);
     return yield_json;
   }
 
@@ -969,8 +1011,8 @@ class BasicIndustryInfo {
     fall_stock_num_ = 0;
     rise_stock_num_ = 0;
     type_ = 0;
-    weight_analyzer_ = NULL;
-    stock_filter_ = NULL;
+    //weight_analyzer_ = NULL;
+    //stock_filter_ = NULL;
   }
 
   std::string industry_name() {
@@ -1131,6 +1173,21 @@ class BasicIndustryInfo {
     industry_yield_infos_[trade_time] = unit;
   }
 
+  void set_industry_visit_data(int trade_time, int visit_data) {
+    LOG_MSG2("set_industry_visit_dataindustry_name=%s,trade_time=%d,visit_data=%d",
+                   industry_name_.c_str(),
+                   trade_time,
+                   visit_data);
+    std::map<int, YieldInfoUnit>::iterator iter = industry_yield_infos_.find(trade_time);
+    if (iter != industry_yield_infos_.end()) {
+      iter->second.visit_count_ = visit_data;
+      LOG_MSG2("insert industry_name=%s,trade_time=%d,visit_data=%d",
+               industry_name_.c_str(),
+               trade_time,
+               visit_data);
+    }
+  }
+
   void update_hist_data();
 
   void add_yield_info_by_stock(std::string date, double stock_market_value,
@@ -1142,7 +1199,8 @@ class BasicIndustryInfo {
   void clear_yield_info();
 
   bool get_chart_json(std::string& yield_json,
-                      std::map<int, YieldInfoUnit>& hs300_yield_data);
+                      std::map<int, YieldInfoUnit>& hs300_yield_data,
+                      std::string& name);
 
   bool get_hist_data_json(
       std::map<std::string, HistDataPerDay>& hs300_hist_data,
@@ -1169,8 +1227,8 @@ class BasicIndustryInfo {
   StockHistDataInfo industry_hist_data_info_;
   std::string weight_name_;
   std::string weight_;
-  WeightAnalyzer* weight_analyzer_;
-  StockFilter* stock_filter_;
+  //WeightAnalyzer* weight_analyzer_;
+  //StockFilter* stock_filter_;
 };
 
 class HotDiagramPerIndustry {

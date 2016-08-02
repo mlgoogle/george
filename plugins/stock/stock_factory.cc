@@ -45,11 +45,25 @@ void StockFactory::InitParam(config::FileConfig* config) {
   //OnUpdateYieldDataFromDB();
   std::map<int, YieldInfoUnit>& hs300_yields_info = stock_usr_mgr_
       ->stock_user_cache_->get_hs300_yield_data();
+  int min_visit_time = 0;
   std::map<int, YieldInfoUnit>::iterator iter = hs300_yields_info.begin();
   for (; iter != hs300_yields_info.end(); iter++) {
     int trade_time = iter->first;
+    LOG_MSG2("hs300_yields_infotrade_time=%d",
+             trade_time);
     stock_usr_mgr_->UpdateIndustryYieldInfo(trade_time);
+    stock_usr_mgr_->stock_user_cache_->update_max_visit_time(trade_time);
+    if (0 == min_visit_time)
+      min_visit_time = trade_time;
+    if (trade_time < min_visit_time)
+      min_visit_time = trade_time;
   }
+  if (0 != min_visit_time)
+    stock_usr_mgr_->stock_user_cache_->set_min_visit_data_time(min_visit_time);
+  int max_visit_time = stock_usr_mgr_->stock_user_cache_->max_visit_data_time();
+  stock_db_->FectchStockVisitData(min_visit_time,
+                                  max_visit_time,
+                                  stock_usr_mgr_->stock_user_cache_->stock_total_info_);
   TimeUpdateWeekMonthData();
   int current_trade_time = 0;
   stock_usr_mgr_->UpdateIndustryPriceInfo(current_trade_time);
@@ -140,6 +154,12 @@ void StockFactory::OnVIPGetHotDiagramData(const int socket,
     LOG_MSG2("get end_date=%s", end_date.c_str());
   }
 
+  std::string name = "null";
+  r = dict->GetString(L"name", &name);
+  if (true == r) {
+    LOG_MSG2("get name=%s", name.c_str());
+  }
+
   if ("industry" == type)
     //TODO 行业热力图
     ProcessHotDiagramIndustryData(socket, cycle_type, format, packet, dict);
@@ -149,9 +169,13 @@ void StockFactory::OnVIPGetHotDiagramData(const int socket,
   } else if ("" != industry_name) {
     //返回事件，行业和概念日收益率
     industry_name += classify;
-    ProcessEventYieldByName(socket, start_date,
-                            end_date, industry_name, packet,
-                            cycle_type);
+    ProcessEventYieldByName(socket,
+                            start_date,
+                            end_date,
+                            industry_name,
+                            packet,
+                            cycle_type,
+                            name);
     //ProcessHotDiagramByIndustry(socket, cycle_type, industry_name);
   } else if ("" != stock_code) {
     if (stock_code.size() > 1)
@@ -159,7 +183,8 @@ void StockFactory::OnVIPGetHotDiagramData(const int socket,
     ProcessStockKLine(socket, stock_code,
                       format, packet,
                       dict, cycle_type,
-                      start_date, end_date);
+                      start_date, end_date,
+                      name);
   }
   LOG_MSG("OnVIPGetHotDiagramData end");
 }
@@ -168,11 +193,15 @@ void StockFactory::ProcessEventYieldByName(int socket, std::string& start_date,
                                            std::string& end_date,
                                            std::string& industry_name,
                                            george_logic::PacketHead* packet,
-                                           std::string& cycle_type) {
+                                           std::string& cycle_type,
+                                           std::string& name) {
   std::string yield_json = "";
-  if (stock_usr_mgr_->GetYieldJsonByName(cycle_type, start_date,
-                                         end_date, industry_name,
-                                         yield_json)) {
+  if (stock_usr_mgr_->GetYieldJsonByName(cycle_type,
+                                         start_date,
+                                         end_date,
+                                         industry_name,
+                                         yield_json,
+                                         name)) {
     base_logic::LogicComm::SendFull(socket, yield_json.c_str(),
                                     yield_json.length());
   }
@@ -229,12 +258,14 @@ void StockFactory::ProcessStockKLine(int socket, std::string stock_code,
                                      base_logic::DictionaryValue* dict,
                                      std::string& cycle_type,
                                      std::string& start_date,
-                                     std::string& end_date) {
+                                     std::string& end_date,
+                                     std::string& name) {
   std::string stock_kline = stock_usr_mgr_->GetStockKLineByCode(stock_code,
                                                                 format,
                                                                 cycle_type,
                                                                 start_date,
-                                                                end_date);
+                                                                end_date,
+                                                                name);
   LOG_MSG2("stock_kline=%s,stock_code=%s", stock_kline.c_str(),stock_code.c_str());
   if ("jsonp" == format) {
     std::string stock_kline_jsonp = "";
@@ -309,6 +340,8 @@ void StockFactory::TimeWriteLimitData(int current_trade_time) {
   LOG_MSG("TimeWriteLimitData");
   stock_usr_mgr_->WriteLimitData(current_trade_time);
   stock_usr_mgr_->UpdateIndustryPriceInfo(current_trade_time);
+  stock_usr_mgr_->UpdateStockVisitData(current_trade_time);
+  //stock_usr_mgr_->UpdateIndustryVisitData(current_trade_time);
   //stock_usr_mgr_->UpdateEventsYield(current_trade_time);
 }
 

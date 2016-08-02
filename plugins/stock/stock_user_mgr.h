@@ -118,6 +118,7 @@ class StockUserCache {
 
   StockUserCache() {
     max_visit_data_time_ = 0;
+    min_visit_data_time_ = 1469944535;
     max_hist_data_time_ = "";
     stock_data_inited_ = false;
   }
@@ -130,12 +131,30 @@ class StockUserCache {
     max_hist_data_time_ = max_hist_data_time;
   }
 
+  int min_visit_data_time() {
+    return min_visit_data_time_;
+  }
+
+  void set_min_visit_data_time(int min_visit_data_time) {
+    min_visit_data_time_ = min_visit_data_time;
+  }
+
   int max_visit_data_time() {
     return max_visit_data_time_;
   }
 
   void set_max_visit_data_time(int max_visit_data_time) {
     max_hist_data_time_ = max_visit_data_time;
+  }
+
+  void update_max_visit_time(int trade_time) {
+    if (max_visit_data_time_ < trade_time)
+      max_visit_data_time_ = trade_time;
+  }
+
+  void update_min_visit_time(int trade_time) {
+    if (min_visit_data_time_ < trade_time)
+      min_visit_data_time_ = trade_time;
   }
 
   bool stock_data_inited() {
@@ -188,6 +207,7 @@ class StockUserCache {
   StockExchange stock_exchange_info_;
   CachedJsonInfo cached_json_info_;
   int max_visit_data_time_;
+  int min_visit_data_time_;
 };
 
 class StockUserManager {
@@ -213,6 +233,8 @@ class StockUserManager {
 
   void UpdateIndustryPriceInfo(int& current_trade_time);
 
+  void UpdateIndustryVisitData(int& current_trade_time);
+
   void UpdateIndustryYieldInfo(int& current_trade_time);
 
   void UpdateIndustryVolume();
@@ -231,10 +253,12 @@ class StockUserManager {
 
   void UpdateYieldDataToDB();
 
-  std::string GetStockKLineByCode(std::string stock_code, std::string format,
+  std::string GetStockKLineByCode(std::string stock_code,
+                                  std::string format,
                                   std::string& cycle_type,
                                   std::string& start_date,
-                                  std::string& end_date);
+                                  std::string& end_date,
+                                  std::string& name);
 
   void UpdateIndustryMarketValue();
 
@@ -259,6 +283,8 @@ class StockUserManager {
 
   void WriteLimitData(int& trade_time);
 
+  void UpdateStockVisitData(int& trade_time);
+
   void UpdateEventsYield(int current_trade_time);
 
   void DeleteOldEventsData();
@@ -275,7 +301,9 @@ class StockUserManager {
 
   bool GetYieldJsonByName(std::string& cycle_type, std::string& start_date,
                           std::string& end_date,
-                          std::string& industry_name, std::string& yield_json);
+                          std::string& industry_name,
+                          std::string& yield_json,
+                          std::string& name);
 
   std::string GetStocksHotDiagram(std::string type, std::string industry_name);
 

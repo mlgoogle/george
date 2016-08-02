@@ -136,7 +136,9 @@ void StockUserManager::GetHotDiagramDataByIndustry(
 }
 
 void StockUserManager::UpdateLimitData() {
-  base_logic::WLockGd lk(lock_);
+  LOG_MSG("UpdateLimitData");
+  //base_logic::WLockGd lk(lock_);
+  LOG_MSG("UpdateLimitData lock");
   stock_user_cache_->market_limit_info_.clear();
   //stock_user_cache_->cached_json_info_.clear_list();
   stock_db_->GetLimitData(stock_user_cache_->market_limit_info_);
@@ -204,6 +206,18 @@ void StockUserManager::WriteLimitData(int& trade_time) {
   if (current_trade_time == 0)
     return;
   stock_db_->WriteLimitData(trade_time, surged_count, decline_count);
+}
+
+void StockUserManager::UpdateStockVisitData(int& trade_time) {
+  LOG_MSG("UpdateStockVisitData");
+  base_logic::WLockGd lk(lock_);
+  if (!StockUtil::Instance()->is_trading_time())
+      return;
+  int max_visit_time = trade_time;
+  int min_visit_time = stock_user_cache_->min_visit_data_time();
+  stock_db_->FectchStockVisitData(min_visit_time,
+                                  max_visit_time,
+                                  stock_user_cache_->stock_total_info_);
 }
 
 void StockUserManager::UpdateEventsYield(int current_trade_time) {
@@ -279,7 +293,8 @@ bool StockUserManager::GetYieldJsonByName(std::string& cycle_type,
                                           std::string& start_date,
                                           std::string& end_date,
                                           std::string& industry_name,
-                                          std::string& yield_json) {
+                                          std::string& yield_json,
+                                          std::string& name) {
   INDUSTRYINFO_MAP& industry_info = stock_user_cache_->industry_info_;
   if (industry_info.check_event(industry_name)) {
     BasicIndustryInfo& basic_info = industry_info.get_industry_by_name(
@@ -287,11 +302,14 @@ bool StockUserManager::GetYieldJsonByName(std::string& cycle_type,
     if ("current" == cycle_type) {
       std::map<int, YieldInfoUnit>& hs300_yield_data = stock_user_cache_
           ->get_hs300_yield_data();
-      return basic_info.get_chart_json(yield_json, hs300_yield_data);
+      return basic_info.get_chart_json(yield_json,
+                                       hs300_yield_data,
+                                       name);
     } else {
       std::map<std::string, HistDataPerDay>& hs300_hist_data = stock_user_cache_
           ->get_hs300_hist_data();
-      return basic_info.get_hist_data_json(hs300_hist_data, start_date,
+      return basic_info.get_hist_data_json(hs300_hist_data,
+                                           start_date,
                                            end_date,
                                            yield_json);
     }
@@ -390,6 +408,43 @@ void StockUserManager::UpdateIndustryPriceInfo(int& current_trade_time) {
       basic_industry_info.add_industry_yield_info(current_trade_time,
                                                   industry_changepoint);
   }
+}
+
+void StockUserManager::UpdateIndustryVisitData(int& current_trade_time) {
+  LOG_MSG2("UpdateIndustryVisitDatacurrent_trade_time=%d", current_trade_time);
+  current_trade_time = (current_trade_time / 60) * 60;
+  //base_logic::WLockGd lk(lock_);
+  std::map<std::string, BasicIndustryInfo>& industry_map = stock_user_cache_
+        ->industry_info_.industry_info_map_;
+    std::map<std::string, BasicIndustryInfo>::iterator iter =
+        industry_map.begin();
+    for (; iter != industry_map.end(); iter++) {
+      int industry_visit = 0;
+      bool industry_has_visit = false;
+      std::string industry_name = iter->first;
+      BasicIndustryInfo& basic_industry_info = iter->second;
+      std::map<std::string, double>::iterator it = basic_industry_info
+          .stock_price_info_.begin();
+      for (; it != basic_industry_info.stock_price_info_.end(); it++) {
+        std::string code = it->first;
+        StockTotalInfo& stock_total_info =
+            stock_user_cache_->stock_total_info_[code];
+        StockBasicInfo& stock_basic_info = stock_total_info.basic_info_;
+        int stock_visit_count = 0;
+        if(!stock_basic_info.get_visit_by_time(current_trade_time, stock_visit_count))
+          continue;
+        else {
+          industry_visit += stock_visit_count;
+        }
+        if (code == "601288" || code == "000002") {
+          LOG_MSG2("code=%s,current_trade_time=%d,stock_visit_count=%d",
+                   code.c_str(),
+                   current_trade_time,
+                   stock_visit_count);
+        }
+      }
+      basic_industry_info.set_industry_visit_data(current_trade_time, industry_visit);
+    }
 }
 
 void StockUserManager::UpdateIndustryVolume() {
@@ -535,7 +590,8 @@ std::string StockUserManager::GetStockKLineByCode(std::string stock_code,
                                                   std::string format,
                                                   std::string& cycle_type,
                                                   std::string& start_date,
-                                                  std::string& end_date) {
+                                                  std::string& end_date,
+                                                  std::string& name) {
   base_logic::RLockGd lk(lock_);
   std::string r_json = "";
   STOCKINFO_MAP& stocks_map = stock_user_cache_->stock_total_info_;
@@ -547,7 +603,7 @@ std::string StockUserManager::GetStockKLineByCode(std::string stock_code,
     else if ("current" == cycle_type) {
       std::map<int, YieldInfoUnit>& hs300_yield_data = stocks_map[HSSANBAI]
           .basic_info_.yield_infos_;
-      return iter->second.getCharmJson(hs300_yield_data);
+      return iter->second.getCharmJson(hs300_yield_data, name);
     } else if ("bydate" == cycle_type) {
       std::map<std::string, HistDataPerDay>& hs300_hist_data = stock_user_cache_
           ->get_hs300_hist_data();

@@ -11,7 +11,8 @@
 #include "stock_db.h"
 #include "stock_proto_buf.h"
 #include "stock_user_mgr.h"
-#include "stock_user_mgr.h"
+//#include "Subject.h"
+//#include "Observer.h"
 
 namespace stock_logic {
 
@@ -75,12 +76,16 @@ class StockFactory {
                          base_logic::DictionaryValue* dict,
                          std::string& cycle_type,
                          std::string& start_date,
-                         std::string& end_date);
+                         std::string& end_date,
+                         std::string& name);
 
-  void ProcessEventYieldByName(int socket, std::string& start_date, std::string& end_date,
+  void ProcessEventYieldByName(int socket,
+                               std::string& start_date,
+                               std::string& end_date,
                                std::string& industry_name,
                                george_logic::PacketHead* packet,
-                               std::string& cycle_type);
+                               std::string& cycle_type,
+                               std::string& name);
 
   void TimeWriteLimitData(int current_trade_time);
 

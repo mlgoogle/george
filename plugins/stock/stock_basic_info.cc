@@ -117,10 +117,13 @@ void BasicIndustryInfo::clear_yield_info() {
 }
 
 bool BasicIndustryInfo::get_chart_json(
-    std::string& yield_json, std::map<int, YieldInfoUnit>& hs300_yield_data) {
+    std::string& yield_json,
+    std::map<int, YieldInfoUnit>& hs300_yield_data,
+    std::string& name) {
   return StockUtil::Instance()->get_json_of_yield_data(hs300_yield_data,
                                                        industry_yield_infos_,
-                                                       yield_json);
+                                                       yield_json,
+                                                       name);
 }
 
 bool BasicIndustryInfo::get_hist_data_json(
@@ -296,10 +299,27 @@ void StockBasicInfo::YieldValueSerialization(
   std::string code;
   double yield;
   int trade_time;
-  dict->GetString(L"code", &code);
+  //dict->GetString(L"code", &code);
   dict->GetInteger(L"time", &trade_time);
   dict->GetReal(L"yield", &yield);
   add_yield_info(trade_time, yield, yield);
+}
+
+void StockBasicInfo::VisitDataSerialization(
+    base_logic::DictionaryValue* dict) {
+  std::string code = "";
+  int count = 0;
+  int trade_time = 0;
+  dict->GetInteger(L"timeTamp", &trade_time);
+  trade_time = (int)(trade_time / 60) * 60;
+  dict->GetInteger(L"count", &count);
+  StockFactory::GetInstance()->stock_usr_mgr_->stock_user_cache_->update_min_visit_time(trade_time);
+  add_visit_info(trade_time, count);
+  if (code_ == "601288" || code_ == "000002")
+    LOG_MSG2("code=%s,trade_time=%d,visit_count=%d",
+             code_.c_str(),
+             trade_time,
+             count);
 }
 
 void StockBasicInfo::UpdateTodayKLine() {
