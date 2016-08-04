@@ -482,6 +482,8 @@ class StockUtil {
   std::set<std::string> holiday_in_2016_;
 };
 
+class DataPerDay;
+
 class StockBasicInfo {
  public:
 
@@ -767,7 +769,11 @@ class StockBasicInfo {
 
   void VisitDataSerialization(base_logic::DictionaryValue* dict);
 
+  void OfflineVisitSerialization(base_logic::DictionaryValue* dict);
+
   void UpdateTodayKLine();
+
+  bool add_offline_visit_data(std::string date, int hour, int visit_num);
 
   std::string code_;
   std::string name_;
@@ -799,6 +805,27 @@ class StockBasicInfo {
   double qfq_high_;
   double qfq_low_;
   std::map<int, YieldInfoUnit> yield_infos_;
+  std::map<std::string, DataPerDay> data_per_day_;
+};
+
+class DataPerHour {
+public:
+
+  DataPerHour();
+  ~DataPerHour();
+
+  int visit_per_hour_num_;
+};
+
+class DataPerDay {
+public:
+
+  DataPerDay();
+  ~DataPerDay();
+
+  std::string date;
+  std::vector<DataPerHour> data_per_hour_;
+  int visit_per_day_num_;
 };
 
 class StockHistDataInfo {

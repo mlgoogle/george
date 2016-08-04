@@ -11,14 +11,14 @@
 #include "stock_db.h"
 #include "stock_proto_buf.h"
 #include "stock_user_mgr.h"
-//#include "Subject.h"
-//#include "Observer.h"
+#include "Subject.h"
+#include "Observer.h"
 
 namespace stock_logic {
 
 class StockDB;
 
-class StockFactory {
+class StockFactory: public Subject {
  public:
   StockFactory();
   virtual ~StockFactory();

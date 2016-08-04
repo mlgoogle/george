@@ -322,6 +322,30 @@ void StockBasicInfo::VisitDataSerialization(
              count);
 }
 
+void StockBasicInfo::OfflineVisitSerialization(base_logic::DictionaryValue* dict) {
+  std::string stock_code = "";
+  if (!dict->GetString(L"v_stock", &stock_code))
+    return;
+  std::string stock_time = "";
+  std::string stock_date = "";
+  int stock_hour = 0;
+  if (dict->GetString(L"v_hour", &stock_time)) {
+    if (stock_time.size() < 13)
+      return;
+    stock_date = stock_time.substr(0, 10);
+    stock_hour = atoi(stock_time.substr(11, 2).c_str());
+    if (0 == stock_hour) {
+      if (stock_time[11] != '0' || stock_time[12] != '0')
+        return;
+    }
+  }
+  else
+    return;
+  int stock_frequency = 0;
+  if (!dict->GetInteger(L"i_frequency", &stock_frequency))
+    stock_frequency = 0;
+}
+
 void StockBasicInfo::UpdateTodayKLine() {
   std::map<std::string, stock_logic::StockTotalInfo>& stocks_map =
       StockFactory::GetInstance()->stock_usr_mgr_->stock_user_cache_
@@ -356,8 +380,22 @@ void StockBasicInfo::MonthWeekDataValueSerialization(
   }
 }
 
-void StockHistDataInfo::add_hist_data(std::string date, double open,
-                                      double high, double close, double low,
+bool StockBasicInfo::add_offline_visit_data(std::string date,
+                                            int hour,
+                                            int visit_num) {
+  if (hour < 0 || hour > 23)
+    return false;
+  if (visit_num < 0)
+    return false;
+  data_per_day_[date].data_per_hour_[hour].visit_per_hour_num_ = visit_num;
+  return true;
+}
+
+void StockHistDataInfo::add_hist_data(std::string date,
+                                      double open,
+                                      double high,
+                                      double close,
+                                      double low,
                                       double qfq_price) {
   /*std::map<std::string, HistDataPerDay>::iterator iter = stock_hist_data_.begin();
    if (stock_hist_data_.end() != iter)
@@ -561,4 +599,23 @@ void StockTotalInfo::update_kline_json() {
   vip_list = NULL;
 }
 
+DataPerDay::DataPerDay() {
+  for (int i = 0; i < 24; i++) {
+    data_per_hour_[i].visit_per_hour_num_ = 0;
+  }
+  visit_per_day_num_ = 0;
 }
+
+DataPerDay::~DataPerDay() {
+}
+
+DataPerHour::DataPerHour() {
+  visit_per_hour_num_ = 0;
+}
+
+DataPerHour::~DataPerHour() {
+}
+
+}
+
+

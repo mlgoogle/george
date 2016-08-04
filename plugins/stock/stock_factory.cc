@@ -6,9 +6,9 @@
 #include "net/packet_process.h"
 #include "basic/basic_util.h"
 #include <list>
-
 #include "stock_factory.h"
 #include "stock_proto_buf.h"
+#include "ObserverTest.h"
 
 namespace stock_logic {
 
@@ -69,6 +69,7 @@ void StockFactory::InitParam(config::FileConfig* config) {
   stock_usr_mgr_->UpdateIndustryPriceInfo(current_trade_time);
   stock_usr_mgr_->UpdateIndustryJson();
   OnUpdateEventsData();
+  Attach(new ObserverTest());
 }
 void StockFactory::Dest() {
   stock_logic::StockUserEngine::FreeVIPUserEngine();
@@ -158,6 +159,10 @@ void StockFactory::OnVIPGetHotDiagramData(const int socket,
   r = dict->GetString(L"name", &name);
   if (true == r) {
     LOG_MSG2("get name=%s", name.c_str());
+    Observer* ob = this->GetObserverByName(name);
+    if (NULL != ob)
+      ob->Process(socket, dict);
+      return;
   }
 
   if ("industry" == type)
@@ -180,10 +185,14 @@ void StockFactory::OnVIPGetHotDiagramData(const int socket,
   } else if ("" != stock_code) {
     if (stock_code.size() > 1)
       stock_code.erase(stock_code.begin());
-    ProcessStockKLine(socket, stock_code,
-                      format, packet,
-                      dict, cycle_type,
-                      start_date, end_date,
+    ProcessStockKLine(socket,
+                      stock_code,
+                      format,
+                      packet,
+                      dict,
+                      cycle_type,
+                      start_date,
+                      end_date,
                       name);
   }
   LOG_MSG("OnVIPGetHotDiagramData end");
@@ -252,7 +261,8 @@ void StockFactory::ProcessHotDiagramByIndustry(int socket, std::string type,
                                   stocks_json.length());
 }
 
-void StockFactory::ProcessStockKLine(int socket, std::string stock_code,
+void StockFactory::ProcessStockKLine(int socket,
+                                     std::string stock_code,
                                      std::string format,
                                      george_logic::PacketHead* packet,
                                      base_logic::DictionaryValue* dict,

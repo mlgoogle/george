@@ -121,10 +121,19 @@ mysql_pool.o : ./$(PUB_DIR)/storage/mysql_pool.cc ./$(PUB_DIR)/storage/mysql_poo
 config.o: $(THIRD_PATH)/config/config.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(THIRD_PATH)/config/config.cc $(INCLUDE_PATHS)
 
+Observer.o : ./Observer.cpp ./Observer.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./Observer.cpp $(INCLUDE_PATHS)
+	
+Subject.o : ./Subject.cpp ./Subject.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./Subject.cpp $(INCLUDE_PATHS)
+	
+ObserverTest.o : ./ObserverTest.cpp ./ObserverTest.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./ObserverTest.cpp $(INCLUDE_PATHS)
+
 $(TEST) : 
 
 $(PLUGIN) : stock_init.o stock_logic.o stock_basic_info.o stock_db.o stock_factory.o config.o\
-	stock_user_mgr.o stock_packet_process.o packet_process.o \
+	stock_user_mgr.o Observer.o Subject.o ObserverTest.o stock_packet_process.o packet_process.o \
 	stock_proto_buf.o proto_buf.o\
 	data_engine.o data_mysql_engine.o mysql_pool.o \
 	$(LIB_DIR)/mylib/base/lib/mybase.a

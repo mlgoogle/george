@@ -121,6 +121,41 @@ bool StockDB::FectchStockDayKLineData(
   return has_value;
 }
 
+bool StockDB::FecthOffLineVisitData(
+      std::string min_time,
+      std::map<std::string, stock_logic::StockTotalInfo>& map) {
+  bool r = false;
+    std::string sql = "call proc_GetOfflineVisitData('";
+    sql += min_time;
+    sql += "');";
+    scoped_ptr<base_logic::DictionaryValue> dict(
+        new base_logic::DictionaryValue());
+    base_logic::ListValue* listvalue;
+    dict->SetString(L"sql", sql);
+    //LOG_MSG2("sql=%s",sql.c_str());
+    r = mysql_engine_->ReadData(0, (base_logic::Value*) (dict.get()),
+                                CallFectchOfflineVisitData);
+    if (!r)
+      return false;
+    dict->GetList(L"resultvalue", &listvalue);
+    bool has_value = false;
+    while (listvalue->GetSize()) {
+      //stock_logic::StockTotalInfo& stock_info = map[stock_code];
+      base_logic::Value* result_value;
+      listvalue->Remove(0, &result_value);
+      base_logic::DictionaryValue* dict_result_value =
+          (base_logic::DictionaryValue*) (result_value);
+      std::string code = "";
+      dict_result_value->GetString(L"v_stock", &code);
+      stock_logic::StockTotalInfo& stock_info = map[code];
+      stock_info.basic_info_.OfflineVisitSerialization(dict_result_value);
+      delete dict_result_value;
+      dict_result_value = NULL;
+      has_value = true;
+    }
+    return has_value;
+}
+
 bool StockDB::FectchStockVisitData(
     int min_time,
     int max_time,
@@ -649,6 +684,38 @@ void StockDB::CallFectchStockVisitData(void* param, base_logic::Value* value) {
         LOG_MSG2("stock_code=%s,timeTamp=%d,count=%d",
                  stock_code.c_str(),
                  timeTamp,
+                 count);
+      }
+      list->Append((base_logic::Value*) (info_value));
+    }
+  }
+  dict->Set(L"resultvalue", (base_logic::Value*) (list));
+}
+
+void StockDB::CallFectchOfflineVisitData(void* param, base_logic::Value* value) {
+  base_logic::DictionaryValue* dict = (base_logic::DictionaryValue*) (value);
+  base_logic::ListValue* list = new base_logic::ListValue();
+  base_storage::DBStorageEngine* engine =
+      (base_storage::DBStorageEngine*) (param);
+  MYSQL_ROW rows;
+  int32 num = engine->RecordCount();
+  if (num > 0) {
+    while (rows = (*(MYSQL_ROW*) (engine->FetchRows())->proc)) {
+      base_logic::DictionaryValue* info_value =
+          new base_logic::DictionaryValue();
+      if (rows[0] != NULL)
+        info_value->SetString(L"v_stock", rows[0]);
+      if (rows[1] != NULL)
+        info_value->SetString(L"v_hour", rows[1]);
+      if (rows[2] != NULL)
+        info_value->SetInteger(L"i_frequency", (int) atoi((const char*)rows[2]));
+      std::string stock_code = (const char*)rows[0];
+      std::string v_hour = (const char*)rows[1];
+      int count = (int) atoi((const char*)rows[2]);
+      if (stock_code == "601288") {
+        LOG_MSG2("stock_code=%s,v_hour=%d,count=%d",
+                 stock_code.c_str(),
+                 v_hour.c_str(),
                  count);
       }
       list->Append((base_logic::Value*) (info_value));
