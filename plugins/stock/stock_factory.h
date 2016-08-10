@@ -93,6 +93,16 @@ class StockFactory: public Subject {
 
   void TimeUpdateWeekMonthData();
 
+  void OnUpdateOfflineVisitData();
+
+  StockUserCache* GetCache();
+
+  STOCKINFO_MAP& GetStockInfoMap();
+
+  StockTotalInfo& GetTotalInfoByCode(std::string& stock_code);
+
+  StockBasicInfo& GetBasicInfoByCode(std::string& stock_code);
+
   StockUserManager* stock_usr_mgr_;
   stock_logic::StockDB* stock_db_;
 };

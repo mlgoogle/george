@@ -13,18 +13,6 @@
 
 #define DEFAULT_CONFIG_PATH     "./plugins/stock/stock_config.xml"
 
-#define UPDATE_REALTIME_STOCK_INFO           55000
-#define UPDATE_LIMIT_DATA_TO_DB              55001
-#define UPDATE_LIMIT_DATA_TO_MEMORY          55002
-#define UPDATE_INDUSTRY_HIST_DATA            55003
-#define UPDATE_STOCK_HIST_DATA               55004
-#define DELETE_OLD_LIMIT_DATA                55005
-#define UPDATE_STOCK_K_LINE                  55006
-#define UPDATE_EVENTS_DATA                   55007
-#define UPDATE_YIELD_DATA_TO_DB              55008
-#define DELETE_OLD_YIELD_DATA                55009
-#define LOAD_CONSTOM_EVENT                   55010
-
 namespace stock_logic {
 
 StockLogic* StockLogic::instance_ = NULL;
@@ -58,6 +46,7 @@ bool StockLogic::Init() {
   if (!r)
     return r;
   factory_->InitParam(config);
+  factory_->Notify(0);
   return true;
 }
 
@@ -121,6 +110,7 @@ bool StockLogic::OnIniTimer(struct server *srv) {
   srv->add_time_task(srv, "stock", UPDATE_YIELD_DATA_TO_DB, 30 * 60, -1);
   srv->add_time_task(srv, "stock", DELETE_OLD_YIELD_DATA, 2 * 60, -1);
   srv->add_time_task(srv, "stock", LOAD_CONSTOM_EVENT, 60, -1);
+  srv->add_time_task(srv, "stock", UPDATE_STOCK_OFFLINE_VISIT_DATA, 24 * 60 * 60, -1);
 
   LOG_DEBUG("add time task success");
   return true;
@@ -175,6 +165,10 @@ bool StockLogic::OnTimeout(struct server *srv, char *id, int opcode, int time) {
     }
     case LOAD_CONSTOM_EVENT: {
       //factory_->OnLoadCustom_Event();
+      break;
+    }
+    case UPDATE_STOCK_OFFLINE_VISIT_DATA: {
+      factory_->OnUpdateOfflineVisitData();
       break;
     }
     default:

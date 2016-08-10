@@ -9,6 +9,7 @@
 #include "stock_factory.h"
 #include "stock_proto_buf.h"
 #include "ObserverTest.h"
+#include "OffLineVisitStockObserver.h"
 
 namespace stock_logic {
 
@@ -69,7 +70,9 @@ void StockFactory::InitParam(config::FileConfig* config) {
   stock_usr_mgr_->UpdateIndustryPriceInfo(current_trade_time);
   stock_usr_mgr_->UpdateIndustryJson();
   OnUpdateEventsData();
-  Attach(new ObserverTest());
+  this->OnUpdateOfflineVisitData();
+  //this->Attach(new ObserverTest());
+  this->Attach(new OffLineVisitStockObserver(this));
 }
 void StockFactory::Dest() {
   stock_logic::StockUserEngine::FreeVIPUserEngine();
@@ -346,6 +349,11 @@ void StockFactory::TimeUpdateWeekMonthData() {
   stock_usr_mgr_->UpdateIndustryPriceInfo(current_trade_time);
 }
 
+void StockFactory::OnUpdateOfflineVisitData() {
+  LOG_MSG("TimeUpdateWeekMonthData");
+  stock_usr_mgr_->UpdateOfflineVisitData();
+}
+
 void StockFactory::TimeWriteLimitData(int current_trade_time) {
   LOG_MSG("TimeWriteLimitData");
   stock_usr_mgr_->WriteLimitData(current_trade_time);
@@ -363,6 +371,25 @@ void StockFactory::TimeDeleteOldLimitData() {
 void StockFactory::OnUpdateLimitData() {
   LOG_MSG("OnUpdateLimitData");
   stock_usr_mgr_->UpdateLimitData();
+}
+
+StockUserCache* StockFactory::GetCache() {
+  return stock_usr_mgr_->stock_user_cache_;
+}
+
+STOCKINFO_MAP& StockFactory::GetStockInfoMap() {
+  StockUserCache* cache = this->GetCache();
+  return cache->stock_total_info_;
+}
+
+StockTotalInfo& StockFactory::GetTotalInfoByCode(std::string& stock_code) {
+  STOCKINFO_MAP& stock_map = this->GetStockInfoMap();
+  return stock_map[stock_code];
+}
+
+StockBasicInfo& StockFactory::GetBasicInfoByCode(std::string& stock_code) {
+  STOCKINFO_MAP& stock_map = this->GetStockInfoMap();
+  return stock_map[stock_code].basic_info_;
 }
 
 }
