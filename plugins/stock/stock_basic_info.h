@@ -88,6 +88,7 @@ typedef struct HistDataPerDay {
     month_init_price_ = 0.0;
     day_volatility_ = 0.0;
     adjusted_day_volatility_ = 0.0;
+    visit_num_ = 0;
   }
   std::string date_;
   std::string month_init_date_;
@@ -105,6 +106,7 @@ typedef struct HistDataPerDay {
   //(最高价-最低价)/昨日收盘价
   double day_volatility_;
   double adjusted_day_volatility_;
+  int visit_num_;
 } HistDataPerDay;
 
 class StockUtil {
@@ -478,6 +480,12 @@ class StockUtil {
     return r;
   }
 
+  base_logic::DictionaryValue* get_backtest_of_hist_data(
+      std::map<std::string, HistDataPerDay>& hs300_hist_data,
+      std::string start_date,
+      std::string& end_date,
+      std::map<std::string, HistDataPerDay>& hist_data);
+
   static StockUtil* instance_;
   std::set<std::string> holiday_in_2016_;
 };
@@ -497,6 +505,8 @@ class StockBasicInfo {
     market_value_ = 0.0;
     current_trade_ = 0.0;
     current_trade_time_ = 0;
+    current_visit_num_ = 0;
+    current_visit_time_ = 0;
     current_open_ = 0.0;
     current_high_ = 0.0;
     current_low_ = 0.0;
@@ -722,6 +732,7 @@ class StockBasicInfo {
   }
 
   void add_visit_info(int trade_time, int count) {
+    update_current_visit_info(trade_time, count);
     std::map<int, YieldInfoUnit>::iterator iter = yield_infos_.find(trade_time);
     if (iter == yield_infos_.end())
       return;
@@ -775,6 +786,16 @@ class StockBasicInfo {
 
   bool add_offline_visit_data(std::string date, int hour, int visit_num);
 
+  int current_visit_time();
+
+  void set_current_visit_time(int current_visit_time);
+
+  int current_visit_num();
+
+  void set_current_visit_num(int current_visit_num);
+
+  void update_current_visit_info(int visit_time, int visit_num);
+
   std::string code_;
   std::string name_;
   std::string industry_;
@@ -794,6 +815,8 @@ class StockBasicInfo {
   double current_low_;
   double current_settlement_;
   int current_trade_time_;
+  int current_visit_time_;
+  int current_visit_num_;
   double surged_limit_price_;
   double decline_limit_price_;
   std::string week_trade_day_;
@@ -823,9 +846,13 @@ public:
   DataPerDay();
   ~DataPerDay();
 
+  void recount_visit_num(std::string& stock_date);
+
   std::string date;
   std::vector<DataPerHour> data_per_hour_;
   int visit_per_day_num_;
+  double changepercent_;
+  double close_;
 };
 
 class StockHistDataInfo {
@@ -1201,21 +1228,23 @@ class BasicIndustryInfo {
   }
 
   void set_industry_visit_data(int trade_time, int visit_data) {
-    LOG_MSG2("set_industry_visit_dataindustry_name=%s,trade_time=%d,visit_data=%d",
+    /*LOG_MSG2("set_industry_visit_dataindustry_name=%s,trade_time=%d,visit_data=%d",
                    industry_name_.c_str(),
                    trade_time,
-                   visit_data);
+                   visit_data);*/
     std::map<int, YieldInfoUnit>::iterator iter = industry_yield_infos_.find(trade_time);
     if (iter != industry_yield_infos_.end()) {
       iter->second.visit_count_ = visit_data;
-      LOG_MSG2("insert industry_name=%s,trade_time=%d,visit_data=%d",
+      /*LOG_MSG2("insert industry_name=%s,trade_time=%d,visit_data=%d",
                industry_name_.c_str(),
                trade_time,
-               visit_data);
+               visit_data);*/
     }
   }
 
   void update_hist_data();
+
+  void update_hist_data_by_weight();
 
   void add_yield_info_by_stock(std::string date, double stock_market_value,
                                HistDataPerDay& hist_data_unit);
@@ -1231,8 +1260,20 @@ class BasicIndustryInfo {
 
   bool get_hist_data_json(
       std::map<std::string, HistDataPerDay>& hs300_hist_data,
-      std::string& start_date, std::string& end_date,
+      std::string& start_date,
+      std::string& end_date,
       std::string& json_str);
+
+  void add_stock_weight_info(std::string& stock_code,
+                             double weight);
+
+  void add_stocks_weight(std::map<std::string, double>& stock_weight_info);
+
+  void set_stocks_price_info(std::map<std::string, double>& stocks_info);
+
+  double get_stock_weight_by_code(std::string& stock_code);
+
+  void count_stock_visit_num();
 
   std::string industry_name_;
   double industry_volume_;
@@ -1254,6 +1295,7 @@ class BasicIndustryInfo {
   StockHistDataInfo industry_hist_data_info_;
   std::string weight_name_;
   std::string weight_;
+  std::map<std::string, double> stock_weight_info_;
   //WeightAnalyzer* weight_analyzer_;
   //StockFilter* stock_filter_;
 };

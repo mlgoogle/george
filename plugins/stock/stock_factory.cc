@@ -10,6 +10,8 @@
 #include "stock_proto_buf.h"
 #include "ObserverTest.h"
 #include "OffLineVisitStockObserver.h"
+#include "CustomWeightObserver.h"
+#include "IncreaseStockVisitObserver.h"
 
 namespace stock_logic {
 
@@ -73,6 +75,8 @@ void StockFactory::InitParam(config::FileConfig* config) {
   this->OnUpdateOfflineVisitData();
   //this->Attach(new ObserverTest());
   this->Attach(new OffLineVisitStockObserver(this));
+  this->Attach(new CustomWeightObserver(this));
+  this->Attach(new IncreaseStockVisitObserver(this));
 }
 void StockFactory::Dest() {
   stock_logic::StockUserEngine::FreeVIPUserEngine();
@@ -350,7 +354,7 @@ void StockFactory::TimeUpdateWeekMonthData() {
 }
 
 void StockFactory::OnUpdateOfflineVisitData() {
-  LOG_MSG("TimeUpdateWeekMonthData");
+  LOG_MSG("OnUpdateOfflineVisitData");
   stock_usr_mgr_->UpdateOfflineVisitData();
 }
 
@@ -373,6 +377,15 @@ void StockFactory::OnUpdateLimitData() {
   stock_usr_mgr_->UpdateLimitData();
 }
 
+bool StockFactory::CheckStockValid(std::string& stock_code) {
+  STOCKINFO_MAP& stock_map = this->GetStockInfoMap();
+  STOCKINFO_MAP::iterator iter = stock_map.find(stock_code);
+  if (iter != stock_map.end())
+    return true;
+  else
+    return false;
+}
+
 StockUserCache* StockFactory::GetCache() {
   return stock_usr_mgr_->stock_user_cache_;
 }
@@ -390,6 +403,16 @@ StockTotalInfo& StockFactory::GetTotalInfoByCode(std::string& stock_code) {
 StockBasicInfo& StockFactory::GetBasicInfoByCode(std::string& stock_code) {
   STOCKINFO_MAP& stock_map = this->GetStockInfoMap();
   return stock_map[stock_code].basic_info_;
+}
+
+std::map<std::string, HistDataPerDay>& StockFactory::GetHistDataByCode(std::string stock_code) {
+  StockTotalInfo& stock_total_info = this->GetTotalInfoByCode(stock_code);
+  return stock_total_info.hist_data_info_.stock_hist_data_;
+}
+
+std::map<std::string, DataPerDay>& StockFactory::GetDataPerDayByCode(std::string stock_code) {
+  StockBasicInfo& basic_info = this->GetBasicInfoByCode(stock_code);
+  return basic_info.data_per_day_;
 }
 
 }

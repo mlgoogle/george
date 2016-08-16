@@ -211,8 +211,8 @@ void StockUserManager::WriteLimitData(int& trade_time) {
 void StockUserManager::UpdateStockVisitData(int& trade_time) {
   LOG_MSG("UpdateStockVisitData");
   base_logic::WLockGd lk(lock_);
-  if (!StockUtil::Instance()->is_trading_time())
-      return;
+  //if (!StockUtil::Instance()->is_trading_time())
+  //    return;
   int max_visit_time = trade_time;
   int min_visit_time = stock_user_cache_->min_visit_data_time();
   stock_db_->FectchStockVisitData(min_visit_time,
@@ -271,6 +271,14 @@ void StockUserManager::UpdateStockHotDiagram() {
 
    std::string stocks_hot_diagram_json;
    StockUtil::Instance()->serialize(vip_list->packet(), stocks_hot_diagram_json);*/
+}
+
+void StockUserManager::UpdateOfflineVisitData() {
+  base_logic::WLockGd lk(lock_);
+  std::string max_date = stock_user_cache_->max_offline_visit_data_date();
+  STOCKINFO_MAP& stock_total_info = stock_user_cache_->stock_total_info_;
+  stock_db_->FecthOffLineVisitData(max_date,
+                                   stock_total_info);
 }
 
 std::string StockUserManager::GetIndustryHotDiagram(std::string type,
@@ -645,4 +653,18 @@ void StockUserManager::UpdateIndustryMarketValue() {
   }
 }
 
+std::string& StockUserCache::max_offline_visit_data_date() {
+  return max_offline_visit_data_date_;
 }
+
+void StockUserCache::set_max_offline_visit_data_date(std::string date) {
+  max_offline_visit_data_date_ = date;
+}
+
+void StockUserCache::update_max_offline_visit_data_Date(std::string date) {
+  if (max_offline_visit_data_date_ < date)
+    max_offline_visit_data_date_ = date;
+}
+
+}
+

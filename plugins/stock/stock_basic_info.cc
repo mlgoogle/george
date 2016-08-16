@@ -94,6 +94,38 @@ void BasicIndustryInfo::update_hist_data() {
   }
 }
 
+void BasicIndustryInfo::update_hist_data_by_weight() {
+  clear_yield_info();
+  std::map<std::string, double>::iterator iter = stock_weight_info_.begin();
+  for (; iter != stock_weight_info_.end(); iter++) {
+    std::string stock_name = iter->first;
+    StockTotalInfo& stock_total_info = StockFactory::GetInstance()
+        ->stock_usr_mgr_->stock_user_cache_->get_stock_total_info(stock_name);
+    StockHistDataInfo& stock_hist_info = stock_total_info.hist_data_info_;
+    std::map<std::string, HistDataPerDay>& stock_hist_data = stock_hist_info
+        .stock_hist_data_;
+    std::map<std::string, HistDataPerDay>::iterator hist_data_iter =
+        stock_hist_data.begin();
+
+    double stock_weight = this->get_stock_weight_by_code(stock_name);
+    if (stock_weight < 0.01)
+      continue;
+    for (; hist_data_iter != stock_hist_data.end(); hist_data_iter++) {
+      std::string date = hist_data_iter->first;
+      HistDataPerDay& stock_hist_data = hist_data_iter->second;
+      HistDataPerDay& industry_hist_data = this->industry_hist_data_info_.stock_hist_data_[date];
+      industry_hist_data.day_yield_ += stock_hist_data.day_yield_ * stock_weight;
+      if (stock_name == "000333") {
+        LOG_MSG2("stock_name=%s,stock_weight=%f,date=%s,this->industry_hist_data_info_.stock_hist_data_.size()=%d",
+                 stock_name.c_str(),
+                 stock_weight,
+                 date.c_str(),
+                 this->industry_hist_data_info_.stock_hist_data_.size());
+      }
+    }
+  }
+}
+
 void BasicIndustryInfo::add_yield_info_by_stock(
     std::string date, double stock_market_value,
     HistDataPerDay& hist_data_unit) {
@@ -128,7 +160,8 @@ bool BasicIndustryInfo::get_chart_json(
 
 bool BasicIndustryInfo::get_hist_data_json(
     std::map<std::string, HistDataPerDay>& hs300_hist_data,
-    std::string& start_date, std::string& end_date,
+    std::string& start_date,
+    std::string& end_date,
     std::string& json_str) {
   return StockUtil::Instance()->get_json_of_hist_data(
       hs300_hist_data,
@@ -136,6 +169,59 @@ bool BasicIndustryInfo::get_hist_data_json(
       end_date,
       industry_hist_data_info_.stock_hist_data_,
       json_str);
+}
+
+void BasicIndustryInfo::add_stock_weight_info(
+    std::string& stock_code,
+    double weight) {
+  stock_weight_info_[stock_code] = weight;
+}
+
+void BasicIndustryInfo::add_stocks_weight(std::map<std::string, double>& stock_weight_info) {
+  stock_weight_info_ = stock_weight_info;
+}
+
+void BasicIndustryInfo::set_stocks_price_info(std::map<std::string, double>& stocks_info) {
+  stock_price_info_ = stocks_info;
+}
+
+double BasicIndustryInfo::get_stock_weight_by_code(std::string& stock_code) {
+  std::map<std::string, double>::iterator iter =
+      stock_weight_info_.find(stock_code);
+  if (iter != stock_weight_info_.end())
+    return iter->second;
+  else
+    return 0;
+}
+
+void BasicIndustryInfo::count_stock_visit_num() {
+  StockFactory* factory = StockFactory::GetInstance();
+  std::map<std::string, HistDataPerDay>& industry_hist_data =
+      industry_hist_data_info_.stock_hist_data_;
+  std::map<std::string, HistDataPerDay>::iterator industry_iter =
+      industry_hist_data.begin();
+  LOG_MSG2("industry_hist_data.size()=%d", industry_hist_data.size());
+  for (; industry_iter != industry_hist_data.end(); industry_iter++) {
+    int industry_visit_num = 0;
+    std::string date = industry_iter->first;
+    std::map<std::string, double>::iterator iter =
+          stock_price_info_.begin();
+    for (; iter != stock_price_info_.end(); iter++) {
+      std::string stock_code = iter->first;
+      std::map<std::string, DataPerDay>& stock_data_per_day =
+          factory->GetDataPerDayByCode(stock_code);
+      int stock_visit = stock_data_per_day[date].visit_per_day_num_;
+      industry_visit_num += stock_visit;
+      if (stock_code == "000333") {
+        LOG_MSG2("stock_code=%s,stock_visit=%d,industry_visit_num=%d,date=%s",
+                 stock_code.c_str(),
+                 stock_visit,
+                 industry_visit_num,
+                 date.c_str());
+      }
+    }
+    industry_iter->second.visit_num_ = industry_visit_num;
+  }
 }
 
 void BasicIndustryInfo::update_hot_diagram_stock_json() {
@@ -323,27 +409,26 @@ void StockBasicInfo::VisitDataSerialization(
 }
 
 void StockBasicInfo::OfflineVisitSerialization(base_logic::DictionaryValue* dict) {
-  std::string stock_code = "";
-  if (!dict->GetString(L"v_stock", &stock_code))
-    return;
   std::string stock_time = "";
   std::string stock_date = "";
+  StockUserCache* cache =
+      StockFactory::GetInstance()->stock_usr_mgr_->stock_user_cache_;
   int stock_hour = 0;
   if (dict->GetString(L"v_hour", &stock_time)) {
-    if (stock_time.size() < 13)
-      return;
+    //if (stock_time.size() < 13)
+    //  return;
     stock_date = stock_time.substr(0, 10);
+    cache->update_max_offline_visit_data_Date(stock_date);
     stock_hour = atoi(stock_time.substr(11, 2).c_str());
-    if (0 == stock_hour) {
-      if (stock_time[11] != '0' || stock_time[12] != '0')
-        return;
-    }
   }
   else
     return;
   int stock_frequency = 0;
   if (!dict->GetInteger(L"i_frequency", &stock_frequency))
     stock_frequency = 0;
+  DataPerDay& data_per_day = data_per_day_[stock_date];
+  data_per_day.data_per_hour_[stock_hour].visit_per_hour_num_ = stock_frequency;
+  data_per_day.recount_visit_num(stock_date);
 }
 
 void StockBasicInfo::UpdateTodayKLine() {
@@ -389,6 +474,29 @@ bool StockBasicInfo::add_offline_visit_data(std::string date,
     return false;
   data_per_day_[date].data_per_hour_[hour].visit_per_hour_num_ = visit_num;
   return true;
+}
+
+int StockBasicInfo::current_visit_time() {
+  return current_visit_num_;
+}
+
+void StockBasicInfo::set_current_visit_time(int current_visit_time) {
+  current_visit_time_ = current_visit_time;
+}
+
+int StockBasicInfo::current_visit_num() {
+  return current_visit_num_;
+}
+
+void StockBasicInfo::set_current_visit_num(int current_visit_num) {
+  current_visit_num_ = current_visit_num;
+}
+
+void StockBasicInfo::update_current_visit_info(int visit_time, int visit_num) {
+  if (current_visit_time_ < visit_time) {
+    current_visit_time_ = visit_time;
+    current_visit_num_ = visit_num;
+  }
 }
 
 void StockHistDataInfo::add_hist_data(std::string date,
@@ -601,12 +709,22 @@ void StockTotalInfo::update_kline_json() {
 
 DataPerDay::DataPerDay() {
   for (int i = 0; i < 24; i++) {
-    data_per_hour_[i].visit_per_hour_num_ = 0;
+    DataPerHour temp;
+    data_per_hour_.push_back(temp);
   }
   visit_per_day_num_ = 0;
+  changepercent_ = 0;
+  close_ = 0;
 }
 
 DataPerDay::~DataPerDay() {
+}
+
+void DataPerDay::recount_visit_num(std::string& stock_date) {
+  visit_per_day_num_ = 0;
+  for (int i = 0; i < 24; i++) {
+    visit_per_day_num_ += data_per_hour_[i].visit_per_hour_num_;
+  }
 }
 
 DataPerHour::DataPerHour() {
@@ -614,6 +732,103 @@ DataPerHour::DataPerHour() {
 }
 
 DataPerHour::~DataPerHour() {
+}
+
+base_logic::DictionaryValue* StockUtil::get_backtest_of_hist_data(
+    std::map<std::string, HistDataPerDay>& hs300_hist_data,
+    std::string start_date,
+    std::string& end_date,
+    std::map<std::string, HistDataPerDay>& hist_data) {
+  bool r = true;
+  LOG_MSG2("start_date=%s,end_date=%s,hist_data.size=%d",
+           start_date.c_str(),
+           end_date.c_str(),
+           hist_data.size());
+  std::map<std::string, HistDataPerDay>::iterator start_date_iter = hist_data
+      .begin();
+  double pre_adjusted_yield = -100;
+  double hs300_pre_adjusted_yield = -100;
+  double hs300_init_price = -100;
+  double init_price = -100;
+  std::string current_day_str = StockUtil::Instance()->get_current_day_str();
+  for (; start_date_iter != hist_data.end(); start_date_iter++) {
+    std::string t_date = start_date_iter->first;
+    //TODO去掉当天数据，由于tushare更新不及时可能导致误差
+    if (t_date == current_day_str)
+      continue;
+    if (start_date <= t_date && t_date <= end_date) {
+      if (hs300_init_price < 1) {
+        //TODO更新起始日期
+        start_date = t_date;
+        hs300_init_price = hs300_hist_data[t_date].close_;
+        hs300_pre_adjusted_yield =
+            hs300_hist_data[t_date].adjusted_day_yield_ = 0.0;
+        pre_adjusted_yield = 1.0;
+        start_date_iter->second.adjusted_day_yield_ = 1.0;
+      } else {
+        double hs300_close = hs300_hist_data[t_date].close_;
+        //TODO去除脏数据
+        if (1 > hs300_close)
+          hs300_hist_data[t_date].adjusted_day_yield_ =
+              hs300_pre_adjusted_yield;
+        else {
+          hs300_hist_data[t_date].adjusted_day_yield_ =
+              (hs300_hist_data[t_date].close_ - hs300_init_price)
+                  / hs300_init_price;
+          hs300_pre_adjusted_yield = hs300_hist_data[t_date]
+              .adjusted_day_yield_;
+        }
+        start_date_iter->second.adjusted_day_yield_ = pre_adjusted_yield
+            + pre_adjusted_yield * start_date_iter->second.day_yield_;
+        pre_adjusted_yield = start_date_iter->second.adjusted_day_yield_;
+      }
+    }
+  }
+  stock_logic::net_reply::VIPNewsList* vip_list =
+      new stock_logic::net_reply::VIPNewsList();
+  std::map<std::string, HistDataPerDay>::reverse_iterator iter = hist_data
+      .rbegin();
+  double hs300_adjusted_day_yield = 0.0;
+  for (; iter != hist_data.rend(); iter++) {
+    if (current_day_str == iter->first)
+      continue;
+    if (end_date < iter->first)
+      continue;
+    if (start_date > iter->first) {
+      LOG_MSG2("break!start_date=%s,iter->first=%s", start_date.c_str(), iter->first.c_str());
+      break;
+    }
+    HistDataPerDay& data_per_day = iter->second;
+    if (!StockUtil::Instance()->check_double_valid(data_per_day.day_yield_))
+      continue;
+    stock_logic::net_reply::STOIndustryData* kline_data =
+        new stock_logic::net_reply::STOIndustryData();
+
+    std::string trade_day = iter->first;
+    std::map<std::string, HistDataPerDay>::iterator hs300_iter =
+        hs300_hist_data.find(trade_day);
+    if (hs300_hist_data.end() != hs300_iter) {
+      kline_data->setHS300DayYield(hs300_iter->second.close_);
+      hs300_adjusted_day_yield = hs300_iter->second.adjusted_day_yield_;
+      kline_data->setHS300AdjustedDayYield(hs300_adjusted_day_yield);
+    } else {
+      kline_data->setHS300DayYield(hs300_adjusted_day_yield);
+    }
+    kline_data->setDayYield(data_per_day.day_yield_);
+    kline_data->setAdjustedDayYield(data_per_day.adjusted_day_yield_ - 1);
+    kline_data->setClose(data_per_day.close_);
+    kline_data->setDate(iter->first);
+    kline_data->setVisit(data_per_day.visit_num_);
+    LOG_MSG2("date=%s", iter->first.c_str());
+    vip_list->set_vip_news(kline_data->get());
+    delete kline_data;
+    kline_data = NULL;
+  }
+  base_logic::DictionaryValue* kline_value = vip_list->packet();
+  delete vip_list;
+  vip_list = NULL;
+
+  return kline_value;
 }
 
 }

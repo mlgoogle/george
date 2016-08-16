@@ -121,6 +121,7 @@ class StockUserCache {
     min_visit_data_time_ = 1469944535;
     max_hist_data_time_ = "";
     stock_data_inited_ = false;
+    max_offline_visit_data_date_ = "2016-08-10";
   }
 
   std::string max_hist_data_time() {
@@ -197,6 +198,12 @@ class StockUserCache {
     industry_info_.clear_industry_yield_info(end_time);
   }
 
+  std::string& max_offline_visit_data_date();
+
+  void set_max_offline_visit_data_date(std::string date);
+
+  void update_max_offline_visit_data_Date(std::string date);
+
   STOCKINFO_MAP stock_total_info_;
   INDUSTRYINFO_MAP industry_info_;
   MARKET_LIMIT market_limit_info_;
@@ -208,6 +215,7 @@ class StockUserCache {
   CachedJsonInfo cached_json_info_;
   int max_visit_data_time_;
   int min_visit_data_time_;
+  std::string max_offline_visit_data_date_;
 };
 
 class StockUserManager {
@@ -306,6 +314,8 @@ class StockUserManager {
                           std::string& name);
 
   std::string GetStocksHotDiagram(std::string type, std::string industry_name);
+
+  void UpdateOfflineVisitData();
 
   struct threadrw_t* lock_;
   StockUserCache* stock_user_cache_;
