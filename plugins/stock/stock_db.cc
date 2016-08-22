@@ -36,10 +36,11 @@ bool StockDB::FectchStockBasicInfo(
   if (!r)
     return false;
   dict->GetList(L"resultvalue", &listvalue);
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     stock_logic::StockTotalInfo stock_info;
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     stock_info.basic_info_.ValueSerialization(dict_result_value);
@@ -71,10 +72,11 @@ bool StockDB::FectchStockHistData(
     return false;
   dict->GetList(L"resultvalue", &listvalue);
   bool test = true;
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     stock_logic::StockTotalInfo& stock_info = map[stock_code];
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     stock_info.hist_data_info_.ValueSerialization(dict_result_value);
@@ -104,10 +106,10 @@ bool StockDB::FectchStockDayKLineData(
     return false;
   dict->GetList(L"resultvalue", &listvalue);
   bool has_value = false;
-  while (listvalue->GetSize()) {
-    //stock_logic::StockTotalInfo& stock_info = map[stock_code];
+  int count = listvalue->GetSize();
+  while (count > 0) {
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     std::string code = "";
@@ -132,17 +134,18 @@ bool StockDB::FecthOffLineVisitData(
         new base_logic::DictionaryValue());
     base_logic::ListValue* listvalue;
     dict->SetString(L"sql", sql);
-    //LOG_MSG2("sql=%s",sql.c_str());
     r = mysql_engine_->ReadData(0, (base_logic::Value*) (dict.get()),
                                 CallFectchOfflineVisitData);
+    LOG_MSG2("r=%d", (int)r);
     if (!r)
       return false;
     dict->GetList(L"resultvalue", &listvalue);
     bool has_value = false;
-    while (listvalue->GetSize()) {
-      //stock_logic::StockTotalInfo& stock_info = map[stock_code];
+    LOG_MSG2("listvalue->GetSize()=%d", listvalue->GetSize());
+    int count = listvalue->GetSize();
+    while (count > 0) {
       base_logic::Value* result_value;
-      listvalue->Remove(0, &result_value);
+      listvalue->Remove(--count, &result_value);
       base_logic::DictionaryValue* dict_result_value =
           (base_logic::DictionaryValue*) (result_value);
       std::string code = "";
@@ -153,6 +156,7 @@ bool StockDB::FecthOffLineVisitData(
       dict_result_value = NULL;
       has_value = true;
     }
+    LOG_MSG("FecthOffLineVisitData finished");
     return has_value;
 }
 
@@ -186,10 +190,11 @@ bool StockDB::FectchStockVisitData(
   int trade_time = 0;
   LOG_MSG2("size=%d", listvalue->GetSize());
   StockUserManager* stock_usr_mgr = StockFactory::GetInstance()->stock_usr_mgr_;
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     //stock_logic::StockTotalInfo& stock_info = map[tock_code];
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     std::string code = "";
@@ -223,9 +228,10 @@ bool StockDB::FectchIndustryInfo(stock_logic::IndustryInfo& map) {
   if (!r)
     return false;
   dict->GetList(L"resultvalue", &listvalue);
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     map.ValueSerialization(dict_result_value);
@@ -248,9 +254,10 @@ bool StockDB::FetchYieldData(
   if (!r)
     return false;
   dict->GetList(L"resultvalue", &listvalue);
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     std::string code;
@@ -273,9 +280,10 @@ bool StockDB::FectchEventsInfo(stock_logic::IndustryInfo& map) {
   if (!r)
     return false;
   dict->GetList(L"resultvalue", &listvalue);
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     map.EventsValueSerialization(dict_result_value);
@@ -299,9 +307,10 @@ bool StockDB::LoadCustomEvent(stock_logic::IndustryInfo& map) {
   if (!r)
     return false;
   dict->GetList(L"resultvalue", &listvalue);
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     map.CustomEventsValueSerialization(dict_result_value);
@@ -327,9 +336,10 @@ bool StockDB::UpdateRealtimeStockInfo(
   if (!r)
     return false;
   dict->GetList(L"resultvalue", &listvalue);
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     std::string code;
@@ -360,9 +370,10 @@ bool StockDB::UpdateALLRealtimeStockInfo(
   if (!r)
     return false;
   dict->GetList(L"resultvalue", &listvalue);
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     std::string code;
@@ -391,9 +402,10 @@ bool StockDB::UpdateWeekMonthData(
   if (!r)
     return false;
   dict->GetList(L"resultvalue", &listvalue);
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     std::string code;
@@ -493,9 +505,10 @@ bool StockDB::GetLimitData(
   if (!r)
     return false;
   dict->GetList(L"resultvalue", &listvalue);
-  while (listvalue->GetSize()) {
+  int count = listvalue->GetSize();
+  while (count > 0) {
     base_logic::Value* result_value;
-    listvalue->Remove(0, &result_value);
+    listvalue->Remove(--count, &result_value);
     base_logic::DictionaryValue* dict_result_value =
         (base_logic::DictionaryValue*) (result_value);
     int trade_time;
@@ -713,7 +726,7 @@ void StockDB::CallFectchOfflineVisitData(void* param, base_logic::Value* value) 
       std::string v_hour = (const char*)rows[1];
       int count = (int) atoi((const char*)rows[2]);
       if (stock_code == "601288") {
-        LOG_MSG2("stock_code=%s,v_hour=%d,count=%d",
+        LOG_MSG2("stock_code=%s,v_hour=%s,count=%d",
                  stock_code.c_str(),
                  v_hour.c_str(),
                  count);

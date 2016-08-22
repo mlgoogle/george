@@ -38,6 +38,10 @@ class StockDB {
         int max_time,
         std::map<std::string, stock_logic::StockTotalInfo>& map);
 
+  bool FecthOffLineVisitData(
+      std::string min_time,
+      std::map<std::string, stock_logic::StockTotalInfo>& map);
+
   bool FectchIndustryInfo(stock_logic::IndustryInfo& map);
 
   bool FectchEventsInfo(stock_logic::IndustryInfo& map);
@@ -74,6 +78,8 @@ class StockDB {
   static void CallFectchStockHistData(void* param, base_logic::Value* value);
 
   static void CallFectchStockVisitData(void* param, base_logic::Value* value);
+
+  static void CallFectchOfflineVisitData(void* param, base_logic::Value* value);
 
   static void CallFectchIndustryInfo(void* param, base_logic::Value* value);
 
