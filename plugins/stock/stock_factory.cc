@@ -11,7 +11,6 @@
 #include "ObserverTest.h"
 #include "OffLineVisitStockObserver.h"
 #include "CustomWeightObserver.h"
-#include "IncreaseStockVisitObserver.h"
 
 namespace stock_logic {
 
@@ -72,11 +71,11 @@ void StockFactory::InitParam(config::FileConfig* config) {
   stock_usr_mgr_->UpdateIndustryPriceInfo(current_trade_time);
   stock_usr_mgr_->UpdateIndustryJson();
   OnUpdateEventsData();
+
   this->OnUpdateOfflineVisitData();
   //this->Attach(new ObserverTest());
   this->Attach(new OffLineVisitStockObserver(this));
   this->Attach(new CustomWeightObserver(this));
-  this->Attach(new IncreaseStockVisitObserver(this));
 }
 void StockFactory::Dest() {
   stock_logic::StockUserEngine::FreeVIPUserEngine();

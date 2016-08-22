@@ -527,7 +527,6 @@ class StockBasicInfo {
     qfq_high_ = 0.0;
     qfq_low_ = 0.0;
     qfq_open_ = 0.0;
-
   }
 
   std::string code() {

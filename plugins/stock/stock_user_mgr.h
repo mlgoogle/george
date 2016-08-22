@@ -121,7 +121,7 @@ class StockUserCache {
     min_visit_data_time_ = 1469944535;
     max_hist_data_time_ = "";
     stock_data_inited_ = false;
-    max_offline_visit_data_date_ = "2016-08-10";
+    max_offline_visit_data_date_ = "2016-05-10";
   }
 
   std::string max_hist_data_time() {
@@ -316,6 +316,19 @@ class StockUserManager {
   std::string GetStocksHotDiagram(std::string type, std::string industry_name);
 
   void UpdateOfflineVisitData();
+
+  bool load_stock_offline_visit_num(std::string& stock_code, std::string &date) {
+      StockBasicInfo& stock_base_info =
+              stock_user_cache_->get_stock_basic_info(stock_code);
+      if( !stock_base_info.is_load_offline_visit() ){
+          bool r = false;
+          base_logic::WLockGd lk(lock_);
+          STOCKINFO_MAP& stock_total_info = stock_user_cache_->stock_total_info_;
+          r = stock_db_->FecthOfflineVisitDataByStockCode(stock_code, date, stock_total_info);
+          return r;
+      }
+      return true;
+  }
 
   struct threadrw_t* lock_;
   StockUserCache* stock_user_cache_;

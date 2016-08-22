@@ -95,6 +95,8 @@ class StockFactory: public Subject {
 
   void OnUpdateOfflineVisitData();
 
+  bool CheckStockValid(std::string& stock_code);
+
   StockUserCache* GetCache();
 
   STOCKINFO_MAP& GetStockInfoMap();
@@ -102,6 +104,10 @@ class StockFactory: public Subject {
   StockTotalInfo& GetTotalInfoByCode(std::string& stock_code);
 
   StockBasicInfo& GetBasicInfoByCode(std::string& stock_code);
+
+  std::map<std::string, HistDataPerDay>& GetHistDataByCode(std::string stock_code);
+
+  std::map<std::string, DataPerDay>& GetDataPerDayByCode(std::string stock_code);
 
   StockUserManager* stock_usr_mgr_;
   stock_logic::StockDB* stock_db_;
