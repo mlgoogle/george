@@ -11,75 +11,106 @@
 #include "stock_db.h"
 #include "stock_proto_buf.h"
 #include "stock_user_mgr.h"
-#include "stock_user_mgr.h"
+#include "Subject.h"
+#include "Observer.h"
 
 namespace stock_logic {
 
 class StockDB;
 
-class StockFactory {
+class StockFactory: public Subject {
  public:
-	StockFactory();
-	virtual ~StockFactory();
+  StockFactory();
+  virtual ~StockFactory();
  public:
-	void Init();
-	void Dest();
+  void Init();
+  void Dest();
  private:
-	static StockFactory*  instance_;
+  static StockFactory* instance_;
  public:
-	static StockFactory* GetInstance();
+  static StockFactory* GetInstance();
 
-	static void FreeInstance();
+  static void FreeInstance();
 
-	void InitParam(config::FileConfig* config);
+  void InitParam(config::FileConfig* config);
  public:
 
-	void OnVIPGetLimitData(const int socket,
-			base_logic::DictionaryValue* dict, george_logic::PacketHead* packet);
+  void OnVIPGetLimitData(const int socket, base_logic::DictionaryValue* dict,
+                         george_logic::PacketHead* packet);
 
-	void OnVIPGetHotDiagramData(const int socket,
-			base_logic::DictionaryValue* dict, george_logic::PacketHead* packet);
+  void OnVIPGetHotDiagramData(const int socket,
+                              base_logic::DictionaryValue* dict,
+                              george_logic::PacketHead* packet);
 
-	void OnUpdateRealtimeStockInfo();
+  void OnUpdateRealtimeStockInfo();
 
-	void OnUpdateStockHistData();
+  void OnUpdateStockHistData();
 
-	void OnUpdateStockKLineData();
+  void OnUpdateStockKLineData();
 
-	void OnUpdateEventsData();
+  void OnUpdateEventsData();
 
-	void OnUpdateYieldDataFromDB();
+  void OnUpdateYieldDataFromDB();
 
-	void OnUpdateYieldDataToDB();
+  void OnUpdateYieldDataToDB();
 
-	void OnDeleteOldYieldData();
+  void OnDeleteOldYieldData();
 
-	void OnLoadCustom_Event();
+  void OnLoadCustom_Event();
 
-	void OnUpdateLimitData();
+  void OnUpdateLimitData();
 
-	void ProcessHotDiagramEventData(int socket,
-			george_logic::PacketHead* packet, base_logic::DictionaryValue* dict);
+  void ProcessHotDiagramEventData(int socket, george_logic::PacketHead* packet,
+                                  base_logic::DictionaryValue* dict);
 
-	void ProcessHotDiagramIndustryData(int socket, std::string type, std::string format,
-			george_logic::PacketHead* packet, base_logic::DictionaryValue* dict);
+  void ProcessHotDiagramIndustryData(int socket, std::string type,
+                                     std::string format,
+                                     george_logic::PacketHead* packet,
+                                     base_logic::DictionaryValue* dict);
 
-	void ProcessHotDiagramByIndustry(int socket, std::string type, std::string industry_name);
+  void ProcessHotDiagramByIndustry(int socket, std::string type,
+                                   std::string industry_name);
 
-	void ProcessStockKLine(int socket, std::string stock_code, std::string format,
-			george_logic::PacketHead* packet, base_logic::DictionaryValue* dict, std::string& cycle_type, std::string& start_date);
+  void ProcessStockKLine(int socket, std::string stock_code, std::string format,
+                         george_logic::PacketHead* packet,
+                         base_logic::DictionaryValue* dict,
+                         std::string& cycle_type,
+                         std::string& start_date,
+                         std::string& end_date,
+                         std::string& name);
 
-	void ProcessEventYieldByName(int socket, std::string& start_date, std::string& industry_name,
-			george_logic::PacketHead* packet, std::string& cycle_type);
+  void ProcessEventYieldByName(int socket,
+                               std::string& start_date,
+                               std::string& end_date,
+                               std::string& industry_name,
+                               george_logic::PacketHead* packet,
+                               std::string& cycle_type,
+                               std::string& name);
 
-	void TimeWriteLimitData(int current_trade_time);
+  void TimeWriteLimitData(int current_trade_time);
 
-	void TimeDeleteOldLimitData();
+  void TimeDeleteOldLimitData();
 
-	void TimeUpdateWeekMonthData();
+  void TimeUpdateWeekMonthData();
 
-	StockUserManager*                                     stock_usr_mgr_;
-	stock_logic::StockDB*                                 stock_db_;
+  void OnUpdateOfflineVisitData();
+
+  bool CheckStockValid(std::string& stock_code);
+
+  StockUserCache* GetCache();
+
+  STOCKINFO_MAP& GetStockInfoMap();
+
+  StockTotalInfo& GetTotalInfoByCode(std::string& stock_code);
+
+  StockBasicInfo& GetBasicInfoByCode(std::string& stock_code);
+
+  std::map<std::string, HistDataPerDay>& GetHistDataByCode(std::string stock_code);
+
+  std::map<std::string, DataPerDay>& GetDataPerDayByCode(std::string stock_code);
+
+  StockUserManager* stock_usr_mgr_;
+  stock_logic::StockDB* stock_db_;
 };
 }
 #endif
