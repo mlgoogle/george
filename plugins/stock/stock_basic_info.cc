@@ -185,8 +185,8 @@ std::string IndustryInfo::set_industry_json(std::string type, std::list<BasicInd
 	//StockUtil::Instance()->jsonp_serialize(dict, industry_hot_diagram_jsonp_[type]);
 	delete vip_list;
 	vip_list = NULL;
-	delete dict;
-	dict = NULL;
+	//delete dict;
+	//dict = NULL;
 	return stocks_hot_diagram_json;
 }
 
@@ -247,24 +247,6 @@ void StockBasicInfo::RealtimeValueSerialization(base_logic::DictionaryValue* dic
 				code_.c_str(),change_percent_,current_trade_,
 				current_open_,current_high_,current_low_,current_settlement_,current_trade_time_,volume_);
 	}
-}
-
-void StockBasicInfo::AllRealtimeValueSerialization(base_logic::DictionaryValue* dict){
-  int trade_time = 0;
-  double change_percent, trade, open, high, low, settlement, volume = 0;
-  dict->GetInteger(L"time", &trade_time);
-  trade_time = (trade_time/60) * 60;
-  dict->GetReal(L"changepercent", &change_percent);
-  dict->GetReal(L"trade", &trade);
-  dict->GetReal(L"open", &open);
-  dict->GetReal(L"high", &high);
-  dict->GetReal(L"low", &low);
-  dict->GetReal(L"settlement", &settlement);
-  dict->GetReal(L"volume", &volume);
-
-  yield_infos_[trade_time].set_all_data(trade_time, change_percent, trade,
-                                        open, high, low,
-                                        settlement, volume, change_percent);
 }
 
 void StockBasicInfo::YieldValueSerialization(base_logic::DictionaryValue* dict) {
@@ -434,21 +416,6 @@ void IndustryInfo::EventsValueSerialization(base_logic::DictionaryValue* dict) {
 	industry_info_map_[event_name].set_type(1);
 }
 
-void IndustryInfo::CustomEventsValueSerialization(base_logic::DictionaryValue* dict) {
-  std::string stocks, custom_event;
-  dict->GetString(L"event_name", &custom_event);
-  custom_event += "custom";
-  dict->GetString(L"stocks", &stocks);
-  std::string split_chars = ",";
-  std::vector<std::string> stock_vec;
-  StockUtil::Instance()->stock_split(stocks, split_chars, stock_vec);
-  for (int i = 0; i < stock_vec.size(); i++) {
-    industry_info_map_[custom_event].add_price_info(stock_vec[i],0);
-  }
-  industry_info_map_[custom_event].set_industry_name(custom_event);
-  industry_info_map_[custom_event].set_type(4);
-}
-
 void StockTotalInfo::update_kline_json() {
 	KLine_json_ = "";
 	setKLineJsonp("");
@@ -487,8 +454,8 @@ void StockTotalInfo::update_kline_json() {
 	StockUtil::Instance()->jsonp_serialize(kline_value, KLine_jsonp_);
 	delete kline_value;
 	kline_value = NULL;
-	delete vip_list;
-	vip_list = NULL;
+	//delete vip_list;
+	//vip_list = NULL;
 	if ("000001" == basic_info_.code()) {
 		LOG_MSG2("code=%s,KLine_json=%s,KLine_jsonp=%s", basic_info_.code().c_str(), KLine_json_.c_str(), KLine_jsonp_.c_str());
 	}

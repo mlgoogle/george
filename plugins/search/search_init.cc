@@ -45,9 +45,9 @@ static handler_t OnSearchMessage(struct server *srv, \
                                                                       fd, \
                                                                     data, \
                                                                      len);
-  if (r == true)
-    return HANDLER_FINISHED;
-  else
+  //if (r == true)
+    //return HANDLER_FINISHED;
+  //else
     return HANDLER_GO_ON;
 }
 

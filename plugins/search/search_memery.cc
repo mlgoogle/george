@@ -10,9 +10,9 @@
 #include <regex.h>
 #include <algorithm>
 
-#include "pub/tools/tools.h"
+#include "tools/tools.h"
 
-#include "base/logic/logic_comm.h"
+#include "logic/logic_comm.h"
 
 //base_logic::RLockGd lk(lock_);
 //base_logic::WLockGd lk(lock_);
@@ -55,6 +55,7 @@ void SearchMemery::QueryUserSubscribe(int64 uid, send::SearchList* list) {
   std::vector<std::string> code_vec = tools::Split(sub_str, ",");
   std::vector<std::string>::iterator it = code_vec.begin();
   for (; it != code_vec.end(); ++it) {
+    LOG_DEBUG("sub_str1111");
     send::SendStockPrice* send = new send::SendStockPrice();
     StockMap::iterator sm_it = stock_map_.find(*it);
     if (sm_it != stock_map_.end()) {
@@ -73,7 +74,6 @@ void SearchMemery::QueryUserSubscribe(int64 uid, send::SearchList* list) {
     }
     list->set_stock(send->get());
   }
-
 }
 
 void SearchMemery::QuerySearchStock(int64 uid, std::string key_name,

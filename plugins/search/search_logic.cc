@@ -6,9 +6,9 @@
 #include <assert.h>
 
 #include "search/search_packet.h"
-#include "pub/net/comm_head.h"
+#include "net/comm_head.h"
 
-#include "base/logic/logic_comm.h"
+#include "logic/logic_comm.h"
 #include "core/common.h"
 
 #define DEFAULT_CONFIG_PATH     "./plugins/search/search_config.xml"

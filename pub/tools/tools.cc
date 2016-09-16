@@ -12,13 +12,6 @@
 #include <vector>
 #include "basic/basictypes.h"
 #include "tools/tools.h"
-
-#include "pub/arithmetic/tea/tea.h"
-#include "net/typedef.h"
-#include "base/logic/logic_comm.h"
-#include "db/db_comm.h"
-#include "logic/logic_unit.h"
-
 #include "tea/tea.h"
 //#include "net/typedef.h"
 //#include "base/logic/logic_comm.h"
@@ -336,6 +329,8 @@ std::vector<std::string> Split(std::string str, std::string pattern) {
   std::vector<std::string> result;
   str += pattern;
   int size = str.size();
+  if (size <= 1)
+    return result;
   for (int i = 0; i < size; i++) {
     pos = str.find(pattern, i);
     if (pos < size) {

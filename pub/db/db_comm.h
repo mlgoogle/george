@@ -3,14 +3,14 @@
 #ifndef _HOME_RUNNER_JINDOWIN_PUB_DB_DB_COMM_H_
 #define _HOME_RUNNER_JINDOWIN_PUB_DB_DB_COMM_H_
 
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include <list>
 #include <string>
 
 #include "logic/logic_basic_info.h"
-#include "public/config/config.h"
-#include "base/db/base_db_mysql_auto.h"
-#include "public/storage/storage.h"
+#include "config/config.h"
+#include "db/base_db_mysql_auto.h"
+#include "storage/storage.h"
 #include "net/typedef.h"
 
 namespace db {

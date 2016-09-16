@@ -168,15 +168,11 @@ class StockUserManager {
  public:
 	void UpdateRealtimeStockInfo();
 
-	void UpdateAllRealtimeStockInfo();
-
 	void UpdateStockHistData();
 
 	void UpdateIndustryHistData();
 
 	bool UpdateStockDayKLineData();
-
-	void UpdateAllIndustryYieldInfo();
 
 	void UpdateIndustryPriceInfo(int& current_trade_time);
 
@@ -193,8 +189,6 @@ class StockUserManager {
 	void UpdateYieldDataFromDB();
 
 	void DeleteOldYieldData();
-
-	void LoadCustomEvent();
 
 	void UpdateYieldDataToDB();
 

@@ -36,8 +36,6 @@ class StockDB {
 
 	bool UpdateRealtimeStockInfo(std::map<std::string,stock_logic::StockTotalInfo>& stock_total_info);
 
-	bool UpdateALLRealtimeStockInfo(std::map<std::string,stock_logic::StockTotalInfo>& stock_total_info);
-
 	bool UpdateWeekMonthData(std::map<std::string,stock_logic::StockTotalInfo>& stock_total_info);
 
 	bool GetLimitData(std::map< int, std::vector<int> >& market_limit_info);
@@ -45,8 +43,6 @@ class StockDB {
 	bool WriteLimitData(int time, int surged_count, int decline_count);
 
 	bool DeleteOldYieldInfo(int end_time);
-
-	bool LoadCustomEvent(stock_logic::IndustryInfo& map);
 
 	bool UpdateYieldInfo(std::string code, int trade_time, double yield);
 
@@ -65,9 +61,6 @@ class StockDB {
 
 	static void CallFectchEventsInfo(void* param,
 			            base_logic::Value* value);
-
-	static void CallLoadCustomEventsInfo(void* param,
-	                base_logic::Value* value);
 
 	static void CallFectchRealtimeStockInfo(void* param,
 			            base_logic::Value* value);

@@ -2,12 +2,12 @@
 // opera_code.h
 // Created on: 2016年5月30日.
 // Author: Paco.
-#ifndef PLUGINS_NEWS_CHECK_OPERATOR_CODE_H_
-#define PLUGINS_NEWS_CHECK_OPERATOR_CODE_H_
+#ifndef PLUGINS_SEARCH_OPERATOR_CODE_H_
+#define PLUGINS_SEARCH_OPERATOR_CODE_H_
 
-#include "pub/net/comm_head.h"
+#include "net/comm_head.h"
 
-namespace news {
+namespace search {
 
 #define SEARCH_REQ   george_logic::SEARCH_TYPE * 1000 + 1
 #define SEARCH_RLY   george_logic::SEARCH_TYPE * 1000 + 2
@@ -20,7 +20,7 @@ namespace news {
 
 #define ALTER_SUBSCRIBE_REQ george_logic::SEARCH_TYPE * 1000 + 7
 #define ALTER_SUBSCRIBE_RLY george_logic::SEARCH_TYPE * 1000 + 8
-}  // namespace news
+}  // namespace search
 
 
 

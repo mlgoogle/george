@@ -113,7 +113,7 @@ bool VIPLogic::OnBroadcastClose(struct server *srv, const int socket) {
 
 bool VIPLogic::OnIniTimer(struct server *srv) {
 	if (srv->add_time_task != NULL) {
-		srv->add_time_task(srv, "vip", TIME_UPDATE_ACRTICLE, 10, -1);
+          srv->add_time_task(srv, "vip", TIME_UPDATE_ACRTICLE, 100, -1);
 	}
     return true;
 }
