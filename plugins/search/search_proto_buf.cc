@@ -4,8 +4,8 @@
 // Author: Paco.
 
 #include "search/search_proto_buf.h"
-#include "public/basic/basic_util.h"
-#include "base/logic/logic_comm.h"
+#include "basic/basic_util.h"
+#include "logic/logic_comm.h"
 
 namespace search {
 

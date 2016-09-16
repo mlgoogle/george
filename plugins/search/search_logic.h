@@ -3,7 +3,6 @@
 #ifndef _HOME_RUNNER_JINDOWIN_PLUGINS_SEARCH_SEARCH_LOGIC_H_
 #define _HOME_RUNNER_JINDOWIN_PLUGINS_SEARCH_SEARCH_LOGIC_H_
 
-#include "net/http_data.h"
 #include "net/operator_code.h"
 #include "net/error_comm.h"
 #include "core/common.h"

@@ -11,7 +11,7 @@
 #include "search/search_mysql.h"
 #include "search/search_proto_buf.h"
 #include "search/search_base.h"
-#include "base/thread/base_thread_lock.h"
+#include "thread/base_thread_lock.h"
 
 
 namespace search {

@@ -323,6 +323,9 @@ void VIPFactory::OnNewsDigest(const int socket,
 		news_digest->set_digest(article.digest());
 		news_digest->set_summary(article.full_text());
 		news_digest->set_url(article.url());
+		news_digest->set_title(article.title());
+		news_digest->set_source(article.source_name());
+		news_digest->set_article_time(article.article_unix_time());
 	}
 
 	SendPacket(socket,news_digest,packet->attach_field(),

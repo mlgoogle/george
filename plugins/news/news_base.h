@@ -1,15 +1,20 @@
-//  Copyright (c) 2015-2015 The news_base.h Authors. All rights reserved.
-//  Created on: 2016年1月11日 Author: paco
+// Copyright (c) 2016 The george Authors. All rights reserved.
+// news_base.h
+// Created on: 2016年5月19日.
+// Author: Paco.
+#ifndef PLUGINS_NEWS_CHECK_NEWS_BASE_H_
+#define PLUGINS_NEWS_CHECK_NEWS_BASE_H_
 
-#ifndef _HOME_TIANYIHENG_TEST_JINDOWIN_RUNNER_JINDOWIN_PLUGINS_NEWS_NEWS_BASE_H_
-#define _HOME_TIANYIHENG_TEST_JINDOWIN_RUNNER_JINDOWIN_PLUGINS_NEWS_NEWS_BASE_H_
-#include <string>
+#include <string.h>
 #include <map>
-typedef std::map<std::string, std::string> StringMap;
-const int QUERY_STOCK_HY = 20000;
-const int QUERY_STOCK_GN = 20001;
-const int QUERY_STOCK_BK = 20002;
+#include <deque>
+
+#include "news/news.h"
+
+typedef std::map<int64, news::News> NewsMap;
+typedef std::map<int64, news::SimpleNews> SimpleMap;
+typedef std::map<std::string, std::map<int64, int64> > RfNewsMap;
+typedef std::map<std::string, std::deque<news::NewsCount*> > CountMap;
 
 
-
-#endif  // _HOME_TIANYIHENG_TEST_JINDOWIN_RUNNER_JINDOWIN_PLUGINS_NEWS_NEWS_BASE_H_
+#endif  // PLUGINS_NEWS_CHECK_NEWS_BASE_H_

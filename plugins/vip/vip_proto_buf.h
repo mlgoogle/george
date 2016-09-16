@@ -592,6 +592,7 @@ public:
 		if(live_list_ != NULL) dict->Set(L"live", live_list_);
 		body_value_->SetWithoutPathExpansion(L"info",dict);
 		body_value_->SetWithoutPathExpansion(L"vip",vip_info_);
+		body_value_->SetWithoutPathExpansion(L"is_subcibe",0);
 		return body_value_;
 	}
 
@@ -600,6 +601,7 @@ private:
 	base_logic::ListValue*         article_list_;
 	base_logic::ListValue*         live_list_;
 	base_logic::DictionaryValue*   vip_info_;
+	base_logic::FundamentalValue*  is_subcibe_;
 };
 
 
@@ -608,7 +610,10 @@ public:
 	VIPNewsDigest()
 	:digest_(NULL)
 	,summary_(NULL)
-	,url_(NULL){}
+	,url_(NULL)
+	,title_(NULL)
+	,source_(NULL)
+	,article_time_(NULL){}
 
 	~VIPNewsDigest(){
 		if (body_value_) {delete body_value_; body_value_ = NULL;}
@@ -626,6 +631,18 @@ public:
 		url_ = new base_logic::StringValue(url);
 	}
 
+	void set_title(const std::string& title){
+		title_ = new base_logic::StringValue(title);
+	}
+
+	void set_source(const std::string& source) {
+		source_ = new base_logic::StringValue(source);
+	}
+
+	void set_article_time(const int64 article_time){
+		article_time_ = new base_logic::FundamentalValue(article_time);
+	}
+
 	base_logic::DictionaryValue* body() {
 		body_value_ = new base_logic::DictionaryValue();
 		if(digest_ != NULL )
@@ -634,12 +651,21 @@ public:
 			body_value_->SetWithoutPathExpansion(L"summary",summary_);
 		if(url_ != NULL)
 			body_value_->SetWithoutPathExpansion(L"url",url_);
+		if(title_ != NULL)
+			body_value_->SetWithoutPathExpansion(L"title",title_);
+		if(article_time_ != NULL)
+			body_value_->SetWithoutPathExpansion(L"article_time",article_time_);
+		if(source_ != NULL)
+			body_value_->SetWithoutPathExpansion(L"source",source_);
 		return body_value_;
 	}
 private:
+	base_logic::StringValue*    title_;
 	base_logic::StringValue*    digest_;
 	base_logic::StringValue*    summary_;
 	base_logic::StringValue*    url_;
+	base_logic::StringValue*    source_;
+	base_logic::FundamentalValue*  article_time_;
 };
 
 

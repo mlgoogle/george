@@ -14,8 +14,6 @@
 #include <set>
 #include <string>
 #include "stock_proto_buf.h"
-#include "StockFilter.h"
-#include "WeightAnalyzer.h"
 
 namespace stock_logic {
 
@@ -24,43 +22,11 @@ namespace stock_logic {
 typedef struct YieldInfoUnit {
 	YieldInfoUnit() {
         trade_time_ = 0;
-        change_percent_ = 0;
         trade_ = 0.0;
-        open_ = 0;
-        high_ = 0;
-        low_ = 0;
-        settlement_ = 0;
-        volume_ = 0;
         yield_ = 0.0;
 	}
-
-	void set_yield_data(int trade_time, double yield) {
-	  trade_time_ = trade_time;
-	  yield_ = yield;
-	}
-
-	void set_all_data(int trade_time, double change_percent, double trade,
-	                  double open, double high, double low,
-	                  double settlement, double volume, double yield) {
-	  trade_time_ = trade_time;
-	  change_percent_ = change_percent;
-	  trade_ = trade;
-	  open_ = open;
-	  high_ = high;
-	  low_ = low;
-	  settlement_ = settlement;
-	  volume_ = volume;
-	  yield_ = yield;
-	}
-
 	int trade_time_;
-	double change_percent_;
 	double trade_;
-	double open_;
-	double high_;
-	double low_;
-	double settlement_;
-	double volume_;
 	double yield_;
 }YieldInfoUnit;
 
@@ -620,8 +586,6 @@ public:
 
 	void RealtimeValueSerialization(base_logic::DictionaryValue* dict);
 
-	void AllRealtimeValueSerialization(base_logic::DictionaryValue* dict);
-
 	void MonthWeekDataValueSerialization(base_logic::DictionaryValue* dict);
 
 	void YieldValueSerialization(base_logic::DictionaryValue* dict);
@@ -810,8 +774,6 @@ public:
 		fall_stock_num_ = 0;
 		rise_stock_num_ = 0;
 		type_ = 0;
-		weight_analyzer_ = NULL;
-		stock_filter_ = NULL;
 	}
 
 	std::string industry_name() {return industry_name_;}
@@ -952,19 +914,15 @@ public:
 	double industry_month_changepoint_;
 	double industry_market_value_;
 	int type_;
-  std::map<std::string, double> stock_price_info_;
-  int rise_stock_num_;
-  int fall_stock_num_;
-  std::list<HotDiagramPerStock> hot_diagram_stocks_;
-  std::string ten_hot_diagram_stock_json_;
-  std::string week_ten_hot_diagram_stock_json_;
-  std::string month_ten_hot_diagram_stock_json_;
-  std::map<int, YieldInfoUnit> industry_yield_infos_;
-  StockHistDataInfo industry_hist_data_info_;
-  std::string weight_name_;
-  std::string weight_;
-  WeightAnalyzer* weight_analyzer_;
-  StockFilter* stock_filter_;
+    std::map<std::string, double> stock_price_info_;
+    int rise_stock_num_;
+    int fall_stock_num_;
+    std::list<HotDiagramPerStock> hot_diagram_stocks_;
+    std::string ten_hot_diagram_stock_json_;
+    std::string week_ten_hot_diagram_stock_json_;
+    std::string month_ten_hot_diagram_stock_json_;
+    std::map<int, YieldInfoUnit> industry_yield_infos_;
+    StockHistDataInfo industry_hist_data_info_;
 };
 
 class HotDiagramPerIndustry {
@@ -1021,8 +979,6 @@ public:
 	void ValueSerialization(base_logic::DictionaryValue* dict);
 
 	void EventsValueSerialization(base_logic::DictionaryValue* dict);
-
-	void CustomEventsValueSerialization(base_logic::DictionaryValue* dict);
 
 	void update_hottest_industry() {
 		hot_diagram_industry_.clear();

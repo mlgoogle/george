@@ -9,8 +9,8 @@
 #include <map>
 #include <sstream>
 
-#include "pub/net/error_comm.h"
-#include "base/logic/logic_comm.h"
+#include "net/error_comm.h"
+#include "logic/logic_comm.h"
 
 namespace search {
 
@@ -33,14 +33,21 @@ int SearchMysql::QueryAllStock(StockMap* map) {
     std::stringstream os;
     os << "call proc_QueryAllStocks();";
     scoped_ptr<DicValue> dict(new DicValue());
-    base_logic::ListValue* listvalue;
+    base_logic::ListValue* listvalue = NULL;
     LOG_MSG(os.str().c_str());
     dict->SetString(L"sql", os.str());
     r = mysql_engine_->ReadData(0, (base_logic::Value*)(dict.get()),
                                 CallQueryAllStock);
-    if (!r)
+    if (!r) {
+      LOG_ERROR("QueryAllStock sql error");
       err = SQL_EXEC_ERROR;
-    dict->GetList(L"resultvalue", &listvalue);
+      break;
+    }
+    r = dict->GetList(L"resultvalue", &listvalue);
+    if (!r || listvalue == NULL) {
+      LOG_ERROR("QueryAllStock listvalue null");
+      break;
+    }
     while (listvalue->GetSize()) {
       search::Stock stock;
       base_logic::Value* result_value;
@@ -63,7 +70,7 @@ int SearchMysql::QuerySubScribe(int64 user_id, std::string* out) {
     std::stringstream os;
     os << "call proc_QuerySubScribe(" << user_id << ");";
     scoped_ptr<DicValue> dict(new DicValue());
-    base_logic::ListValue* listvalue;
+    base_logic::ListValue* listvalue = NULL;
     LOG_MSG(os.str().c_str());
     dict->SetString(L"sql", os.str());
     LOG_DEBUG("11111");
@@ -75,7 +82,7 @@ int SearchMysql::QuerySubScribe(int64 user_id, std::string* out) {
       break;
     }
     r = dict->GetList(L"resultvalue", &listvalue);
-    if (!r) {
+    if (!r || listvalue == NULL) {
       LOG_ERROR("dict->GetList()error");
       break;
     }
@@ -104,9 +111,16 @@ int SearchMysql::QueryStockPrice(StockPriceMap* map) {
     dict->SetString(L"sql", os.str());
     r = mysql_engine_->ReadData(0, (base_logic::Value*)(dict.get()),
                                 CallQueryStockPrice);
-    if (!r)
+    if (!r) {
+      LOG_DEBUG("QueryStockPrice sql error");
       err = SQL_EXEC_ERROR;
-    dict->GetList(L"resultvalue", &listvalue);
+      break;
+    }
+    r = dict->GetList(L"resultvalue", &listvalue);
+    if (!r || listvalue == NULL) {
+      LOG_ERROR("QueryStockPrice listvalue null");
+      break;
+    }
     while (listvalue->GetSize()) {
       base_logic::Value* result_value;
       listvalue->Remove(0, &result_value);
@@ -128,14 +142,22 @@ int SearchMysql::QueryHotSubscribe(std::vector<std::string>* out) {
     std::stringstream os;
     os << "call proc_QueryHotSubscribe();";
     scoped_ptr<DicValue> dict(new DicValue());
-    base_logic::ListValue* listvalue;
+    base_logic::ListValue* listvalue = NULL;
     LOG_MSG(os.str().c_str());
     dict->SetString(L"sql", os.str());
     r = mysql_engine_->ReadData(0, (base_logic::Value*)(dict.get()),
                                 CallQueryHotSubscribe);
-    if (!r)
+    if (!r) {
       err = SQL_EXEC_ERROR;
-    dict->GetList(L"resultvalue", &listvalue);
+      LOG_ERROR("QueryHotSubscribe sql err!");
+      break;
+    }
+    r = dict->GetList(L"resultvalue", &listvalue);
+    if (!r || listvalue == NULL) {
+      err = -1;
+      LOG_ERROR("QueryHotSubscribe listvalue is null");
+      break;
+    }
     while (listvalue->GetSize()) {
       base_logic::Value* result_value;
       listvalue->Remove(0, &result_value);
@@ -157,7 +179,6 @@ int SearchMysql::DelSubscribe(int64 uid, std::string code, std::string codes) {
    os << "call proc_DelSubscribe(" << uid << ",'" << code << "','"
        << codes << "');";
    scoped_ptr<DicValue> dict(new DicValue());
-   base_logic::ListValue* listvalue;
    LOG_MSG(os.str().c_str());
    dict->SetString(L"sql", os.str());
    r = mysql_engine_->WriteData(0, (base_logic::Value*)(dict.get()));
@@ -174,7 +195,6 @@ int SearchMysql::AddSubscribe(int64 uid, std::string code, std::string codes) {
    os << "call proc_AddSubscribe(" << uid << ",'" << code << "','"
        << codes << "');";
    scoped_ptr<DicValue> dict(new DicValue());
-   base_logic::ListValue* listvalue;
    LOG_MSG(os.str().c_str());
    dict->SetString(L"sql", os.str());
    r = mysql_engine_->WriteData(0, (base_logic::Value*)(dict.get()));

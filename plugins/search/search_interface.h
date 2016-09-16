@@ -5,12 +5,12 @@
 #ifndef PLUGINS_SEARCH_SEARCH_INTERFACE_H_
 #define PLUGINS_SEARCH_SEARCH_INTERFACE_H_
 
-#include "public/config/config.h"
+#include "config/config.h"
 
 #include "search/search_mysql.h"
 #include "search/search_memery.h"
 
-#include "pub/net/packet_process.h"
+#include "net/packet_process.h"
 
 namespace search {
 

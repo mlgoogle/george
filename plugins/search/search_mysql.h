@@ -11,8 +11,8 @@
 
 #include "search/search_proto_buf.h"
 #include "search/search_base.h"
-#include "public/config/config.h"
-#include "pub/storage/data_engine.h"
+#include "config/config.h"
+#include "storage/data_engine.h"
 
 namespace search {
 

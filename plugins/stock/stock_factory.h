@@ -54,8 +54,6 @@ class StockFactory {
 
 	void OnDeleteOldYieldData();
 
-	void OnLoadCustom_Event();
-
 	void OnUpdateLimitData();
 
 	void ProcessHotDiagramEventData(int socket,

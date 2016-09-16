@@ -5,10 +5,10 @@
 #ifndef PLUGINS_NEWS_CHECK_NEWS_PROTO_BUF_H_
 #define PLUGINS_NEWS_CHECK_NEWS_PROTO_BUF_H_
 
-#include "base/logic/base_values.h"
+#include "logic/base_values.h"
 
-#include "pub/net/proto_buf.h"
-#include "pub/net/typedef.h"
+#include "net/proto_buf.h"
+#include "net/typedef.h"
 
 namespace search {
 

@@ -16,9 +16,9 @@ SO_DIR = ./../../bin/plugins
 STOCKSVC = ./../../plugins
 ARITHMETIC = $(USER_DIR)pub/arithmetic/
 BASE_DIR = ./../base
-THIRD_PATH = $(LIB_DIR)/public
+THIRD_PATH = $(LIB_DIR)/mylib/public
 
-CUSTOM_THIRD_PATH = $(LIB_DIR)/third_party
+CUSTOM_THIRD_PATH = $(LIB_DIR)/mylib/third_party
 
 LINK_PATHS = -L./ -L/usr/local/libmemcached-1.0.7/lib/  -L/usr/lib64 -L/usr/lib64/mysql -L${THRIFT_LIB_DIR}
 
@@ -43,13 +43,14 @@ INCLUDE_PATHS = -I/usr/local/libmemcached-1.0.7/include \
 				-I$(USER_DIR)\pub\
 				-I$(CUSTOM_THIRD_PATH)/hiredis\
 				-I$(CUSTOM_THIRD_PATH)\
-				-I$(LIB_DIR)/base\
-				-I$(LIB_DIR)/base/db\
+				-I$(LIB_DIR)/mylib/base\
+				-I$(LIB_DIR)/mylib/base/db\
 				-I$(BASE_DIR)\
-				-I$(LIB_DIR)/public\
+				-I$(LIB_DIR)/BasicCore\
+				-I$(LIB_DIR)/mylib/public\
 				-I$(STOCKSVC)\
-				-I$(LIB_DIR)/third_party/hiredis\
-				-I$(LIB_DIR)/third_party\
+				-I$(LIB_DIR)/mylib/third_party/hiredis\
+				-I$(LIB_DIR)/mylib/third_party\
 				-I$(ARITHMETIC) \
 				
 # House-keeping build targets.
@@ -131,8 +132,8 @@ base_values.o : ./$(LIB_DIR)/base/logic/base_values.cc ./$(LIB_DIR)/base/logic/b
 
 $(PLUGIN) : search_init.o search_logic.o search_mysql.o search_memery.o \
 	search_interface.o search.o search_packet.o search_proto_buf.o data_engine.o data_mysql_engine.o mysql_pool.o \
-	http_data.o http_packet.o mig_log.o basictypes.o error_comm.o tools.o \
-	packet_process.o basic_util.o config.o tools.o base_values.o proto_buf.o \
-	$(CUSTOM_THIRD_PATH)/dmg_fp/lib/dmg_fp.a $(LIB_DIR)/base/lib/mybase.a 
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LINK_PATHS) -lpthread -lexpat -lrt -lpthread -ldl -liconv -lmysqlclient -lcurl \
+	error_comm.o tools.o \
+	packet_process.o proto_buf.o \
+	$(CUSTOM_THIRD_PATH)/dmg_fp/lib/dmg_fp.a $(LIB_DIR)/mylib/base/lib/mybase.a 
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LINK_PATHS) -lpthread -lexpat -lrt -lpthread -ldl -lmysqlclient -lcurl \
 	$^ -o $@

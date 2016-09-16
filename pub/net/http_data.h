@@ -12,7 +12,7 @@
 #include "basic/basictypes.h"
 #include "basic/basic_util.h"
 #include "basic/scoped_ptr.h"
-#include "base/logic/base_values.h"
+#include "logic/base_values.h"
 
 typedef base_logic::DictionaryValue NetBase;
 
