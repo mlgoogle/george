@@ -12,7 +12,8 @@ enum PACKET_TYPE {
 	STO_TYPE = 1,
   VIP_TYPE = 2,
   NEWS_TYPE = 3,
-  SEARCH_TYPE = 4
+  SEARCH_TYPE = 4,
+  USER_TYPE = 5
 };
 
 }
