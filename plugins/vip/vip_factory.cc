@@ -35,6 +35,7 @@ VIPFactory::VIPFactory() {
 VIPFactory::~VIPFactory() {
 	if(packet_json_) {delete packet_json_; packet_json_ = NULL;}
 	if(packet_jsonp_) {delete packet_jsonp_; packet_jsonp_ = NULL;}
+	if (vip_db_) {delete vip_db_;vip_db_ = NULL;}
 }
 
 void VIPFactory::Init() {

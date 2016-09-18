@@ -46,12 +46,51 @@ OUTPUT_FILE = /var/www/cgi-bin/georget
 #############################################################################################################################
 all: clean proc delete-temp-file
 
-proc: vipproc newsproc searchproc stockproc
+proc: vipproc newsproc searchproc stockproc userproc
+
+######################userproc###############################################
+USERNAME = user_
+USERPROC_PATH = /user
+USER_OBJECT_PATH = ./obj$(NEWSPROC_PATH)
+OTJERPROC_VERSION = /v1
+userproc:$(USERPROC_PATH)/registeruser.fcgi $(USERPROC_PATH)/registerver.fcgi $(USERPROC_PATH)/loginuser.fcgi $(USERPROC_PATH)/loginver.fcgi  $(USERPROC_PATH)/smslogin.fcgi
+
+$(USERPROC_PATH)/registeruser.fcgi: $(USER_OBJECT_PATH)/$(USERNAME)registeruser.o $(POBJ)
+	$(LINKALL) -o $(OUTPUT_FILE)$(USERPROC_PATH)$(OTJERPROC_VERSION)/registeruser.fcgi
+
+$(USERPROC_PATH)/loginuser.fcgi: $(USER_OBJECT_PATH)/$(USERNAME)loginuser.o $(POBJ)
+	$(LINKALL) -o $(OUTPUT_FILE)$(USERPROC_PATH)$(OTJERPROC_VERSION)/loginuser.fcgi
+
+$(USERPROC_PATH)/registerver.fcgi: $(USER_OBJECT_PATH)/$(USERNAME)registerver.o $(POBJ)
+	$(LINKALL) -o $(OUTPUT_FILE)$(USERPROC_PATH)$(OTJERPROC_VERSION)/registerver.fcgi
+
+$(USERPROC_PATH)/loginver.fcgi: $(USER_OBJECT_PATH)/$(USERNAME)loginver.o $(POBJ)
+	$(LINKALL) -o $(OUTPUT_FILE)$(USERPROC_PATH)$(OTJERPROC_VERSION)/loginver.fcgi
+
+$(USERPROC_PATH)/smslogin.fcgi: $(USER_OBJECT_PATH)/$(USERNAME)smslogin.o $(POBJ)
+	$(LINKALL) -o $(OUTPUT_FILE)$(USERPROC_PATH)$(OTJERPROC_VERSION)/smslogin.fcgi
+	
+### 编译
+$(USER_OBJECT_PATH)/$(USERNAME)loginuser.o:
+	$(COMPILE) .$(USERPROC_PATH)$(OTJERPROC_VERSION)/loginuser/loginuser.cc
+
+$(USER_OBJECT_PATH)/$(USERNAME)registeruser.o:
+	$(COMPILE) .$(USERPROC_PATH)$(OTJERPROC_VERSION)/registeruser/registeruser.cc
+
+$(USER_OBJECT_PATH)/$(USERNAME)registerver.o:
+	$(COMPILE) .$(USERPROC_PATH)$(OTJERPROC_VERSION)/registerver/registerver.cc
+
+$(USER_OBJECT_PATH)/$(USERNAME)loginver.o:
+	$(COMPILE) .$(USERPROC_PATH)$(OTJERPROC_VERSION)/loginver/loginver.cc
+
+$(USER_OBJECT_PATH)/$(USERNAME)smslogin.o:
+	$(COMPILE) .$(USERPROC_PATH)$(OTJERPROC_VERSION)/smslogin/smslogin.cc
+	
 
 ######################stockproc###############################################
 STOCKNAME = stock_
 STOCKPROC_PATH = /stock
-STOCK_OBJECT_PATH = ./obj$(NEWSPROC_PATH)
+STOCK_OBJECT_PATH = ./obj$(STOCKPROC_PATH)
 OTJERPROC_VERSION = /v1
 stockproc:$(STOCKPROC_PATH)/stockhotdiagram.fcgi $(STOCKPROC_PATH)/stocklimitdata.fcgi
 
